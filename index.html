@@ -1038,8 +1038,8 @@ function renderPending() {
   const tbody   = document.getElementById('pending-body');
   const count   = document.getElementById('pending-count');
 
-  // Só ADM vê a seção de pendentes
-  if (currentRole !== 'adm' || pending.length === 0) {
+  // Visitante e ADM veem pendentes, mas visitante não tem botões de ação
+  if (pending.length === 0) {
     if (section) section.style.display = 'none';
     return;
   }
@@ -1064,8 +1064,10 @@ function renderPending() {
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
       <td style="text-align:right;white-space:nowrap">
-        <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
-        <button class="btn-reject"  data-id="${c.id}" title="Recusar">✕</button>
+        ${currentRole === 'adm' ? `
+          <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
+          <button class="btn-reject"  data-id="${c.id}" title="Recusar">✕</button>
+        ` : '<span style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando</span>'}
       </td>`;
     tbody.appendChild(tr);
   });
