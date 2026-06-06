@@ -1087,11 +1087,10 @@ function renderPending() {
         : `<span class="phone-val">—</span>`}
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
-      <td style="text-align:right;white-space:nowrap">
-        ${currentRole === 'adm' ? `
-          <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
-          <button class="btn-reject"  data-id="${c.id}" title="Recusar">✕</button>
-        ` : '<span style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando</span>'}
+      <td style="text-align:right;white-space:nowrap" id="pending-actions-${c.id}">
+        ${currentRole === 'adm'
+          ? '<button class="btn-approve" data-id="' + c.id + '" title="Aprovar">✓</button><button class="btn-reject" data-id="' + c.id + '" title="Recusar">✕</button>'
+          : '<span style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando ADM</span>'}
       </td>`;
     tbody.appendChild(tr);
   });
