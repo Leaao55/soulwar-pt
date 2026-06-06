@@ -244,8 +244,7 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
 body.visitor-mode .btn-send,
 body.visitor-mode .btn-del,
 body.visitor-mode .btn[onclick*="openServerModal"],
-body.visitor-mode .btn[onclick*="openMemberModal"],
-body.visitor-mode .btn[onclick*="load()"] { display:none !important; }
+body.visitor-mode .btn[onclick*="openMemberModal"] { display:none !important; }
 body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
@@ -355,7 +354,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     </div>
 
     <div id="visitor-fields">
-      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados, mas não permite adicionar, editar ou remover nada.</p>
+      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
       <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
     </div>
 
