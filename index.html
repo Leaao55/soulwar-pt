@@ -238,7 +238,7 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
         <table>
           <thead><tr>
             <th>#</th><th>Dono</th><th>Personagem</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th></th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -510,6 +510,7 @@ function renderChars() {
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         <button class="btn-del" title="Remover personagem" onclick="deleteChar(${c.id})">✕</button>
