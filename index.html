@@ -247,6 +247,7 @@ body.visitor-mode .btn[onclick*="openServerModal"],
 body.visitor-mode .btn[onclick*="openMemberModal"],
 body.visitor-mode .btn[onclick*="load()"] { display:none !important; }
 body.visitor-mode .btn-remove { display:none !important; }
+body.visitor-mode .pt-toolbar { display:none !important; }
 
 .logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
   border:1px solid var(--border); color:var(--text-muted); font-family:'Cinzel',serif;
@@ -289,6 +290,28 @@ body.visitor-mode .btn-remove { display:none !important; }
 .btn-wpp:hover { background:rgba(37,211,102,.22); border-color:#25d366; }
 .phone-val { font-size:.82rem; color:var(--text-muted); }
 
+
+/* ── RECOMENDAÇÃO PT ── */
+.pt-toolbar { display:flex; align-items:center; gap:.75rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.btn-rec-pt {
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.55rem 1.4rem; border:1px solid var(--gold-dim);
+  background:rgba(201,146,42,.08); color:var(--gold2);
+  border-radius:3px; cursor:pointer; transition:all .18s;
+}
+.btn-rec-pt:hover { background:rgba(201,146,42,.2); border-color:var(--gold); }
+
+.rec-result { margin-bottom:1.5rem; border:1px solid var(--gold-dim);
+  border-left:3px solid var(--gold); background:rgba(201,146,42,.06);
+  border-radius:3px; padding:1rem 1.2rem; display:none; }
+.rec-result.show { display:block; }
+.rec-result-title { font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gold2); margin-bottom:.6rem; }
+.rec-result-body { font-size:.88rem; color:var(--text-muted); line-height:1.8; }
+.rec-result-body b { color:var(--text); }
+.rec-result-warn { color:#e07b35; font-size:.82rem; margin-top:.5rem; font-style:italic; }
+.rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
+
 </style>
 </head>
 <body>
@@ -305,18 +328,18 @@ body.visitor-mode .btn-remove { display:none !important; }
     <p class="login-sub">PT Manager · Rubinot</p>
 
     <div class="login-modes">
-      <button class="login-mode-btn active" id="mode-adm" onclick="setMode('adm')">⚔ Administrador</button>
-      <button class="login-mode-btn" id="mode-visitor" onclick="setMode('visitor')">👁 Visitante</button>
+      <button class="login-mode-btn" id="mode-adm" onclick="setMode('adm')">⚔ Administrador</button>
+      <button class="login-mode-btn active" id="mode-visitor" onclick="setMode('visitor')">👁 Visitante</button>
     </div>
 
-    <div id="adm-fields">
+    <div id="adm-fields" style="display:none">
       <div class="login-field">
         <input type="password" id="pwd-input" placeholder="Senha do time..." onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <button class="btn-login" onclick="doLogin()">Entrar como ADM</button>
     </div>
 
-    <div id="visitor-fields" style="display:none">
+    <div id="visitor-fields">
       <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados, mas não permite adicionar, editar ou remover nada.</p>
       <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
     </div>
@@ -386,6 +409,17 @@ body.visitor-mode .btn-remove { display:none !important; }
 
     <!-- TAB: PT -->
     <div class="section" id="tab-pt">
+      <div class="pt-toolbar" id="pt-toolbar">
+        <button class="btn-rec-pt" onclick="runRecommend()">✦ Recomendar PT</button>
+      </div>
+      <div class="rec-result" id="rec-result">
+        <div class="rec-result-title">✦ PT Recomendada</div>
+        <div class="rec-result-body" id="rec-result-body"></div>
+        <div class="rec-result-footer">
+          <button class="btn-confirm" onclick="applyRecommend()">Aplicar nos slots</button>
+          <button class="btn-cancel" onclick="clearRecommend()">Cancelar</button>
+        </div>
+      </div>
       <div class="pt-grid" id="pt-grid"></div>
     </div>
   </main>
@@ -719,7 +753,7 @@ function renderChars() {
       <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
-        <button class="btn-del" title="Remover personagem" onclick="deleteChar(${c.id})">✕</button>
+        <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -1009,8 +1043,8 @@ function renderPending() {
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
       <td style="text-align:right;white-space:nowrap">
-        <button class="btn-approve" onclick="approveChar(${c.id})" title="Aprovar">✓</button>
-        <button class="btn-reject"  onclick="rejectChar(${c.id})"  title="Recusar">✕</button>
+        <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
+        <button class="btn-reject"  data-id="${c.id}" title="Recusar">✕</button>
       </td>`;
     tbody.appendChild(tr);
   });
@@ -1032,6 +1066,180 @@ function rejectChar(id) {
   save(); renderChars();
   toast(`Personagem recusado.`);
 }
+
+
+// ── RECOMENDAÇÃO PT ───────────────────────────────────────────────────────
+let lastRecommend = null; // guarda o resultado pra aplicar depois
+
+function runRecommend() {
+  const COMP = [
+    "ELITE KNIGHT",
+    "ROYAL PALADIN",
+    "MASTER SORCERER",
+    "ELDER DRUID",
+    "ELDER DRUID"
+  ];
+
+  // Só personagens aprovados e não alocados em PT
+  const free = chars.filter(c =>
+    (c.status === 'approved' || !c.status) && (c.sentTo === null || c.sentTo === undefined)
+  );
+
+  // Agrupar por servidor
+  const serverGroups = {};
+  free.forEach(c => {
+    const srv = c.server || '(sem servidor)';
+    if (!serverGroups[srv]) serverGroups[srv] = [];
+    serverGroups[srv].push(c);
+  });
+
+  // Tentar cada servidor separadamente — encontrar o melhor resultado
+  let bestTeamGlobal = null;
+  let bestStdGlobal  = Infinity;
+  let bestServerName = '';
+
+  for (const [srv, group] of Object.entries(serverGroups)) {
+    const ekAvail = group.filter(c => c.cls === "ELITE KNIGHT");
+    const rpAvail = group.filter(c => c.cls === "ROYAL PALADIN");
+    const msAvail = group.filter(c => c.cls === "MASTER SORCERER");
+    const edAvail = group.filter(c => c.cls === "ELDER DRUID");
+    // 5º: qualquer vocação EXCETO EK
+    const fifthAvail = group.filter(c => c.cls !== "ELITE KNIGHT");
+
+    if (ekAvail.length < 1 || rpAvail.length < 1 || msAvail.length < 1 || edAvail.length < 1) continue;
+
+    const sort = arr => [...arr].sort((a,b) => (b.level||0)-(a.level||0));
+    const topN = (arr, n) => arr.slice(0, Math.min(n, arr.length));
+    const sEK = sort(ekAvail), sRP = sort(rpAvail), sMS = sort(msAvail), sED = sort(edAvail);
+
+    for (const ek of topN(sEK, 3)) {
+      for (const rp of topN(sRP, 3)) {
+        if (rp.id === ek.id) continue;
+        for (const ms of topN(sMS, 3)) {
+          if ([ek.id, rp.id].includes(ms.id)) continue;
+          for (const ed of topN(sED, 3)) {
+            if ([ek.id, rp.id, ms.id].includes(ed.id)) continue;
+            const usedIds = new Set([ek.id, rp.id, ms.id, ed.id]);
+            // 5º: melhor disponível que não seja EK e não esteja usado
+            const fifth = sort(fifthAvail).find(c => !usedIds.has(c.id));
+            if (!fifth) continue;
+            const team  = [ek, rp, ms, ed, fifth];
+            const levels = team.map(c => c.level||0);
+            const avg   = levels.reduce((a,b)=>a+b,0)/5;
+            const sd    = Math.sqrt(levels.map(x=>(x-avg)**2).reduce((a,b)=>a+b,0)/5);
+            if (sd < bestStdGlobal) { bestStdGlobal = sd; bestTeamGlobal = team; bestServerName = srv; }
+          }
+        }
+      }
+    }
+  }
+
+  // Se não encontrou nenhum servidor com composição completa, mostrar erro detalhado
+  if (!bestTeamGlobal) {
+    const allServers = [...new Set(free.map(c => c.server||'(sem servidor)'))];
+    const detail = allServers.map(srv => {
+      const g = free.filter(c => (c.server||'(sem servidor)') === srv);
+      const ek = g.filter(c=>c.cls==="ELITE KNIGHT").length;
+      const rp = g.filter(c=>c.cls==="ROYAL PALADIN").length;
+      const ms = g.filter(c=>c.cls==="MASTER SORCERER").length;
+      const ed = g.filter(c=>c.cls==="ELDER DRUID").length;
+      const fifth = g.filter(c=>c.cls!=="ELITE KNIGHT").length;
+      const miss = [];
+      if(ek<1) miss.push('EK'); if(rp<1) miss.push('RP');
+      if(ms<1) miss.push('MS'); if(ed<1) miss.push('ED');
+      if(fifth < 4) miss.push('5º player (não-EK)');
+      return miss.length ? `<b>${srv}</b>: falta ${miss.join(', ')}` : null;
+    }).filter(Boolean).join('<br>');
+    document.getElementById('rec-result-body').innerHTML =
+      `<div style="color:#e05252">⚠ Nenhum servidor tem a composição completa.<br><br>${detail}</div>`;
+    document.getElementById('rec-result').classList.add('show');
+    document.querySelector('.rec-result-footer').style.display = 'none';
+    lastRecommend = null;
+    return;
+  }
+
+  // Usar as variáveis esperadas pelo código abaixo
+  const bestTeam = bestTeamGlobal;
+  const bestStd  = bestStdGlobal;
+
+
+
+  lastRecommend = bestTeam;
+
+  const avg = Math.round(bestTeam.map(c=>c.level||0).reduce((a,b)=>a+b,0)/5);
+  const lines = bestTeam.map(c =>
+    `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
+  ).join('');
+
+  document.getElementById('rec-result-body').innerHTML =
+    `<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStd)}</b></div>`;
+  document.querySelector('.rec-result-footer').style.display = 'flex';
+  document.getElementById('rec-result').classList.add('show');
+}
+
+function clearRecommend() {
+  lastRecommend = null;
+  document.getElementById('rec-result').classList.remove('show');
+}
+
+function applyRecommend() {
+  if (!lastRecommend) return;
+
+  // Verificar se alguma PT tem slots ocupados
+  const anyOccupied = pts.some(pt => pt.some(x => x !== null));
+
+  if (anyOccupied) {
+    if (!confirm('Já existem personagens nos slots da PT. Deseja substituir tudo pela recomendação?')) return;
+  }
+
+  // Limpar todas as PTs e remover sentTo dos chars afetados
+  pts.forEach((pt, pi) => {
+    pt.forEach(cid => {
+      if (cid !== null) {
+        const c = chars.find(x => x.id === cid);
+        if (c) c.sentTo = null;
+      }
+      pts[pi] = [null, null, null, null, null];
+    });
+  });
+
+  // Alocar os 5 recomendados na PT 1
+  lastRecommend.forEach((c, i) => {
+    pts[0][i] = c.id;
+    c.sentTo = 0;
+  });
+
+  save();
+  clearRecommend();
+  renderPT();
+  toast('PT recomendada aplicada nos slots!', 'success');
+}
+
+
+// ── EVENT DELEGATION para botões de delete/approve/reject ─────────────────
+document.addEventListener('click', function(e) {
+  // Delete char
+  const delBtn = e.target.closest('.btn-del[data-id]');
+  if (delBtn) {
+    e.stopPropagation();
+    deleteChar(parseInt(delBtn.dataset.id));
+    return;
+  }
+  // Approve
+  const appBtn = e.target.closest('.btn-approve[data-id]');
+  if (appBtn) {
+    e.stopPropagation();
+    approveChar(parseInt(appBtn.dataset.id));
+    return;
+  }
+  // Reject
+  const rejBtn = e.target.closest('.btn-reject[data-id]');
+  if (rejBtn) {
+    e.stopPropagation();
+    rejectChar(parseInt(rejBtn.dataset.id));
+    return;
+  }
+});
 
 // ── MODAL HELPERS ─────────────────────────────────────────────────────────
 function openModal(id){document.getElementById(id).classList.add('open');}
