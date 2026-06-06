@@ -582,10 +582,9 @@ function showSync(msg, type) {
 async function save() {
   showSync('Salvando...', 'saving');
   try {
-    const resp = await fetch(API, {
+    await fetch(API, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId) })
     });
     showSync('Salvo ✓', 'ok');
@@ -693,10 +692,12 @@ function populateServerSelects() {
 // ── RENDER CHARS ──────────────────────────────────────────────────────────
 function renderChars() {
   populateServerSelects();
+  renderPending();
   const q  = document.getElementById('search').value.toLowerCase();
   const fc = document.getElementById('filter-class').value;
   const fs = document.getElementById('filter-server').value;
   const fm2 = document.getElementById('filter-member') ? document.getElementById('filter-member').value : '';
+  chars.forEach(c => { if (!c.status) c.status = 'approved'; });
   const list = chars.filter(c=>
     c.status !== 'pending' &&
     (!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q))&&
