@@ -248,6 +248,10 @@ body.visitor-mode .btn[onclick*="openMemberModal"],
 body.visitor-mode .btn[onclick*="load()"] { display:none !important; }
 body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
+body.visitor-mode .col-wpp { display:none !important; }
+body.visitor-mode .btn-approve,
+body.visitor-mode .btn-reject { display:none !important; }
+body:not(.visitor-mode) .visitor-pending-label { display:none !important; }
 
 .logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
   border:1px solid var(--border); color:var(--text-muted); font-family:'Cinzel',serif;
@@ -391,7 +395,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th>WhatsApp</th><th>Obs</th><th></th>
+              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th></th>
             </tr></thead>
             <tbody id="pending-body"></tbody>
           </table>
@@ -800,7 +804,7 @@ function renderChars() {
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
       <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
-      <td class="td-wpp" style="display:none">${c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${currentRole === 'adm' && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
@@ -1117,15 +1121,15 @@ function renderPending() {
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
-      <td>${wppUrl
-        ? `<a class="btn-wpp" href="${wppUrl}" target="_blank">📱 ${esc(c.phone)}</a>`
-        : `<span class="phone-val">—</span>`}
+      <td>${currentRole === 'adm' && wppUrl
+        ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
+        : currentRole === 'adm' ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
-      <td style="text-align:right;white-space:nowrap" id="pending-actions-${c.id}">
-        ${currentRole === 'adm'
-          ? '<button class="btn-approve" data-id="' + c.id + '" title="Aprovar">✓</button><button class="btn-reject" data-id="' + c.id + '" title="Recusar">✕</button>'
-          : '<span style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando ADM</span>'}
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
+        <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
+        <span class="visitor-pending-label" style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando ADM</span>
       </td>`;
     tbody.appendChild(tr);
   });
