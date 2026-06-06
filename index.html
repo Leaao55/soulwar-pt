@@ -195,14 +195,141 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
 .sync-status.ok     { color:#3dba6c; opacity:1; }
 .sync-status.err    { color:#e05252; opacity:1; }
 
+
+/* ── LOGIN ── */
+#login-screen {
+  position:fixed; inset:0; background:var(--bg); z-index:999;
+  display:flex; align-items:center; justify-content:center;
+  background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,146,42,.09) 0%, transparent 70%);
+}
+.login-box { width:min(400px,90vw); text-align:center; }
+.login-ornament { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
+.orn-line  { height:1px; width:60px; background:linear-gradient(90deg,transparent,var(--gold)); }
+.orn-line.r{ background:linear-gradient(90deg,var(--gold),transparent); }
+.orn-diamond { width:7px; height:7px; background:var(--gold); transform:rotate(45deg); }
+.login-box h1 { font-family:'Cinzel',serif; font-size:1.7rem; font-weight:700; letter-spacing:.12em;
+  color:var(--gold2); text-shadow:0 0 40px rgba(201,146,42,.4); margin-bottom:.3rem; }
+.login-sub { font-size:.78rem; color:var(--text-muted); letter-spacing:.2em;
+  font-family:'Cinzel',serif; text-transform:uppercase; margin-bottom:2rem; }
+.login-modes { display:flex; gap:.75rem; margin-bottom:1.5rem; }
+.login-mode-btn { flex:1; padding:.65rem; border-radius:3px; cursor:pointer;
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted); transition:all .18s; }
+.login-mode-btn.active { border-color:var(--gold-dim); background:rgba(201,146,42,.1); color:var(--gold2); }
+.login-mode-btn:hover:not(.active) { border-color:var(--text-muted); color:var(--text); }
+.login-field { margin-bottom:.75rem; }
+.login-field input { width:100%; background:var(--surface2); border:1px solid var(--border);
+  color:var(--text); font-family:'Crimson Pro',serif; font-size:1.05rem;
+  padding:.75rem 1rem; border-radius:3px; outline:none; transition:border-color .2s;
+  text-align:center; letter-spacing:.1em; }
+.login-field input:focus { border-color:var(--gold-dim); }
+.login-field input::placeholder { letter-spacing:.05em; color:var(--text-muted); }
+.btn-login { width:100%; background:rgba(201,146,42,.1); border:1px solid var(--gold-dim);
+  color:var(--gold2); font-family:'Cinzel',serif; font-size:.8rem; letter-spacing:.12em;
+  text-transform:uppercase; padding:.75rem; border-radius:3px; cursor:pointer;
+  transition:all .18s; margin-top:.25rem; }
+.btn-login:hover { background:rgba(201,146,42,.2); border-color:var(--gold); }
+.login-error { color:#e05252; font-size:.85rem; margin-top:.6rem; min-height:1.2rem; font-style:italic; }
+.login-visitor-info { font-size:.8rem; color:var(--text-muted); margin-top:1.2rem;
+  line-height:1.6; font-style:italic; }
+
+/* ── BADGE DE PAPEL ── */
+.role-badge { position:absolute; top:1.2rem; left:1.5rem;
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.3rem .8rem; border-radius:3px; }
+.role-badge.adm  { background:rgba(201,146,42,.15); border:1px solid var(--gold-dim); color:var(--gold2); }
+.role-badge.visitor { background:rgba(107,112,153,.15); border:1px solid var(--border); color:var(--text-muted); }
+
+/* ── MODO VISITANTE: desabilitar ações ── */
+body.visitor-mode .btn-send,
+body.visitor-mode .btn-del,
+body.visitor-mode .btn[onclick*="openServerModal"],
+body.visitor-mode .btn[onclick*="openMemberModal"],
+body.visitor-mode .btn[onclick*="load()"] { display:none !important; }
+body.visitor-mode .btn-remove { display:none !important; }
+
+.logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
+  border:1px solid var(--border); color:var(--text-muted); font-family:'Cinzel',serif;
+  font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.35rem .9rem; border-radius:3px; cursor:pointer; transition:all .15s; }
+.logout-btn:hover { border-color:var(--text-muted); color:var(--text); }
+
+
+/* ── PENDENTES ── */
+.badge-pending { background:rgba(224,123,53,.15); color:#e07b35; border:1px solid rgba(224,123,53,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+.row-pending td { opacity:.65; }
+.row-pending .char-name { color:#e07b35 !important; }
+
+.pending-section { margin-bottom:2rem; }
+.pending-title { font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.15em;
+  text-transform:uppercase; color:#e07b35; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.pending-title::after { content:''; flex:1; height:1px; background:rgba(224,123,53,.25); }
+.pending-count { background:rgba(224,123,53,.15); border:1px solid rgba(224,123,53,.3);
+  color:#e07b35; font-size:.65rem; padding:.15rem .5rem; border-radius:99px; }
+
+.btn-approve { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(61,186,108,.35); background:transparent; color:rgba(61,186,108,.6);
+  font-size:.9rem; cursor:pointer; transition:all .15s; }
+.btn-approve:hover { border-color:#3dba6c; color:#3dba6c; background:rgba(61,186,108,.1); }
+.btn-reject { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(224,82,82,.3); background:transparent; color:rgba(224,82,82,.4);
+  font-size:.85rem; cursor:pointer; transition:all .15s; margin-left:3px; }
+.btn-reject:hover { border-color:#e05252; color:#e05252; background:rgba(224,82,82,.1); }
+
+.btn-wpp { display:inline-flex; align-items:center; gap:.35rem;
+  padding:.2rem .6rem; border-radius:3px; font-size:.78rem;
+  background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.3); color:#25d366;
+  text-decoration:none; font-family:'Cinzel',serif; letter-spacing:.05em;
+  transition:all .15s; cursor:pointer; white-space:nowrap; }
+.btn-wpp:hover { background:rgba(37,211,102,.22); border-color:#25d366; }
+.phone-val { font-size:.82rem; color:var(--text-muted); }
+
 </style>
 </head>
 <body>
 
 <!-- ══ APP ════════════════════════════════════════════════════════════════ -->
-<div id="app" style="display:block">
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-ornament">
+      <div class="orn-line"></div><div class="orn-diamond"></div><div class="orn-line r"></div>
+    </div>
+    <h1>Soulwar</h1>
+    <p class="login-sub">PT Manager · Rubinot</p>
+
+    <div class="login-modes">
+      <button class="login-mode-btn active" id="mode-adm" onclick="setMode('adm')">⚔ Administrador</button>
+      <button class="login-mode-btn" id="mode-visitor" onclick="setMode('visitor')">👁 Visitante</button>
+    </div>
+
+    <div id="adm-fields">
+      <div class="login-field">
+        <input type="password" id="pwd-input" placeholder="Senha do time..." onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar como ADM</button>
+    </div>
+
+    <div id="visitor-fields" style="display:none">
+      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados, mas não permite adicionar, editar ou remover nada.</p>
+      <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
   <header>
-      <div class="header-ornament">
+      <span class="role-badge" id="role-badge"></span>
+    <button class="logout-btn" onclick="doLogout()">Sair</button>
+    <div class="header-ornament">
       <div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line r"></div>
     </div>
     <h1>Soulwar PT Manager <span>Rubinot · Quest Party Builder</span></h1>
@@ -233,6 +360,17 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
         <button class="btn btn-outline" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
         <button class="btn btn-outline" onclick="openMemberModal()" title="Gerenciar membros">⚙ Membros</button>
         <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
+      </div>
+      <div class="pending-section" id="pending-section" style="display:none">
+        <div class="pending-title">Aguardando aprovação <span class="pending-count" id="pending-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th>WhatsApp</th><th>Obs</th><th></th>
+            </tr></thead>
+            <tbody id="pending-body"></tbody>
+          </table>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -283,7 +421,11 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
       </div>
       <div class="form-group full">
         <label>Observações</label>
-        <input type="text" id="m-obs" placeholder="Alguma maldição?">
+        <input type="text" id="m-obs" placeholder="Opcional...">
+      </div>
+      <div class="form-group full" id="m-phone-group" style="display:none">
+        <label>WhatsApp para contato <span style="color:#e05252">*</span></label>
+        <input type="tel" id="m-phone" placeholder="Ex: 11999999999 (só números)">
       </div>
     </div>
     <div class="modal-footer">
@@ -347,6 +489,68 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
 <div class="toast" id="toast"></div>
 
 <script>
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+const ADM_HASH = "b858e3532986fb0c559098c01618f8b7959ac4b7abda45cf46a80dc6df8b7753";
+let currentRole = null; // 'adm' | 'visitor'
+
+function setMode(mode) {
+  document.getElementById('mode-adm').classList.toggle('active', mode==='adm');
+  document.getElementById('mode-visitor').classList.toggle('active', mode==='visitor');
+  document.getElementById('adm-fields').style.display   = mode==='adm'     ? 'block' : 'none';
+  document.getElementById('visitor-fields').style.display = mode==='visitor' ? 'block' : 'none';
+  document.getElementById('login-error').textContent = '';
+}
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const val = document.getElementById('pwd-input').value;
+  const h   = await sha256(val);
+  if (h === ADM_HASH) {
+    enterApp('adm');
+  } else {
+    document.getElementById('login-error').textContent = 'Senha incorreta.';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function doLoginVisitor() {
+  enterApp('visitor');
+}
+
+function enterApp(role) {
+  currentRole = role;
+  sessionStorage.setItem('sw_role', role);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const badge = document.getElementById('role-badge');
+  if (role === 'adm') {
+    badge.textContent = '⚔ ADM';
+    badge.className = 'role-badge adm';
+    document.body.classList.remove('visitor-mode');
+  } else {
+    badge.textContent = '👁 Visitante';
+    badge.className = 'role-badge visitor';
+    document.body.classList.add('visitor-mode');
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('sw_role');
+  location.reload();
+}
+
+// Verificar sessão ao carregar
+const savedRole = sessionStorage.getItem('sw_role');
+if (savedRole) {
+  enterApp(savedRole);
+}
+
+
 // ── DADOS ─────────────────────────────────────────────────────────────────
 const BADGE = {"ELITE KNIGHT":"badge-ek","ELDER DRUID":"badge-ed","MASTER SORCERER":"badge-ms","ROYAL PALADIN":"badge-rp","EXALTED MONK":"badge-em"};
 const SHORT = {"ELITE KNIGHT":"EK","ELDER DRUID":"ED","MASTER SORCERER":"MS","ROYAL PALADIN":"RP","EXALTED MONK":"EM"};
@@ -494,6 +698,7 @@ function renderChars() {
   const fs = document.getElementById('filter-server').value;
   const fm2 = document.getElementById('filter-member') ? document.getElementById('filter-member').value : '';
   const list = chars.filter(c=>
+    c.status !== 'pending' &&
     (!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q))&&
     (!fc||c.cls===fc)&&(!fs||c.server===fs)&&(!fm2||c.owner===fm2));
   const tbody = document.getElementById('char-body');
@@ -565,23 +770,55 @@ function openAddModal() {
   document.getElementById('m-name').value='';
   document.getElementById('m-level').value='';
   document.getElementById('m-obs').value='';
+  document.getElementById('m-phone').value='';
+  // Mostrar campo de telefone só pro visitante
+  const phoneGroup = document.getElementById('m-phone-group');
+  if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
   openModal('modal-add');
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
 function addChar() {
-  const name=document.getElementById('m-name').value.trim();
-  if(!name){document.getElementById('m-name').focus();return;}
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) { document.getElementById('m-name').focus(); return; }
+
+  // Visitante precisa informar telefone
+  if (currentRole === 'visitor') {
+    const phone = document.getElementById('m-phone').value.trim();
+    if (!phone) {
+      document.getElementById('m-phone').focus();
+      toast('Informe seu WhatsApp para contato.', 'error');
+      return;
+    }
+    chars.push({
+      id:nextId++,
+      owner: document.getElementById('m-owner').value,
+      name, cls: document.getElementById('m-class').value,
+      level: parseInt(document.getElementById('m-level').value)||0,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      phone: phone,
+      status: 'pending',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast('Personagem enviado para aprovação!', 'success');
+    return;
+  }
+
+  // ADM: aprovado direto
   chars.push({
     id:nextId++,
-    owner:document.getElementById('m-owner').value,
-    name,cls:document.getElementById('m-class').value,
-    level:parseInt(document.getElementById('m-level').value)||0,
-    server:document.getElementById('m-server').value,
-    obs:document.getElementById('m-obs').value.trim(),
-    sentTo:null
+    owner: document.getElementById('m-owner').value,
+    name, cls: document.getElementById('m-class').value,
+    level: parseInt(document.getElementById('m-level').value)||0,
+    server: document.getElementById('m-server').value,
+    obs: document.getElementById('m-obs').value.trim(),
+    phone: '',
+    status: 'approved',
+    sentTo: null
   });
   save(); closeModal('modal-add'); renderChars();
-  toast(`${name} adicionado!`,'success');
+  toast(`${name} adicionado!`, 'success');
 }
 function deleteChar(id) {
   const c=chars.find(x=>x.id===id);
@@ -735,6 +972,64 @@ function renameMember(i, newName) {
   members[i]=newName;
   save(); renderMemberList(); populateServerSelects(); renderChars();
   toast(`"${old}" renomeado para "${newName}".`,'success');
+}
+
+
+// ── PENDENTES ─────────────────────────────────────────────────────────────
+function renderPending() {
+  const pending = chars.filter(c => c.status === 'pending');
+  const section = document.getElementById('pending-section');
+  const tbody   = document.getElementById('pending-body');
+  const count   = document.getElementById('pending-count');
+
+  // Só ADM vê a seção de pendentes
+  if (currentRole !== 'adm' || pending.length === 0) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  count.textContent = pending.length;
+  tbody.innerHTML = '';
+
+  pending.forEach(c => {
+    const phone = c.phone ? c.phone.replace(/\D/g,'') : '';
+    const wppUrl = phone ? `https://wa.me/55${phone}` : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
+      <td class="char-name">${esc(c.name)}</td>
+      <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
+      <td class="level-val">${c.level||'—'}</td>
+      <td class="server-val">${esc(c.server||'')}</td>
+      <td>${wppUrl
+        ? `<a class="btn-wpp" href="${wppUrl}" target="_blank">📱 ${esc(c.phone)}</a>`
+        : `<span class="phone-val">—</span>`}
+      </td>
+      <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn-approve" onclick="approveChar(${c.id})" title="Aprovar">✓</button>
+        <button class="btn-reject"  onclick="rejectChar(${c.id})"  title="Recusar">✕</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function approveChar(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  c.status = 'approved';
+  save(); renderChars();
+  toast(`${c.name} aprovado!`, 'success');
+}
+
+function rejectChar(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`Recusar "${c.name}" de ${c.owner}?`)) return;
+  chars = chars.filter(x => x.id !== id);
+  save(); renderChars();
+  toast(`Personagem recusado.`);
 }
 
 // ── MODAL HELPERS ─────────────────────────────────────────────────────────
