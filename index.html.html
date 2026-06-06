@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soulwar PT Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0d14;--surface:#111420;--surface2:#181c2e;
+  --border:#2a2f4a;--gold:#c9922a;--gold2:#e8c06a;--gold-dim:#7a5418;
+  --text:#dde0f0;--text-muted:#6b7099;
+  --ek:#3a7bd5;--ek-bg:#0d1e3a;--ed:#3dba6c;--ed-bg:#0d2619;
+  --ms:#9b59b6;--ms-bg:#1e0d2e;--rp:#e07b35;--rp-bg:#2e1a0d;
+  --em:#e05252;--em-bg:#2e0d0d;
+  --pt1:#c9922a;--pt2:#9b59b6;--pt3:#3dba6c;
+}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:16px;min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,146,42,.07) 0%,transparent 70%),
+  repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(42,47,74,.3) 60px),
+  repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(42,47,74,.15) 60px);}
+
+
+
+/* ── APP ── */
+#app{display:none;}
+header{text-align:center;padding:2.5rem 1rem 1.5rem;position:relative;}
+.header-ornament{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.75rem;}
+.ornament-line{height:1px;width:80px;background:linear-gradient(90deg,transparent,var(--gold));}
+.ornament-line.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.ornament-diamond{width:8px;height:8px;background:var(--gold);transform:rotate(45deg);}
+h1{font-family:'Cinzel',serif;font-size:clamp(1.5rem,4vw,2.4rem);font-weight:700;letter-spacing:.12em;
+  color:var(--gold2);text-shadow:0 0 40px rgba(201,146,42,.4);line-height:1.15;}
+h1 span{color:var(--text-muted);font-size:.5em;display:block;letter-spacing:.25em;font-weight:400;margin-top:.3rem;}
+
+.logout-btn:hover{border-color:var(--text-muted);color:var(--text);}
+
+.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:480px;
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.tab{flex:1;padding:.7rem 1rem;font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;
+  background:transparent;color:var(--text-muted);border:none;cursor:pointer;transition:all .2s;
+  border-right:1px solid var(--border);text-transform:uppercase;}
+.tab:last-child{border-right:none;}
+.tab.active{background:var(--surface);color:var(--gold2);}
+.tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.03);}
+
+main{max-width:1100px;margin:0 auto;padding:2rem 1rem 4rem;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+.toolbar input,.toolbar select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:'Crimson Pro',serif;font-size:.95rem;padding:.5rem .9rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.toolbar input{width:185px;}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--gold-dim);}
+.toolbar input::placeholder{color:var(--text-muted);}
+.btn{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border:1px solid var(--gold-dim);background:transparent;color:var(--gold2);
+  border-radius:3px;cursor:pointer;transition:all .18s;}
+.btn:hover{background:rgba(201,146,42,.1);border-color:var(--gold);}
+.btn-ml{margin-left:auto;}
+.btn-outline{border-color:var(--border);color:var(--text-muted);}
+.btn-outline:hover{border-color:var(--text-muted);color:var(--text);background:transparent;}
+
+/* ── TABLE ── */
+.table-wrap{border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;padding:.9rem 1rem;text-align:left;}
+td{padding:.8rem 1rem;border-bottom:1px solid rgba(42,47,74,.5);font-size:.95rem;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{background:var(--surface);transition:background .12s;}
+tbody tr:nth-child(even){background:rgba(24,28,46,.6);}
+tbody tr:hover td{background:rgba(201,146,42,.04);}
+.char-name{font-weight:600;color:#eef0ff;}
+.owner-name{color:var(--text-muted);font-size:.88rem;}
+.level-val{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2);}
+.server-val{color:var(--text-muted);font-size:.88rem;}
+
+.badge{display:inline-block;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.08em;
+  padding:.2rem .55rem;border-radius:2px;font-weight:600;text-transform:uppercase;}
+.badge-ek{background:var(--ek-bg);color:var(--ek);border:1px solid rgba(58,123,213,.3);}
+.badge-ed{background:var(--ed-bg);color:var(--ed);border:1px solid rgba(61,186,108,.3);}
+.badge-ms{background:var(--ms-bg);color:var(--ms);border:1px solid rgba(155,89,182,.3);}
+.badge-rp{background:var(--rp-bg);color:var(--rp);border:1px solid rgba(224,123,53,.3);}
+.badge-em{background:var(--em-bg);color:var(--em);border:1px solid rgba(224,82,82,.3);}
+
+.btn-send{width:28px;height:28px;border-radius:50%;border:1px solid var(--gold-dim);
+  background:transparent;color:var(--gold);font-size:1.1rem;line-height:1;cursor:pointer;
+  transition:all .18s;display:inline-flex;align-items:center;justify-content:center;}
+.btn-send:hover{background:rgba(201,146,42,.15);border-color:var(--gold);transform:scale(1.1);}
+.btn-send.sent{background:rgba(61,186,108,.15);border-color:#3dba6c;color:#3dba6c;pointer-events:none;font-size:.85rem;}
+
+.btn-del{width:26px;height:26px;border-radius:50%;border:1px solid rgba(224,82,82,.25);
+  background:transparent;color:rgba(224,82,82,.4);font-size:.85rem;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:4px;}
+.btn-del:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;}
+
+/* ── PT GRID ── */
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.pt-card{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--surface);}
+.pt-card-header{padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.pt-card-title{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.pt-card-count{font-size:.8rem;color:var(--text-muted);font-family:'Cinzel',serif;}
+.pt1-accent{color:var(--pt1)}.pt2-accent{color:var(--pt2)}.pt3-accent{color:var(--pt3)}
+.pt1-border{border-top:2px solid var(--pt1)}.pt2-border{border-top:2px solid var(--pt2)}.pt3-border{border-top:2px solid var(--pt3)}
+.pt-slot{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.2rem;border-bottom:1px solid rgba(42,47,74,.4);min-height:52px;}
+.pt-slot:last-child{border-bottom:none;}
+.slot-num{font-family:'Cinzel',serif;font-size:.7rem;color:var(--text-muted);width:18px;flex-shrink:0;}
+.slot-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:.65rem;font-weight:700;flex-shrink:0;}
+.slot-info{flex:1;min-width:0;}
+.slot-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.slot-sub{font-size:.78rem;color:var(--text-muted);margin-top:1px;}
+.btn-remove{width:22px;height:22px;border-radius:50%;border:1px solid rgba(224,82,82,.3);background:transparent;
+  color:rgba(224,82,82,.5);font-size:.9rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;}
+.btn-remove:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+.slot-empty{color:var(--text-muted);font-style:italic;font-size:.85rem;}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;
+  z-index:100;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--gold);
+  border-radius:4px;padding:2rem;width:min(480px,92vw);transform:translateY(16px);transition:transform .2s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal h2{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:.1em;color:var(--gold2);
+  margin-bottom:1.5rem;text-transform:uppercase;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:.4rem;}
+.form-group.full{grid-column:1/-1;}
+label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+.form-group input,.form-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:'Crimson Pro',serif;font-size:1rem;padding:.55rem .9rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--gold-dim);}
+.modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--text-muted);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border-radius:3px;cursor:pointer;transition:all .15s;}
+.btn-cancel:hover{border-color:var(--text-muted);color:var(--text);}
+.btn-confirm{background:rgba(201,146,42,.12);border:1px solid var(--gold-dim);color:var(--gold2);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.4rem;border-radius:3px;cursor:pointer;transition:all .15s;}
+.btn-confirm:hover{background:rgba(201,146,42,.22);border-color:var(--gold);}
+
+/* modal servidor */
+.server-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem;max-height:220px;overflow-y:auto;}
+.server-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:.9rem;}
+.server-item span{color:var(--text);} .member-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:.9rem;} .member-item span{color:var(--text);}
+
+/* pt options */
+.pt-options{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;}
+.pt-option{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;border:1px solid var(--border);
+  border-radius:3px;cursor:pointer;transition:all .15s;background:var(--surface2);}
+.pt-option:hover{border-color:var(--gold-dim);}
+.pt-option.selected{border-color:var(--gold);background:rgba(201,146,42,.08);}
+.pt-option-color{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pt-option-info{flex:1;}
+.pt-option-name{font-family:'Cinzel',serif;font-size:.82rem;color:var(--text);}
+.pt-option-slots{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
+.pt-option-full{opacity:.4;pointer-events:none;}
+
+/* toast */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--border);
+  border-left:3px solid var(--gold);padding:.8rem 1.2rem;border-radius:3px;font-size:.9rem;color:var(--text);
+  transform:translateX(120%);transition:transform .3s;z-index:200;max-width:300px;}
+.toast.show{transform:translateX(0);}
+.toast.success{border-left-color:#3dba6c;}
+.toast.error{border-left-color:#e05252;}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr;}
+  th:nth-child(2),td:nth-child(2){display:none;}
+  th:nth-child(6),td:nth-child(6){display:none;}
+  
+}
+
+
+
+/* ── SYNC STATUS ── */
+.sync-status {
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em;
+  text-transform:uppercase; padding:.3rem .8rem; border-radius:3px;
+  transition: opacity .5s; opacity:0;
+}
+.sync-status.saving { color:var(--gold2); opacity:1; }
+.sync-status.ok     { color:#3dba6c; opacity:1; }
+.sync-status.err    { color:#e05252; opacity:1; }
+
+</style>
+</head>
+<body>
+
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+<div id="app" style="display:block">
+  <header>
+      <div class="header-ornament">
+      <div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line r"></div>
+    </div>
+    <h1>Soulwar PT Manager <span>Rubinot · Quest Party Builder</span></h1>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
+      <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
+  </div>
+  </header>
+
+  <main>
+    <!-- TAB: PERSONAGENS -->
+    <div class="section active" id="tab-chars">
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="Buscar personagem..." oninput="renderChars()">
+        <select id="filter-class" onchange="renderChars()">
+          <option value="">Todas as classes</option>
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+        <select id="filter-server" onchange="renderChars()">
+          <option value="">Todos os servidores</option>
+        </select>
+        <select id="filter-member" onchange="renderChars()">
+          <option value="">Todos os membros</option>
+        </select>
+        <button class="btn btn-outline" onclick="load()" title="Atualizar dados">↻ Atualizar</button>
+        <button class="btn btn-outline" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
+        <button class="btn btn-outline" onclick="openMemberModal()" title="Gerenciar membros">⚙ Membros</button>
+        <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Dono</th><th>Personagem</th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th></th>
+          </tr></thead>
+          <tbody id="char-body"></tbody>
+        </table>
+        <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TAB: PT -->
+    <div class="section" id="tab-pt">
+      <div class="pt-grid" id="pt-grid"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: ADD PERSONAGEM -->
+<div class="modal-overlay" id="modal-add" onclick="if(event.target===this)closeModal('modal-add')">
+  <div class="modal">
+    <h2>Novo personagem</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Dono</label>
+        <select id="m-owner"></select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <input type="number" id="m-level" placeholder="500" min="1">
+      </div>
+      <div class="form-group full">
+        <label>Nome do personagem</label>
+        <input type="text" id="m-name" placeholder="Ex: DarkSlayer">
+      </div>
+      <div class="form-group full">
+        <label>Classe / Vocação</label>
+        <select id="m-class">
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Servidor</label>
+        <select id="m-server"></select>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <input type="text" id="m-obs" placeholder="Opcional...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-add')">Cancelar</button>
+      <button class="btn-confirm" onclick="addChar()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ENVIAR PARA PT -->
+<div class="modal-overlay" id="modal-pt" onclick="if(event.target===this)closeModal('modal-pt')">
+  <div class="modal">
+    <h2>Enviar para PT</h2>
+    <p id="pt-char-name" style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.2rem;"></p>
+    <div class="pt-options" id="pt-options"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-pt')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmSendPT()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SERVIDORES -->
+<div class="modal-overlay" id="modal-servers" onclick="if(event.target===this)closeModal('modal-servers')">
+  <div class="modal">
+    <h2>Gerenciar servidores</h2>
+    <div class="server-list" id="server-list"></div>
+    <div class="form-group" style="margin-bottom:.5rem">
+      <label>Adicionar novo servidor</label>
+      <div style="display:flex;gap:.6rem">
+        <input type="text" id="new-server-input" placeholder="Nome do servidor..." style="flex:1"
+          onkeydown="if(event.key==='Enter')addServer()">
+        <button class="btn-confirm" onclick="addServer()" style="white-space:nowrap">Adicionar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('modal-servers')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MEMBROS -->
+<div class="modal-overlay" id="modal-members" onclick="if(event.target===this)closeModal('modal-members')">
+  <div class="modal">
+    <h2>Gerenciar membros</h2>
+    <div class="server-list" id="member-list"></div>
+    <div class="form-group" style="margin-bottom:.5rem">
+      <label>Adicionar novo membro</label>
+      <div style="display:flex;gap:.6rem">
+        <input type="text" id="new-member-input" placeholder="Nome do membro..." style="flex:1"
+          onkeydown="if(event.key==='Enter')addMember()">
+        <button class="btn-confirm" onclick="addMember()" style="white-space:nowrap">Adicionar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('modal-members')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DADOS ─────────────────────────────────────────────────────────────────
+const BADGE = {"ELITE KNIGHT":"badge-ek","ELDER DRUID":"badge-ed","MASTER SORCERER":"badge-ms","ROYAL PALADIN":"badge-rp","EXALTED MONK":"badge-em"};
+const SHORT = {"ELITE KNIGHT":"EK","ELDER DRUID":"ED","MASTER SORCERER":"MS","ROYAL PALADIN":"RP","EXALTED MONK":"EM"};
+const CLASS_COLOR = {"ELITE KNIGHT":"#3a7bd5","ELDER DRUID":"#3dba6c","MASTER SORCERER":"#9b59b6","ROYAL PALADIN":"#e07b35","EXALTED MONK":"#e05252"};
+const PT_COLORS = ["#c9922a","#9b59b6","#3dba6c"];
+const PT_NAMES  = ["PT 1","PT 2","PT 3"];
+const PT_BORDER = ["pt1-border","pt2-border","pt3-border"];
+const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
+
+let chars   = [];
+let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
+let members = ["Leão","LC","Tito","Nandao"];
+let nextId  = 1;
+let pendingSendId = null;
+let selectedPT    = null;
+
+const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
+
+function showSync(msg, type) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'sync-status ' + (type||'');
+  el.style.opacity = '1';
+  if (type === 'ok') setTimeout(()=>{ el.style.opacity='0'; }, 2000);
+}
+
+async function save() {
+  showSync('Salvando...', 'saving');
+  try {
+    const resp = await fetch(API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId) })
+    });
+    showSync('Salvo ✓', 'ok');
+    // backup local
+    localStorage.setItem('sw_chars',   JSON.stringify(chars));
+    localStorage.setItem('sw_pts',     JSON.stringify(pts));
+    localStorage.setItem('sw_servers', JSON.stringify(servers));
+    localStorage.setItem('sw_members', JSON.stringify(members));
+    localStorage.setItem('sw_nextId',  String(nextId));
+  } catch(e) {
+    showSync('Erro ao salvar', 'err');
+  }
+}
+
+async function load() {
+  showSync('Carregando...', 'saving');
+  try {
+    const r = await fetch(API + '?action=load');
+    const j = await r.json();
+    if (j.ok && j.data) {
+      const d = j.data;
+      if (d.chars)   chars   = JSON.parse(d.chars);
+      if (d.pts)     pts     = JSON.parse(d.pts);
+      if (d.servers) servers = JSON.parse(d.servers);
+      if (d.members) members = JSON.parse(d.members);
+      if (d.nextId)  nextId  = parseInt(d.nextId)||1;
+    }
+  } catch(e) {
+    // fallback localStorage
+    const c=localStorage.getItem('sw_chars');
+    const p=localStorage.getItem('sw_pts');
+    const s=localStorage.getItem('sw_servers');
+    const mb=localStorage.getItem('sw_members');
+    const n=localStorage.getItem('sw_nextId');
+    if(c) chars=JSON.parse(c);
+    if(p) pts=JSON.parse(p);
+    if(s) servers=JSON.parse(s);
+    if(mb) members=JSON.parse(mb);
+    if(n) nextId=parseInt(n)||1;
+    showSync('Offline — dados locais', 'err');
+  }
+  while(pts.length<3) pts.push([null,null,null,null,null]);
+  pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
+  showSync('', '');
+  renderChars();
+}
+
+load();
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='chars') renderChars(); else renderPT();
+}
+
+// ── SERVER FILTER / SELECT ────────────────────────────────────────────────
+function populateServerSelects() {
+  // filtro
+  const fs = document.getElementById('filter-server');
+  const cur = fs.value;
+  fs.innerHTML = '<option value="">Todos os servidores</option>';
+  servers.forEach(s => {
+    const o=document.createElement('option');
+    o.value=s; o.textContent=s;
+    if(s===cur) o.selected=true;
+    fs.appendChild(o);
+  });
+  // filtro de membro
+  const fm = document.getElementById('filter-member');
+  const curMember = fm ? fm.value : '';
+  if (fm) {
+    fm.innerHTML = '<option value="">Todos os membros</option>';
+    members.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = m;
+      if (m === curMember) o.selected = true;
+      fm.appendChild(o);
+    });
+  }
+  // select de dono (membros)
+  const mo = document.getElementById('m-owner');
+  const curOwner = mo.value;
+  mo.innerHTML = '';
+  members.forEach(m => {
+    const o=document.createElement('option');
+    o.value=m; o.textContent=m;
+    if(m===curOwner) o.selected=true;
+    mo.appendChild(o);
+  });
+  // form de add personagem
+  const ms = document.getElementById('m-server');
+  const cur2 = ms.value;
+  ms.innerHTML = '';
+  servers.forEach(s => {
+    const o=document.createElement('option');
+    o.value=s; o.textContent=s;
+    if(s===cur2) o.selected=true;
+    ms.appendChild(o);
+  });
+}
+
+// ── RENDER CHARS ──────────────────────────────────────────────────────────
+function renderChars() {
+  populateServerSelects();
+  const q  = document.getElementById('search').value.toLowerCase();
+  const fc = document.getElementById('filter-class').value;
+  const fs = document.getElementById('filter-server').value;
+  const fm2 = document.getElementById('filter-member') ? document.getElementById('filter-member').value : '';
+  const list = chars.filter(c=>
+    (!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q))&&
+    (!fc||c.cls===fc)&&(!fs||c.server===fs)&&(!fm2||c.owner===fm2));
+  const tbody = document.getElementById('char-body');
+  const empty = document.getElementById('chars-empty');
+  tbody.innerHTML='';
+  empty.style.display = list.length?'none':'block';
+  list.forEach((c,i)=>{
+    const sent = c.sentTo!==null && c.sentTo!==undefined;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
+      <td class="owner-name">${esc(c.owner)}</td>
+      <td class="char-name">${esc(c.name)}</td>
+      <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
+      <td class="level-val">${c.level||'—'}</td>
+      <td class="server-val">${esc(c.server||'')}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
+        <button class="btn-del" title="Remover personagem" onclick="deleteChar(${c.id})">✕</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── RENDER PT ─────────────────────────────────────────────────────────────
+function renderPT() {
+  const grid=document.getElementById('pt-grid');
+  grid.innerHTML='';
+  pts.forEach((pt,pi)=>{
+    const card=document.createElement('div');
+    card.className=`pt-card ${PT_BORDER[pi]}`;
+    let slots='';
+    for(let s=0;s<5;s++){
+      const cid=pt[s];
+      const c=cid!=null?chars.find(x=>x.id===cid):null;
+      if(c){
+        const cc=CLASS_COLOR[c.cls];
+        slots+=`<div class="pt-slot">
+          <span class="slot-num">${s+1}</span>
+          <div class="slot-avatar" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${SHORT[c.cls]}</div>
+          <div class="slot-info">
+            <div class="slot-name">${esc(c.name)}</div>
+            <div class="slot-sub">${esc(c.owner)} · Lv ${c.level||'?'} · ${esc(c.server||'')}</div>
+          </div>
+          <button class="btn-remove" onclick="removeFromPT(${pi},${c.id})" title="Remover">✕</button>
+        </div>`;
+      } else {
+        slots+=`<div class="pt-slot">
+          <span class="slot-num">${s+1}</span>
+          <div class="slot-avatar" style="background:var(--surface2);border:1px dashed var(--border)"></div>
+          <span class="slot-empty">Slot vazio</span>
+        </div>`;
+      }
+    }
+    const filled=pt.filter(x=>x!=null).length;
+    card.innerHTML=`
+      <div class="pt-card-header">
+        <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
+        <span class="pt-card-count">${filled}/5</span>
+      </div>${slots}`;
+    grid.appendChild(card);
+  });
+}
+
+// ── ADD CHAR ──────────────────────────────────────────────────────────────
+function openAddModal() {
+  populateServerSelects();
+  document.getElementById('m-name').value='';
+  document.getElementById('m-level').value='';
+  document.getElementById('m-obs').value='';
+  openModal('modal-add');
+  setTimeout(()=>document.getElementById('m-name').focus(),120);
+}
+function addChar() {
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){document.getElementById('m-name').focus();return;}
+  chars.push({
+    id:nextId++,
+    owner:document.getElementById('m-owner').value,
+    name,cls:document.getElementById('m-class').value,
+    level:parseInt(document.getElementById('m-level').value)||0,
+    server:document.getElementById('m-server').value,
+    obs:document.getElementById('m-obs').value.trim(),
+    sentTo:null
+  });
+  save(); closeModal('modal-add'); renderChars();
+  toast(`${name} adicionado!`,'success');
+}
+function deleteChar(id) {
+  const c=chars.find(x=>x.id===id);
+  if(!c) return;
+  if(!confirm(`Remover "${c.name}"?`)) return;
+  pts.forEach((pt,pi)=>{const idx=pt.indexOf(id);if(idx>-1)pts[pi][idx]=null;});
+  chars=chars.filter(x=>x.id!==id);
+  save(); renderChars();
+  toast(`${c.name} removido.`);
+}
+
+// ── SEND TO PT ────────────────────────────────────────────────────────────
+function openSendPT(id) {
+  const c=chars.find(x=>x.id===id);
+  if(!c||c.sentTo!==null) return;
+  pendingSendId=id; selectedPT=null;
+  document.getElementById('pt-char-name').textContent=`Personagem: ${c.name} (${SHORT[c.cls]})`;
+  const container=document.getElementById('pt-options');
+  container.innerHTML='';
+  pts.forEach((pt,pi)=>{
+    const count=pt.filter(x=>x!=null).length;
+    const full=count>=5;
+    const div=document.createElement('div');
+    div.className=`pt-option${full?' pt-option-full':''}`;
+    div.innerHTML=`
+      <div class="pt-option-color" style="background:${PT_COLORS[pi]}"></div>
+      <div class="pt-option-info">
+        <div class="pt-option-name">${PT_NAMES[pi]}</div>
+        <div class="pt-option-slots">${count}/5 personagens${full?' — Cheia':''}</div>
+      </div>
+      <span style="color:var(--text-muted);font-size:1rem">${full?'✗':'›'}</span>`;
+    if(!full) div.onclick=()=>{
+      document.querySelectorAll('.pt-option').forEach(el=>el.classList.remove('selected'));
+      div.classList.add('selected'); selectedPT=pi;
+    };
+    container.appendChild(div);
+  });
+  openModal('modal-pt');
+}
+function confirmSendPT() {
+  if(selectedPT===null){toast('Selecione uma PT!','error');return;}
+  const c=chars.find(x=>x.id===pendingSendId);
+  if(!c) return;
+  const slot=pts[selectedPT].findIndex(x=>x===null);
+  if(slot===-1){toast('PT cheia!','error');return;}
+  pts[selectedPT][slot]=c.id; c.sentTo=selectedPT;
+  save(); closeModal('modal-pt'); renderChars();
+  toast(`${c.name} → ${PT_NAMES[selectedPT]}!`,'success');
+}
+function removeFromPT(pi,cid) {
+  const idx=pts[pi].indexOf(cid);
+  if(idx>-1) pts[pi][idx]=null;
+  const c=chars.find(x=>x.id===cid);
+  if(c) c.sentTo=null;
+  save(); renderPT();
+}
+
+// ── SERVIDORES ────────────────────────────────────────────────────────────
+function openServerModal() {
+  renderServerList();
+  openModal('modal-servers');
+  setTimeout(()=>document.getElementById('new-server-input').focus(),120);
+}
+function renderServerList() {
+  const list=document.getElementById('server-list');
+  list.innerHTML='';
+  if(!servers.length){
+    list.innerHTML='<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum servidor cadastrado.</div>';
+    return;
+  }
+  servers.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='server-item';
+    div.innerHTML=`<span>${esc(s)}</span>
+      <button class="btn-del" onclick="removeServer(${i})" title="Remover servidor">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function addServer() {
+  const inp=document.getElementById('new-server-input');
+  const name=inp.value.trim();
+  if(!name) return;
+  if(servers.includes(name)){toast('Servidor já existe.','error');return;}
+  servers.push(name);
+  inp.value='';
+  save(); renderServerList(); populateServerSelects();
+  toast(`${name} adicionado!`,'success');
+}
+function removeServer(i) {
+  const name=servers[i];
+  if(chars.some(c=>c.server===name)){
+    toast('Servidor em uso por algum personagem.','error'); return;
+  }
+  servers.splice(i,1);
+  save(); renderServerList(); populateServerSelects();
+  toast(`${name} removido.`);
+}
+
+
+// ── MEMBROS ───────────────────────────────────────────────────────────────
+function openMemberModal() {
+  renderMemberList();
+  openModal('modal-members');
+  setTimeout(()=>document.getElementById('new-member-input').focus(),120);
+}
+function renderMemberList() {
+  const list=document.getElementById('member-list');
+  list.innerHTML='';
+  if(!members.length){
+    list.innerHTML='<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum membro cadastrado.</div>';
+    return;
+  }
+  members.forEach((m,i)=>{
+    const div=document.createElement('div');
+    div.className='member-item';
+    // editar nome inline
+    div.innerHTML=`
+      <input type="text" value="${esc(m)}" 
+        style="flex:1;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;outline:none;padding:0"
+        onblur="renameMember(${i},this.value)"
+        onkeydown="if(event.key==='Enter')this.blur()">
+      <button class="btn-del" onclick="removeMember(${i})" title="Remover membro">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function addMember() {
+  const inp=document.getElementById('new-member-input');
+  const name=inp.value.trim();
+  if(!name) return;
+  if(members.includes(name)){toast('Membro já existe.','error');return;}
+  members.push(name);
+  inp.value='';
+  save(); renderMemberList(); populateServerSelects();
+  toast(`${name} adicionado!`,'success');
+}
+function removeMember(i) {
+  const name=members[i];
+  if(chars.some(c=>c.owner===name)){
+    toast('Membro possui personagens cadastrados.','error'); return;
+  }
+  members.splice(i,1);
+  save(); renderMemberList(); populateServerSelects();
+  toast(`${name} removido.`);
+}
+function renameMember(i, newName) {
+  newName = newName.trim();
+  if(!newName || newName===members[i]) return;
+  if(members.includes(newName)){toast('Nome já existe.','error');renderMemberList();return;}
+  const old=members[i];
+  chars.forEach(c=>{ if(c.owner===old) c.owner=newName; });
+  members[i]=newName;
+  save(); renderMemberList(); populateServerSelects(); renderChars();
+  toast(`"${old}" renomeado para "${newName}".`,'success');
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay').forEach(el=>el.classList.remove('open'));
+});
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show '+(type||'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+</script>
+</body>
+</html>
