@@ -401,7 +401,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <table>
           <thead><tr>
             <th>#</th><th>Dono</th><th>Personagem</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th></th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -568,10 +568,18 @@ function enterApp(role) {
     badge.textContent = '⚔ ADM';
     badge.className = 'role-badge adm';
     document.body.classList.remove('visitor-mode');
+    // Mostrar coluna WhatsApp pro ADM
+    const thWpp = document.getElementById('th-wpp');
+    if (thWpp) thWpp.style.display = '';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
   } else {
     badge.textContent = '👁 Visitante';
     badge.className = 'role-badge visitor';
     document.body.classList.add('visitor-mode');
+    // Esconder coluna WhatsApp do visitante
+    const thWpp = document.getElementById('th-wpp');
+    if (thWpp) thWpp.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
   }
 }
 
@@ -777,12 +785,18 @@ function renderChars() {
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
       <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
       </td>`;
     tbody.appendChild(tr);
   });
+  // Sincronizar visibilidade da coluna WhatsApp após render
+  const thWpp = document.getElementById('th-wpp');
+  const isAdm = currentRole === 'adm';
+  if (thWpp) thWpp.style.display = isAdm ? '' : 'none';
+  document.querySelectorAll('.td-wpp').forEach(el => el.style.display = isAdm ? '' : 'none');
 }
 
 // ── RENDER PT ─────────────────────────────────────────────────────────────
@@ -860,6 +874,12 @@ function openAddModal() {
 function addChar() {
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
+  const level = parseInt(document.getElementById('m-level').value) || 0;
+  if (level < 400) {
+    document.getElementById('m-level').focus();
+    toast('Level mínimo para cadastro é 400.', 'error');
+    return;
+  }
 
   // Visitante precisa informar telefone
   if (currentRole === 'visitor') {
@@ -873,7 +893,7 @@ function addChar() {
       id:nextId++,
       owner: document.getElementById('m-owner').value,
       name, cls: document.getElementById('m-class').value,
-      level: parseInt(document.getElementById('m-level').value)||0,
+      level: level,
       server: document.getElementById('m-server').value,
       obs: document.getElementById('m-obs').value.trim(),
       phone: phone,
@@ -890,7 +910,7 @@ function addChar() {
     id:nextId++,
     owner: document.getElementById('m-owner').value,
     name, cls: document.getElementById('m-class').value,
-    level: parseInt(document.getElementById('m-level').value)||0,
+    level: level,
     server: document.getElementById('m-server').value,
     obs: document.getElementById('m-obs').value.trim(),
     phone: '',
