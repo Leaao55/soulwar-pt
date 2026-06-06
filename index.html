@@ -312,6 +312,8 @@ body.visitor-mode .pt-toolbar { display:none !important; }
 .rec-result-warn { color:#e07b35; font-size:.82rem; margin-top:.5rem; font-style:italic; }
 .rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
 
+
+select:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -806,6 +808,25 @@ function openAddModal() {
   document.getElementById('m-level').value='';
   document.getElementById('m-obs').value='';
   document.getElementById('m-phone').value='';
+
+  // Visitante: fixar dono como "Visitante" e bloquear o select
+  const ownerSel = document.getElementById('m-owner');
+  if (currentRole === 'visitor') {
+    // Garantir que existe a opção "Visitante"
+    let visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
+    if (!visOpt) {
+      visOpt = new Option('Visitante', 'Visitante');
+      ownerSel.add(visOpt, 0);
+    }
+    ownerSel.value = 'Visitante';
+    ownerSel.disabled = true;
+  } else {
+    ownerSel.disabled = false;
+    // Remover opção "Visitante" do select de ADM se existir
+    const visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
+    if (visOpt) ownerSel.remove(visOpt.index);
+  }
+
   // Mostrar campo de telefone só pro visitante
   const phoneGroup = document.getElementById('m-phone-group');
   if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
