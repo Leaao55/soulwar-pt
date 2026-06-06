@@ -618,6 +618,30 @@ function showSync(msg, type) {
 async function save() {
   showSync('Salvando...', 'saving');
   try {
+    // Buscar dados mais recentes antes de salvar para não sobrescrever dados de outros
+    const r = await fetch(API + '?action=load');
+    const j = await r.json();
+    if (j.ok && j.data) {
+      const d = j.data;
+      // Mesclar chars remotos com os locais:
+      // Manter chars remotos que não existem localmente (adicionados por outros)
+      if (d.chars) {
+        const remoteChars = JSON.parse(d.chars);
+        const localIds = new Set(chars.map(c => c.id));
+        remoteChars.forEach(rc => {
+          if (!localIds.has(rc.id)) {
+            chars.push(rc);
+            if (rc.id >= nextId) nextId = rc.id + 1;
+          }
+        });
+      }
+      // Mesclar nextId
+      if (d.nextId) {
+        const remoteNextId = parseInt(d.nextId) || 1;
+        if (remoteNextId > nextId) nextId = remoteNextId;
+      }
+    }
+
     await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
