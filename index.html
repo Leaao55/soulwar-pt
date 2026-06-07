@@ -250,6 +250,7 @@ body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
 body.visitor-mode .btn-approve,
 body.visitor-mode .btn-reject { display:none !important; }
+body.visitor-mode .col-adm-actions { display:none !important; }
 body:not(.visitor-mode) .visitor-pending-label { display:none !important; }
 
 .logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
@@ -403,7 +404,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th></th>
+              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
             </tr></thead>
             <tbody id="pending-body"></tbody>
           </table>
@@ -618,6 +619,7 @@ const PT_BORDER = ["pt1-border","pt2-border","pt3-border"];
 const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
 
 let chars   = [];
+let rejectedIds = []; // IDs de chars recusados pelo ADM
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
 let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
 let members = ["Leão","LC","Tito","Nandao"];
@@ -649,9 +651,11 @@ async function save() {
       const localIds = new Set(chars.map(c => Number(c.id)));
       // Só adicionar chars remotos que:
       // 1) Não existem localmente (novo visitante adicionou)
-      // 2) São pendentes (status === 'pending') — ADM não deletou intencionalmente
+      // 2) São pendentes
+      // 3) Não foram recusados pelo ADM
+      const rejSet = new Set(rejectedIds);
       remoteChars.forEach(rc => {
-        if (!localIds.has(rc.id) && rc.status === 'pending') {
+        if (!localIds.has(rc.id) && rc.status === 'pending' && !rejSet.has(rc.id)) {
           chars.push(rc);
           if (rc.id >= nextId) nextId = rc.id + 1;
         }
@@ -661,7 +665,7 @@ async function save() {
     await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId) })
+      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds })
     });
     showSync('Salvo ✓', 'ok');
     // backup local
@@ -703,6 +707,7 @@ async function load() {
     if (j.ok && j.data) {
       const d = j.data;
       if (d.chars)   { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
+      if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
       if (d.pts)     pts     = JSON.parse(d.pts);
       if (d.servers) servers = JSON.parse(d.servers);
       if (d.members) members = JSON.parse(d.members);
@@ -1137,7 +1142,7 @@ function renderPending() {
         : currentRole === 'adm' ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
-      <td style="text-align:right;white-space:nowrap">
+      <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
         <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
         <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
         <span class="visitor-pending-label" style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando ADM</span>
@@ -1158,6 +1163,7 @@ function rejectChar(id) {
   const c = chars.find(x => x.id === id);
   if (!c) return;
   if (!confirm(`Recusar "${c.name}" de ${c.owner}?`)) return;
+  rejectedIds.push(Number(id));
   chars = chars.filter(x => x.id !== id);
   save(); renderChars();
   toast(`Personagem recusado.`);
