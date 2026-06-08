@@ -943,47 +943,59 @@ async function save() {
 
       // ── Mesclar usuários (lidos de dentro do campo members) ──────────────
       if (j.data.members) {
-        const rawMembers = JSON.parse(j.data.members);
-        const { remoteUsers, remoteUserNextId } = extractUsersFromMembers(rawMembers);
-        console.log('[SW] save() — users remotos:', remoteUsers.length, remoteUsers.map(u => `${u.name}(${u.status})`));
+        try {
+          const rawMembers = JSON.parse(j.data.members);
+          const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
 
-        // maxId para resolver colisões de ID entre sessões concorrentes
-        let maxId = remoteUsers.reduce((m, u) => Math.max(m, Number(u.id)), remoteUserNextId - 1);
+          // Sincronizar members com o remoto em ambas as sessões
+          members = cleanMembers;
 
-        if (currentRole !== 'adm') {
-          // Sessão não-ADM: remoto é autoridade em status.
-          // Identifica novos cadastros locais pelo NOME (não pelo ID) para evitar
-          // colisão quando dois usuários se cadastram com o mesmo userNextId.
-          const remoteNames = new Set(remoteUsers.map(u => u.name.toLowerCase()));
-          users.forEach(u => {
-            if (!remoteNames.has(u.name.toLowerCase())) {
-              // Novo cadastro local — garantir ID único
-              if (remoteUsers.some(r => Number(r.id) === Number(u.id))) {
-                maxId++;
-                u.id = maxId;
+          console.log('[SW] save() — users locais antes do merge:', users.length, users.map(u => `${u.name}(${u.status})`));
+          console.log('[SW] save() — users remotos:', remoteUsers.length, remoteUsers.map(u => `${u.name}(${u.status})`));
+
+          // maxId para resolver colisões de ID entre sessões concorrentes
+          let maxId = remoteUsers.reduce((m, u) => Math.max(m, Number(u.id)), remoteUserNextId - 1);
+
+          if (currentRole !== 'adm') {
+            // Sessão não-ADM: remoto é autoridade em status.
+            // Identifica novos cadastros locais pelo NOME para evitar colisão de ID.
+            const remoteNames = new Set(remoteUsers.map(u => u.name.toLowerCase()));
+            users.forEach(u => {
+              if (!remoteNames.has(u.name.toLowerCase())) {
+                if (remoteUsers.some(r => Number(r.id) === Number(u.id))) {
+                  maxId++;
+                  u.id = maxId;
+                }
+                remoteUsers.push(u);
+                if (u.id > maxId) maxId = u.id;
               }
-              remoteUsers.push(u);
-              if (u.id > maxId) maxId = u.id;
-            }
-          });
-          users = remoteUsers;
-          userNextId = maxId + 1;
-        } else {
-          // Sessão ADM: estado local é autoridade; absorve novos cadastros remotos pelo NOME.
-          const localNames = new Set(users.map(u => u.name.toLowerCase()));
-          maxId = users.reduce((m, u) => Math.max(m, Number(u.id)), userNextId - 1);
-          remoteUsers.forEach(ru => {
-            if (!localNames.has(ru.name.toLowerCase())) {
-              if (users.some(u => Number(u.id) === Number(ru.id))) {
-                maxId++;
-                ru.id = maxId;
+            });
+            users = remoteUsers;
+            userNextId = maxId + 1;
+          } else {
+            // Sessão ADM: estado local é autoridade; absorve novos cadastros remotos pelo NOME.
+            const localNames = new Set(users.map(u => u.name.toLowerCase()));
+            maxId = users.reduce((m, u) => Math.max(m, Number(u.id)), userNextId - 1);
+            remoteUsers.forEach(ru => {
+              if (!localNames.has(ru.name.toLowerCase())) {
+                if (users.some(u => Number(u.id) === Number(ru.id))) {
+                  maxId++;
+                  ru.id = maxId;
+                }
+                users.push(ru);
+                if (ru.id > maxId) maxId = ru.id;
               }
-              users.push(ru);
-              if (ru.id > maxId) maxId = ru.id;
-            }
-          });
-          userNextId = maxId + 1;
+            });
+            userNextId = maxId + 1;
+          }
+
+          console.log('[SW] save() — users após merge:', users.length, users.map(u => `${u.name}(${u.status})`));
+        } catch(mergeErr) {
+          console.error('[SW] save() — erro no merge de users:', mergeErr);
         }
+      } else {
+        // members não veio do remoto — registrar para diagnóstico
+        console.warn('[SW] save() — j.data.members ausente, pulando merge de users. j.data keys:', Object.keys(j.data || {}));
       }
     }
 
@@ -1010,6 +1022,7 @@ async function save() {
     });
     backups = newBackups;
     showSync('Salvo ✓', 'ok');
+    if (currentRole === 'adm') renderUsers();
 
     // ── 3. Backup local ────────────────────────────────────────────────────
     localStorage.setItem('sw_chars',       JSON.stringify(chars));
@@ -1101,6 +1114,7 @@ async function load() {
   pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
   showSync('', '');
   renderChars();
+  if (currentRole === 'adm') renderUsers();
 }
 
 const dataReady = load();
