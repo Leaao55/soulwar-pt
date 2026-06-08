@@ -804,6 +804,7 @@ const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
 
 let chars   = [];
 let rejectedIds = [];
+let deletedIds  = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
 let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
 let members = ["Leão","LC","Tito","Nandao"];
@@ -856,14 +857,27 @@ async function save() {
     console.log('[SW] save() — estado remoto recebido:', j.ok, Object.keys(j.data || {}));
 
     if (j.ok && j.data) {
-      // ── Mesclar chars pendentes de outras sessões ────────────────────────
+      // ── Mesclar rejectedIds e deletedIds remotos ─────────────────────────
+      if (j.data.rejectedIds) {
+        const remoteRej = JSON.parse(j.data.rejectedIds).map(Number);
+        const localRejSet = new Set(rejectedIds);
+        remoteRej.forEach(id => { if (!localRejSet.has(id)) rejectedIds.push(id); });
+      }
+      if (j.data.deletedIds) {
+        const remoteDel = JSON.parse(j.data.deletedIds).map(Number);
+        const localDelSet = new Set(deletedIds);
+        remoteDel.forEach(id => { if (!localDelSet.has(id)) deletedIds.push(id); });
+      }
+
+      // ── Mesclar chars de outras sessões (todos os status) ────────────────
       if (j.data.chars) {
         const remoteChars = JSON.parse(j.data.chars);
         remoteChars.forEach(c => { c.id = Number(c.id); });
         const localIds = new Set(chars.map(c => Number(c.id)));
         const rejSet   = new Set(rejectedIds);
+        const delSet   = new Set(deletedIds);
         remoteChars.forEach(rc => {
-          if (!localIds.has(rc.id) && rc.status === 'pending' && !rejSet.has(rc.id)) {
+          if (!localIds.has(rc.id) && !rejSet.has(rc.id) && !delSet.has(rc.id)) {
             chars.push(rc);
             if (rc.id >= nextId) nextId = rc.id + 1;
           }
@@ -905,7 +919,8 @@ async function save() {
       chars, pts, servers,
       members: buildMembersPayload(),
       nextId: String(nextId),
-      rejectedIds
+      rejectedIds,
+      deletedIds
     };
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
@@ -918,13 +933,15 @@ async function save() {
     showSync('Salvo ✓', 'ok');
 
     // ── 3. Backup local ────────────────────────────────────────────────────
-    localStorage.setItem('sw_chars',      JSON.stringify(chars));
-    localStorage.setItem('sw_pts',        JSON.stringify(pts));
-    localStorage.setItem('sw_servers',    JSON.stringify(servers));
-    localStorage.setItem('sw_members',    JSON.stringify(members));
-    localStorage.setItem('sw_nextId',     String(nextId));
-    localStorage.setItem('sw_users',      JSON.stringify(users));
-    localStorage.setItem('sw_userNextId', String(userNextId));
+    localStorage.setItem('sw_chars',       JSON.stringify(chars));
+    localStorage.setItem('sw_pts',         JSON.stringify(pts));
+    localStorage.setItem('sw_servers',     JSON.stringify(servers));
+    localStorage.setItem('sw_members',     JSON.stringify(members));
+    localStorage.setItem('sw_nextId',      String(nextId));
+    localStorage.setItem('sw_users',       JSON.stringify(users));
+    localStorage.setItem('sw_userNextId',  String(userNextId));
+    localStorage.setItem('sw_rejectedIds', JSON.stringify(rejectedIds));
+    localStorage.setItem('sw_deletedIds',  JSON.stringify(deletedIds));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -961,6 +978,7 @@ async function load() {
       const d = j.data;
       if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
       if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
+      if (d.deletedIds)  deletedIds  = JSON.parse(d.deletedIds).map(Number);
       if (d.pts)         pts     = JSON.parse(d.pts);
       if (d.servers)     servers = JSON.parse(d.servers);
       if (d.nextId)      nextId  = parseInt(d.nextId)||1;
@@ -983,6 +1001,8 @@ async function load() {
     const n  = localStorage.getItem('sw_nextId');
     const u  = localStorage.getItem('sw_users');
     const un = localStorage.getItem('sw_userNextId');
+    const ri = localStorage.getItem('sw_rejectedIds');
+    const di = localStorage.getItem('sw_deletedIds');
     if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
     if(p)  pts=JSON.parse(p);
     if(s)  servers=JSON.parse(s);
@@ -990,6 +1010,8 @@ async function load() {
     if(n)  nextId=parseInt(n)||1;
     if(u)  { users=JSON.parse(u); users.forEach(x => { x.id = Number(x.id); }); }
     if(un) userNextId=parseInt(un)||1;
+    if(ri) rejectedIds=JSON.parse(ri).map(Number);
+    if(di) deletedIds=JSON.parse(di).map(Number);
     showSync('Offline — dados locais', 'err');
   }
   while(pts.length<3) pts.push([null,null,null,null,null]);
@@ -1292,6 +1314,7 @@ function deleteChar(id) {
   if(!confirm(`Remover "${c.name}"?`)) return;
   pts.forEach((pt,pi)=>{const idx=pt.indexOf(id);if(idx>-1)pts[pi][idx]=null;});
   chars=chars.filter(x=>x.id!==id);
+  deletedIds.push(Number(id));
   save(); renderChars();
   toast(`${c.name} removido.`);
 }
