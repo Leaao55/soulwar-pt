@@ -825,13 +825,38 @@ function showSync(msg, type) {
   if (type === 'ok') setTimeout(()=>{ el.style.opacity='0'; }, 2000);
 }
 
+// ── Extrai users embutidos no array members vindo da API ──────────────────
+function extractUsersFromMembers(rawMembers) {
+  const TAG = '__USERS__:';
+  const entry = rawMembers.find(m => typeof m === 'string' && m.startsWith(TAG));
+  let remoteUsers = [], remoteUserNextId = 1;
+  if (entry) {
+    try {
+      const ud = JSON.parse(entry.slice(TAG.length));
+      remoteUsers = (ud.u || []).map(u => ({ ...u, id: Number(u.id) }));
+      remoteUserNextId = ud.n || 1;
+    } catch(e) { console.warn('[SW] Falha ao parsear __USERS__:', e); }
+  }
+  const cleanMembers = rawMembers.filter(m => typeof m !== 'string' || !m.startsWith(TAG));
+  return { remoteUsers, remoteUserNextId, cleanMembers };
+}
+
+// ── Monta array members com users embutidos para envio à API ──────────────
+function buildMembersPayload() {
+  const TAG = '__USERS__:';
+  return [...members, TAG + JSON.stringify({ u: users, n: userNextId })];
+}
+
 async function save() {
   showSync('Salvando...', 'saving');
   try {
+    // ── 1. Buscar estado remoto para merge ─────────────────────────────────
     const r = await fetch(API + '?action=load');
     const j = await r.json();
+    console.log('[SW] save() — estado remoto recebido:', j.ok, Object.keys(j.data || {}));
+
     if (j.ok && j.data) {
-      // ── Mesclar chars pendentes de outras sessões ──────────────────────────
+      // ── Mesclar chars pendentes de outras sessões ────────────────────────
       if (j.data.chars) {
         const remoteChars = JSON.parse(j.data.chars);
         remoteChars.forEach(c => { c.id = Number(c.id); });
@@ -845,30 +870,28 @@ async function save() {
         });
       }
 
-      // ── Mesclar usuários ───────────────────────────────────────────────────
-      // Regra: o ADM é autoridade sobre status; outras sessões só acrescentam
-      // novos cadastros mas nunca sobrescrevem status definidos pelo ADM.
-      if (j.data.users) {
-        const remoteUsers = JSON.parse(j.data.users);
-        remoteUsers.forEach(u => { u.id = Number(u.id); });
+      // ── Mesclar usuários (lidos de dentro do campo members) ──────────────
+      if (j.data.members) {
+        const rawMembers = JSON.parse(j.data.members);
+        const { remoteUsers, remoteUserNextId } = extractUsersFromMembers(rawMembers);
+        console.log('[SW] save() — users remotos:', remoteUsers.length, remoteUsers.map(u => `${u.name}(${u.status})`));
 
         if (currentRole !== 'adm') {
-          // Sessão não-ADM: manter o estado remoto como base (preserva aprovações)
-          // e adicionar apenas cadastros locais que o remoto ainda não tem.
+          // Sessão não-ADM: remoto é autoridade em status; só acrescenta novos cadastros locais.
           const remoteIds = new Set(remoteUsers.map(u => Number(u.id)));
           users.forEach(u => {
             if (!remoteIds.has(u.id)) {
               remoteUsers.push(u);
-              if (u.id >= userNextId) userNextId = u.id + 1;
+              if (u.id >= remoteUserNextId) remoteUserNextId = u.id + 1;
             }
           });
           users = remoteUsers;
+          userNextId = remoteUserNextId;
         } else {
-          // Sessão ADM: estado local é autoridade; absorver apenas cadastros
-          // novos que chegaram do remoto (registros feitos em outra aba/sessão).
-          const localUserIds = new Set(users.map(u => Number(u.id)));
+          // Sessão ADM: estado local é autoridade; absorve novos cadastros remotos.
+          const localIds = new Set(users.map(u => Number(u.id)));
           remoteUsers.forEach(ru => {
-            if (!localUserIds.has(ru.id)) {
+            if (!localIds.has(ru.id)) {
               users.push(ru);
               if (ru.id >= userNextId) userNextId = ru.id + 1;
             }
@@ -877,12 +900,24 @@ async function save() {
       }
     }
 
+    // ── 2. Enviar para a API (users embutidos em members) ──────────────────
+    const payload = {
+      chars, pts, servers,
+      members: buildMembersPayload(),
+      nextId: String(nextId),
+      rejectedIds
+    };
+    console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
+    console.log('[SW] save() — users:', JSON.stringify(users));
+
     await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds, users, userNextId: String(userNextId) })
+      body: JSON.stringify(payload)
     });
     showSync('Salvo ✓', 'ok');
+
+    // ── 3. Backup local ────────────────────────────────────────────────────
     localStorage.setItem('sw_chars',      JSON.stringify(chars));
     localStorage.setItem('sw_pts',        JSON.stringify(pts));
     localStorage.setItem('sw_servers',    JSON.stringify(servers));
@@ -891,6 +926,7 @@ async function save() {
     localStorage.setItem('sw_users',      JSON.stringify(users));
     localStorage.setItem('sw_userNextId', String(userNextId));
   } catch(e) {
+    console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
   }
 }
@@ -920,18 +956,25 @@ async function load() {
   try {
     const r = await fetch(API + '?action=load');
     const j = await r.json();
+    console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
     if (j.ok && j.data) {
       const d = j.data;
       if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
       if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
       if (d.pts)         pts     = JSON.parse(d.pts);
       if (d.servers)     servers = JSON.parse(d.servers);
-      if (d.members)     members = JSON.parse(d.members);
       if (d.nextId)      nextId  = parseInt(d.nextId)||1;
-      if (d.users)       { users = JSON.parse(d.users); users.forEach(u => { u.id = Number(u.id); }); }
-      if (d.userNextId)  userNextId = parseInt(d.userNextId)||1;
+      if (d.members) {
+        const rawMembers = JSON.parse(d.members);
+        const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
+        members    = cleanMembers;
+        users      = remoteUsers;
+        userNextId = remoteUserNextId;
+        console.log('[SW] load() — users carregados:', users.length, users.map(u => `${u.name}(${u.status})`));
+      }
     }
   } catch(e) {
+    console.warn('[SW] load() falhou, usando localStorage:', e);
     // fallback localStorage
     const c  = localStorage.getItem('sw_chars');
     const p  = localStorage.getItem('sw_pts');
