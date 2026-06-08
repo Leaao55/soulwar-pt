@@ -233,6 +233,31 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
 .login-visitor-info { font-size:.8rem; color:var(--text-muted); margin-top:1.2rem;
   line-height:1.6; font-style:italic; }
 
+/* ── USER SUB-TABS ── */
+.user-sub-tabs { display:flex; gap:.5rem; margin-bottom:1rem; }
+.user-sub-btn { flex:1; padding:.5rem; border-radius:3px; cursor:pointer;
+  font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted); transition:all .18s; }
+.user-sub-btn.active { border-color:var(--gold-dim); background:rgba(201,146,42,.1); color:var(--gold2); }
+.user-sub-btn:hover:not(.active) { border-color:var(--text-muted); color:var(--text); }
+
+/* ── USER ROLE BADGE ── */
+.role-badge.user-role { background:rgba(58,123,213,.15); border:1px solid rgba(58,123,213,.3); color:#5a9bf5; }
+
+/* ── USER MODE: permissões ── */
+body.user-mode .btn[onclick*="openServerModal"],
+body.user-mode .btn[onclick*="openMemberModal"] { display:none !important; }
+body.user-mode .col-adm-actions { display:none !important; }
+
+/* ── USERS TAB ── */
+.users-section { margin-bottom:2rem; }
+.badge-rejected { background:rgba(224,82,82,.15); color:#e05252; border:1px solid rgba(224,82,82,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+.badge-approved-user { background:rgba(61,186,108,.15); color:#3dba6c; border:1px solid rgba(61,186,108,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+
 /* ── BADGE DE PAPEL ── */
 .role-badge { position:absolute; top:1.2rem; left:1.5rem;
   font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
@@ -251,7 +276,7 @@ body.visitor-mode .col-wpp { display:none !important; }
 body.visitor-mode .btn-approve,
 body.visitor-mode .btn-reject { display:none !important; }
 body.visitor-mode .col-adm-actions { display:none !important; }
-body:not(.visitor-mode) .visitor-pending-label { display:none !important; }
+body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !important; }
 
 .logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
   border:1px solid var(--border); color:var(--text-muted); font-family:'Cinzel',serif;
@@ -343,19 +368,46 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <p class="login-sub">PT Manager · Rubinot</p>
 
     <div class="login-modes">
-      <button class="login-mode-btn" id="mode-adm" onclick="setMode('adm')">⚔ Administrador</button>
+      <button class="login-mode-btn" id="mode-adm" onclick="setMode('adm')">⚔ ADM</button>
+      <button class="login-mode-btn" id="mode-user" onclick="setMode('user')">👤 Usuário</button>
       <button class="login-mode-btn active" id="mode-visitor" onclick="setMode('visitor')">👁 Visitante</button>
     </div>
 
     <div id="adm-fields" style="display:none">
       <div class="login-field">
-        <input type="password" id="pwd-input" placeholder="Senha do time..." onkeydown="if(event.key==='Enter')doLogin()">
+        <input type="password" id="pwd-input" placeholder="Senha do ADM..." onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <button class="btn-login" onclick="doLogin()">Entrar como ADM</button>
     </div>
 
+    <div id="user-fields" style="display:none">
+      <div class="user-sub-tabs">
+        <button class="user-sub-btn active" id="usub-login" onclick="setUserSub('login')">Entrar</button>
+        <button class="user-sub-btn" id="usub-register" onclick="setUserSub('register')">Cadastrar</button>
+      </div>
+      <div id="user-login-area">
+        <div class="login-field">
+          <input type="text" id="user-login-name" placeholder="Seu nome..." onkeydown="if(event.key==='Enter')doUserLogin()">
+        </div>
+        <div class="login-field">
+          <input type="password" id="user-login-pwd" placeholder="Sua senha..." onkeydown="if(event.key==='Enter')doUserLogin()">
+        </div>
+        <button class="btn-login" onclick="doUserLogin()">Entrar</button>
+      </div>
+      <div id="user-register-area" style="display:none">
+        <div class="login-field">
+          <input type="text" id="user-reg-name" placeholder="Escolha um nome..." onkeydown="if(event.key==='Enter')doUserRegister()">
+        </div>
+        <div class="login-field">
+          <input type="password" id="user-reg-pwd" placeholder="Crie uma senha..." onkeydown="if(event.key==='Enter')doUserRegister()">
+        </div>
+        <button class="btn-login" onclick="doUserRegister()">Cadastrar</button>
+        <p class="login-visitor-info">Após o cadastro, aguarde a aprovação do ADM para acessar o sistema.</p>
+      </div>
+    </div>
+
     <div id="visitor-fields">
-      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
+      <p class="login-visitor-info">Acesso de visitante permite visualizar personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
       <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
     </div>
 
@@ -374,6 +426,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div class="tabs">
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
   </div>
   </header>
@@ -420,6 +473,33 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <tbody id="char-body"></tbody>
         </table>
         <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TAB: USUÁRIOS (ADM only) -->
+    <div class="section" id="tab-users">
+      <div class="users-section" id="users-pending-section" style="display:none">
+        <div class="pending-title">Aguardando aprovação <span class="pending-count" id="users-pending-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Nome</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="users-pending-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="approved-title">Usuários cadastrados <span class="approved-count" id="users-approved-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Nome</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="users-list-body"></tbody>
+          </table>
+          <div id="users-empty" class="empty" style="display:none">Nenhum usuário cadastrado.</div>
+        </div>
       </div>
     </div>
 
@@ -541,14 +621,67 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 <script>
 // ── LOGIN ─────────────────────────────────────────────────────────────────
 const ADM_HASH = "c1d0e46fdeb2b72758a6a5bd5eecf2622ff8b84a8964c8e9687c6c05c9f474b5";
-let currentRole = null; // 'adm' | 'visitor'
+let currentRole = null; // 'adm' | 'user' | 'visitor'
+let currentUser = null; // {id, name, passHash, status} when role='user'
 
 function setMode(mode) {
-  document.getElementById('mode-adm').classList.toggle('active', mode==='adm');
-  document.getElementById('mode-visitor').classList.toggle('active', mode==='visitor');
-  document.getElementById('adm-fields').style.display   = mode==='adm'     ? 'block' : 'none';
+  ['adm','user','visitor'].forEach(m => {
+    document.getElementById('mode-'+m).classList.toggle('active', m===mode);
+  });
+  document.getElementById('adm-fields').style.display     = mode==='adm'     ? 'block' : 'none';
+  document.getElementById('user-fields').style.display    = mode==='user'    ? 'block' : 'none';
   document.getElementById('visitor-fields').style.display = mode==='visitor' ? 'block' : 'none';
   document.getElementById('login-error').textContent = '';
+  document.getElementById('login-error').style.color = '';
+}
+
+function setUserSub(sub) {
+  document.getElementById('usub-login').classList.toggle('active', sub==='login');
+  document.getElementById('usub-register').classList.toggle('active', sub==='register');
+  document.getElementById('user-login-area').style.display    = sub==='login'    ? 'block' : 'none';
+  document.getElementById('user-register-area').style.display = sub==='register' ? 'block' : 'none';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('login-error').style.color = '';
+}
+
+async function doUserLogin() {
+  const name = document.getElementById('user-login-name').value.trim();
+  const pwd  = document.getElementById('user-login-pwd').value;
+  const err  = document.getElementById('login-error');
+  err.style.color = '';
+  if (!name || !pwd) { err.textContent = 'Preencha nome e senha.'; return; }
+  const hash = await sha256(pwd);
+  const user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.passHash === hash);
+  if (!user) {
+    err.textContent = 'Nome ou senha incorretos.';
+    document.getElementById('user-login-pwd').value = '';
+    return;
+  }
+  if (user.status === 'pending')  { err.textContent = 'Cadastro aguardando aprovação do ADM.'; return; }
+  if (user.status === 'rejected') { err.textContent = 'Cadastro recusado pelo ADM.'; return; }
+  enterApp('user', user);
+}
+
+async function doUserRegister() {
+  const name = document.getElementById('user-reg-name').value.trim();
+  const pwd  = document.getElementById('user-reg-pwd').value;
+  const err  = document.getElementById('login-error');
+  err.style.color = '';
+  if (!name) { err.textContent = 'Informe um nome.'; return; }
+  if (!pwd || pwd.length < 4) { err.textContent = 'Senha deve ter pelo menos 4 caracteres.'; return; }
+  if (users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'Este nome já está em uso.'; return;
+  }
+  const hash = await sha256(pwd);
+  if (users.some(u => u.passHash === hash)) {
+    err.textContent = 'Esta senha já está em uso. Escolha outra.'; return;
+  }
+  users.push({ id: userNextId++, name, passHash: hash, status: 'pending' });
+  await save();
+  err.style.color = '#3dba6c';
+  err.textContent = 'Cadastro enviado! Aguarde a aprovação do ADM.';
+  document.getElementById('user-reg-name').value = '';
+  document.getElementById('user-reg-pwd').value = '';
 }
 
 async function sha256(str) {
@@ -572,25 +705,38 @@ function doLoginVisitor() {
   enterApp('visitor');
 }
 
-function enterApp(role) {
+function enterApp(role, user) {
   currentRole = role;
+  currentUser = user || null;
   sessionStorage.setItem('sw_role', role);
+  if (user) sessionStorage.setItem('sw_user', JSON.stringify(user));
+  else sessionStorage.removeItem('sw_user');
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const badge = document.getElementById('role-badge');
+  const usersTabBtn = document.getElementById('tab-users-btn');
+  document.body.classList.remove('visitor-mode','user-mode');
+
   if (role === 'adm') {
     badge.textContent = '⚔ ADM';
     badge.className = 'role-badge adm';
-    document.body.classList.remove('visitor-mode');
-    // Mostrar coluna WhatsApp pro ADM
+    if (usersTabBtn) usersTabBtn.style.display = '';
     const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = '';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
+  } else if (role === 'user') {
+    badge.textContent = '👤 ' + user.name;
+    badge.className = 'role-badge user-role';
+    document.body.classList.add('user-mode');
+    if (usersTabBtn) usersTabBtn.style.display = 'none';
+    const thWpp = document.getElementById('th-wpp');
+    if (thWpp) thWpp.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
   } else {
     badge.textContent = '👁 Visitante';
     badge.className = 'role-badge visitor';
     document.body.classList.add('visitor-mode');
-    // Esconder coluna WhatsApp do visitante
+    if (usersTabBtn) usersTabBtn.style.display = 'none';
     const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = 'none';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
@@ -599,13 +745,15 @@ function enterApp(role) {
 
 function doLogout() {
   sessionStorage.removeItem('sw_role');
+  sessionStorage.removeItem('sw_user');
   location.reload();
 }
 
 // Verificar sessão ao carregar
 const savedRole = sessionStorage.getItem('sw_role');
+const savedUser = sessionStorage.getItem('sw_user');
 if (savedRole) {
-  enterApp(savedRole);
+  enterApp(savedRole, savedUser ? JSON.parse(savedUser) : null);
 }
 
 
@@ -619,10 +767,12 @@ const PT_BORDER = ["pt1-border","pt2-border","pt3-border"];
 const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
 
 let chars   = [];
-let rejectedIds = []; // IDs de chars recusados pelo ADM
+let rejectedIds = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
 let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
 let members = ["Leão","LC","Tito","Nandao"];
+let users   = [];
+let userNextId = 1;
 let nextId  = 1;
 let pendingSendId = null;
 let selectedPT    = null;
@@ -665,7 +815,7 @@ async function save() {
     await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds })
+      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds, users, userNextId: String(userNextId) })
     });
     showSync('Salvo ✓', 'ok');
     // backup local
@@ -706,12 +856,14 @@ async function load() {
     const j = await r.json();
     if (j.ok && j.data) {
       const d = j.data;
-      if (d.chars)   { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
+      if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
       if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
-      if (d.pts)     pts     = JSON.parse(d.pts);
-      if (d.servers) servers = JSON.parse(d.servers);
-      if (d.members) members = JSON.parse(d.members);
-      if (d.nextId)  nextId  = parseInt(d.nextId)||1;
+      if (d.pts)         pts     = JSON.parse(d.pts);
+      if (d.servers)     servers = JSON.parse(d.servers);
+      if (d.members)     members = JSON.parse(d.members);
+      if (d.nextId)      nextId  = parseInt(d.nextId)||1;
+      if (d.users)       { users = JSON.parse(d.users); users.forEach(u => { u.id = Number(u.id); }); }
+      if (d.userNextId)  userNextId = parseInt(d.userNextId)||1;
     }
   } catch(e) {
     // fallback localStorage
@@ -741,7 +893,9 @@ function switchTab(t, btn) {
   document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-'+t).classList.add('active');
-  if(t==='chars') renderChars(); else renderPT();
+  if(t==='chars') renderChars();
+  else if(t==='pt') renderPT();
+  else if(t==='users') renderUsers();
 }
 
 // ── SERVER FILTER / SELECT ────────────────────────────────────────────────
@@ -882,25 +1036,28 @@ function openAddModal() {
   document.getElementById('m-obs').value='';
   document.getElementById('m-phone').value='';
 
-  // Visitante: fixar dono como "Visitante" e bloquear o select
   const ownerSel = document.getElementById('m-owner');
+  // Remover opções especiais residuais
+  ['Visitante'].forEach(v => {
+    const o = [...ownerSel.options].find(x => x.value === v);
+    if (o) ownerSel.remove(o.index);
+  });
+
   if (currentRole === 'visitor') {
-    // Garantir que existe a opção "Visitante"
     let visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
-    if (!visOpt) {
-      visOpt = new Option('Visitante', 'Visitante');
-      ownerSel.add(visOpt, 0);
-    }
+    if (!visOpt) { visOpt = new Option('Visitante','Visitante'); ownerSel.add(visOpt,0); }
     ownerSel.value = 'Visitante';
+    ownerSel.disabled = true;
+  } else if (currentRole === 'user') {
+    // Garantir que o nome do usuário está como opção
+    let userOpt = [...ownerSel.options].find(o => o.value === currentUser.name);
+    if (!userOpt) { userOpt = new Option(currentUser.name, currentUser.name); ownerSel.add(userOpt,0); }
+    ownerSel.value = currentUser.name;
     ownerSel.disabled = true;
   } else {
     ownerSel.disabled = false;
-    // Remover opção "Visitante" do select de ADM se existir
-    const visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
-    if (visOpt) ownerSel.remove(visOpt.index);
   }
 
-  // Mostrar campo de telefone só pro visitante
   const phoneGroup = document.getElementById('m-phone-group');
   if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
   openModal('modal-add');
@@ -913,6 +1070,24 @@ function addChar() {
   if (level < 400) {
     document.getElementById('m-level').focus();
     toast('Level mínimo para cadastro é 400.', 'error');
+    return;
+  }
+
+  // Usuário: aprovado direto com o próprio nome
+  if (currentRole === 'user') {
+    chars.push({
+      id:nextId++,
+      owner: currentUser.name,
+      name, cls: document.getElementById('m-class').value,
+      level: level,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      phone: '',
+      status: 'approved',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast(`${name} adicionado!`, 'success');
     return;
   }
 
@@ -1170,6 +1345,81 @@ function rejectChar(id) {
 }
 
 
+// ── USUÁRIOS (ADM) ────────────────────────────────────────────────────────
+function renderUsers() {
+  const pending  = users.filter(u => u.status === 'pending');
+  const rest     = users.filter(u => u.status !== 'pending');
+
+  const pendingSec   = document.getElementById('users-pending-section');
+  const pendingCount = document.getElementById('users-pending-count');
+  const pendingBody  = document.getElementById('users-pending-body');
+
+  if (pending.length) {
+    pendingSec.style.display = 'block';
+    pendingCount.textContent = pending.length;
+    pendingBody.innerHTML = '';
+    pending.forEach(u => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="char-name">${esc(u.name)}</td>
+        <td><span class="badge-pending">Pendente</span></td>
+        <td style="text-align:right;white-space:nowrap">
+          <button class="btn-approve" data-uid="${u.id}" title="Aprovar">✓</button>
+          <button class="btn-reject"  data-uid="${u.id}" title="Recusar">✕</button>
+        </td>`;
+      pendingBody.appendChild(tr);
+    });
+  } else {
+    pendingSec.style.display = 'none';
+  }
+
+  const approvedCount = document.getElementById('users-approved-count');
+  const listBody      = document.getElementById('users-list-body');
+  const usersEmpty    = document.getElementById('users-empty');
+
+  approvedCount.textContent = users.filter(u => u.status === 'approved').length;
+  listBody.innerHTML = '';
+
+  if (!rest.length) { usersEmpty.style.display = 'block'; return; }
+  usersEmpty.style.display = 'none';
+
+  rest.forEach((u, i) => {
+    const approved = u.status === 'approved';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
+      <td class="char-name">${esc(u.name)}</td>
+      <td>${approved
+        ? '<span class="badge-approved-user">Aprovado</span>'
+        : '<span class="badge-rejected">Recusado</span>'}</td>
+      <td style="text-align:right">
+        ${approved
+          ? `<button class="btn-reject"  data-uid="${u.id}" title="Revogar acesso">✕</button>`
+          : `<button class="btn-approve" data-uid="${u.id}" title="Reativar">✓</button>`}
+      </td>`;
+    listBody.appendChild(tr);
+  });
+}
+
+function approveUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'approved';
+  if (!members.includes(u.name)) { members.push(u.name); populateServerSelects(); }
+  save(); renderUsers();
+  toast(`${u.name} aprovado!`, 'success');
+}
+
+function rejectUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (u.status === 'approved' && !confirm(`Revogar acesso de "${u.name}"?`)) return;
+  if (u.status === 'pending'  && !confirm(`Recusar cadastro de "${u.name}"?`)) return;
+  u.status = 'rejected';
+  save(); renderUsers();
+  toast(`Usuário recusado.`);
+}
+
 // ── RECOMENDAÇÃO PT ───────────────────────────────────────────────────────
 let lastRecommend = null; // guarda o resultado pra aplicar depois
 
@@ -1322,25 +1572,19 @@ function applyRecommend() {
 document.addEventListener('click', function(e) {
   // Delete char
   const delBtn = e.target.closest('.btn-del[data-id]');
-  if (delBtn) {
-    e.stopPropagation();
-    deleteChar(parseInt(delBtn.dataset.id));
-    return;
-  }
-  // Approve
+  if (delBtn) { e.stopPropagation(); deleteChar(parseInt(delBtn.dataset.id)); return; }
+  // Approve char
   const appBtn = e.target.closest('.btn-approve[data-id]');
-  if (appBtn) {
-    e.stopPropagation();
-    approveChar(parseInt(appBtn.dataset.id));
-    return;
-  }
-  // Reject
+  if (appBtn) { e.stopPropagation(); approveChar(parseInt(appBtn.dataset.id)); return; }
+  // Reject char
   const rejBtn = e.target.closest('.btn-reject[data-id]');
-  if (rejBtn) {
-    e.stopPropagation();
-    rejectChar(parseInt(rejBtn.dataset.id));
-    return;
-  }
+  if (rejBtn) { e.stopPropagation(); rejectChar(parseInt(rejBtn.dataset.id)); return; }
+  // Approve user
+  const appUser = e.target.closest('.btn-approve[data-uid]');
+  if (appUser) { e.stopPropagation(); approveUser(parseInt(appUser.dataset.uid)); return; }
+  // Reject user
+  const rejUser = e.target.closest('.btn-reject[data-uid]');
+  if (rejUser) { e.stopPropagation(); rejectUser(parseInt(rejUser.dataset.uid)); return; }
 });
 
 // ── MODAL HELPERS ─────────────────────────────────────────────────────────
