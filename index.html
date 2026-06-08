@@ -403,12 +403,12 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <input type="password" id="user-reg-pwd" placeholder="Crie uma senha..." onkeydown="if(event.key==='Enter')doUserRegister()">
         </div>
         <button class="btn-login" onclick="doUserRegister()">Cadastrar</button>
-        <p class="login-visitor-info">Após o cadastro, aguarde a aprovação do ADM para acessar o sistema.</p>
+        <p class="login-visitor-info" style="font-size:.95rem;margin-top:.85rem">Após o cadastro, aguarde a aprovação do ADM para acessar o sistema.</p>
       </div>
     </div>
 
     <div id="visitor-fields">
-      <p class="login-visitor-info">Acesso de visitante permite visualizar personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
+      <p class="login-visitor-info">Visitantes são bem vindos aqui, cadastre seus personagens que logo entraremos em contato.</p>
       <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
     </div>
 
@@ -828,25 +828,53 @@ function showSync(msg, type) {
 async function save() {
   showSync('Salvando...', 'saving');
   try {
-    // Buscar dados remotos para mesclar APENAS personagens pendentes de visitantes
-    // que ainda não existem localmente — sem reintroduzir deletados
     const r = await fetch(API + '?action=load');
     const j = await r.json();
-    if (j.ok && j.data && j.data.chars) {
-      const remoteChars = JSON.parse(j.data.chars);
-      remoteChars.forEach(c => { c.id = Number(c.id); });
-      const localIds = new Set(chars.map(c => Number(c.id)));
-      // Só adicionar chars remotos que:
-      // 1) Não existem localmente (novo visitante adicionou)
-      // 2) São pendentes
-      // 3) Não foram recusados pelo ADM
-      const rejSet = new Set(rejectedIds);
-      remoteChars.forEach(rc => {
-        if (!localIds.has(rc.id) && rc.status === 'pending' && !rejSet.has(rc.id)) {
-          chars.push(rc);
-          if (rc.id >= nextId) nextId = rc.id + 1;
+    if (j.ok && j.data) {
+      // ── Mesclar chars pendentes de outras sessões ──────────────────────────
+      if (j.data.chars) {
+        const remoteChars = JSON.parse(j.data.chars);
+        remoteChars.forEach(c => { c.id = Number(c.id); });
+        const localIds = new Set(chars.map(c => Number(c.id)));
+        const rejSet   = new Set(rejectedIds);
+        remoteChars.forEach(rc => {
+          if (!localIds.has(rc.id) && rc.status === 'pending' && !rejSet.has(rc.id)) {
+            chars.push(rc);
+            if (rc.id >= nextId) nextId = rc.id + 1;
+          }
+        });
+      }
+
+      // ── Mesclar usuários ───────────────────────────────────────────────────
+      // Regra: o ADM é autoridade sobre status; outras sessões só acrescentam
+      // novos cadastros mas nunca sobrescrevem status definidos pelo ADM.
+      if (j.data.users) {
+        const remoteUsers = JSON.parse(j.data.users);
+        remoteUsers.forEach(u => { u.id = Number(u.id); });
+
+        if (currentRole !== 'adm') {
+          // Sessão não-ADM: manter o estado remoto como base (preserva aprovações)
+          // e adicionar apenas cadastros locais que o remoto ainda não tem.
+          const remoteIds = new Set(remoteUsers.map(u => Number(u.id)));
+          users.forEach(u => {
+            if (!remoteIds.has(u.id)) {
+              remoteUsers.push(u);
+              if (u.id >= userNextId) userNextId = u.id + 1;
+            }
+          });
+          users = remoteUsers;
+        } else {
+          // Sessão ADM: estado local é autoridade; absorver apenas cadastros
+          // novos que chegaram do remoto (registros feitos em outra aba/sessão).
+          const localUserIds = new Set(users.map(u => Number(u.id)));
+          remoteUsers.forEach(ru => {
+            if (!localUserIds.has(ru.id)) {
+              users.push(ru);
+              if (ru.id >= userNextId) userNextId = ru.id + 1;
+            }
+          });
         }
-      });
+      }
     }
 
     await fetch(API, {
@@ -855,12 +883,13 @@ async function save() {
       body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds, users, userNextId: String(userNextId) })
     });
     showSync('Salvo ✓', 'ok');
-    // backup local
-    localStorage.setItem('sw_chars',   JSON.stringify(chars));
-    localStorage.setItem('sw_pts',     JSON.stringify(pts));
-    localStorage.setItem('sw_servers', JSON.stringify(servers));
-    localStorage.setItem('sw_members', JSON.stringify(members));
-    localStorage.setItem('sw_nextId',  String(nextId));
+    localStorage.setItem('sw_chars',      JSON.stringify(chars));
+    localStorage.setItem('sw_pts',        JSON.stringify(pts));
+    localStorage.setItem('sw_servers',    JSON.stringify(servers));
+    localStorage.setItem('sw_members',    JSON.stringify(members));
+    localStorage.setItem('sw_nextId',     String(nextId));
+    localStorage.setItem('sw_users',      JSON.stringify(users));
+    localStorage.setItem('sw_userNextId', String(userNextId));
   } catch(e) {
     showSync('Erro ao salvar', 'err');
   }
@@ -904,16 +933,20 @@ async function load() {
     }
   } catch(e) {
     // fallback localStorage
-    const c=localStorage.getItem('sw_chars');
-    const p=localStorage.getItem('sw_pts');
-    const s=localStorage.getItem('sw_servers');
-    const mb=localStorage.getItem('sw_members');
-    const n=localStorage.getItem('sw_nextId');
-    if(c) { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
-    if(p) pts=JSON.parse(p);
-    if(s) servers=JSON.parse(s);
+    const c  = localStorage.getItem('sw_chars');
+    const p  = localStorage.getItem('sw_pts');
+    const s  = localStorage.getItem('sw_servers');
+    const mb = localStorage.getItem('sw_members');
+    const n  = localStorage.getItem('sw_nextId');
+    const u  = localStorage.getItem('sw_users');
+    const un = localStorage.getItem('sw_userNextId');
+    if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
+    if(p)  pts=JSON.parse(p);
+    if(s)  servers=JSON.parse(s);
     if(mb) members=JSON.parse(mb);
-    if(n) nextId=parseInt(n)||1;
+    if(n)  nextId=parseInt(n)||1;
+    if(u)  { users=JSON.parse(u); users.forEach(x => { x.id = Number(x.id); }); }
+    if(un) userNextId=parseInt(un)||1;
     showSync('Offline — dados locais', 'err');
   }
   while(pts.length<3) pts.push([null,null,null,null,null]);
