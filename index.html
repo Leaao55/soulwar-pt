@@ -357,6 +357,13 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 
 select:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── FINALIZAR PT ── */
+.btn-finalize { width:100%; padding:.65rem 1rem; border:none;
+  border-top:1px solid rgba(224,82,82,.2); background:transparent;
+  color:rgba(224,82,82,.55); font-family:'Cinzel',serif; font-size:.68rem;
+  letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .18s; }
+.btn-finalize:hover { background:rgba(224,82,82,.08); color:#e05252; }
+
 /* ── BACKUP ── */
 .backup-item { display:flex; align-items:center; justify-content:space-between;
   padding:.85rem 1.2rem; background:var(--surface); border:1px solid var(--border);
@@ -1210,11 +1217,14 @@ function renderPT() {
       }
     }
     const filled=pt.filter(x=>x!=null).length;
+    const admFooter = currentRole === 'adm'
+      ? `<button class="btn-finalize" onclick="finalizePT(${pi})">⚔ Soulwar Finalizada</button>`
+      : '';
     card.innerHTML=`
       <div class="pt-card-header">
         <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
         <span class="pt-card-count">${filled}/5</span>
-      </div>${slots}`;
+      </div>${slots}${admFooter}`;
     grid.appendChild(card);
   });
 }
@@ -1411,6 +1421,19 @@ function confirmSendPT() {
   save(); closeModal('modal-pt'); renderChars();
   toast(`${c.name} → ${PT_NAMES[selectedPT]}!`,'success');
 }
+function finalizePT(pi) {
+  const ptIds = pts[pi].filter(x => x !== null);
+  if (!ptIds.length) { toast('PT vazia, nada para finalizar.', 'error'); return; }
+  const names = ptIds.map(cid => { const c = chars.find(x => x.id === cid); return c ? c.name : ''; }).filter(Boolean);
+  if (!confirm(`Confirmar? Os personagens desta PT serão removidos da lista de cadastrados.\n\n${names.join(', ')}`)) return;
+  const idSet = new Set(ptIds);
+  chars = chars.filter(c => !idSet.has(c.id));
+  deletedIds.push(...ptIds);
+  pts[pi] = [null, null, null, null, null];
+  save(); renderPT(); renderChars();
+  toast(`${PT_NAMES[pi]} finalizada! ${names.length} personagem(s) removido(s).`, 'success');
+}
+
 function removeFromPT(pi,cid) {
   const idx=pts[pi].indexOf(cid);
   if(idx>-1) pts[pi][idx]=null;
