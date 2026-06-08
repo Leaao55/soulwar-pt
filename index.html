@@ -572,7 +572,10 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       </div>
       <div class="form-group full">
         <label>Nome do personagem</label>
-        <input type="text" id="m-name" placeholder="Ex: DarkSlayer">
+        <input type="text" id="m-name" placeholder="Ex: DarkSlayer"
+          onblur="lookupCharacter()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();lookupCharacter()}">
+        <div id="char-lookup-status" style="font-size:.8rem;margin-top:.3rem;min-height:1.1rem"></div>
       </div>
       <div class="form-group full">
         <label>Classe / Vocação</label>
@@ -693,11 +696,27 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
   <div class="modal">
     <h2>Quem está online?</h2>
     <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">Selecione os membros presentes para montar a PT.</p>
-    <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+    <input type="text" id="recommend-member-search" placeholder="Filtrar membros..."
+      oninput="filterMembers(this.value)"
+      style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+      font-family:'Crimson Pro',serif;font-size:.95rem;padding:.5rem .9rem;border-radius:3px;
+      outline:none;margin-bottom:.5rem;transition:border-color .2s"
+      onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
+    <div style="display:flex;gap:.5rem;margin-bottom:.5rem">
       <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(true)">Selecionar todos</button>
       <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(false)">Limpar seleção</button>
     </div>
-    <div id="recommend-member-list" style="max-height:240px;overflow-y:auto;margin-bottom:1.2rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <div id="recommend-member-list" style="max-height:180px;overflow-y:auto;margin-bottom:1rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <div class="form-group" style="margin-bottom:1.2rem">
+      <label>Servidor preferido</label>
+      <input type="text" id="recommend-server" list="recommend-server-datalist"
+        placeholder="Deixar em branco para qualquer servidor..."
+        style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+        font-family:'Crimson Pro',serif;font-size:1rem;padding:.55rem .9rem;border-radius:3px;
+        outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
+      <datalist id="recommend-server-datalist"></datalist>
+    </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-recommend')">Cancelar</button>
       <button class="btn-confirm" onclick="confirmRecommend()">✦ Recomendar</button>
@@ -710,6 +729,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 <script>
 // ── LOGIN ─────────────────────────────────────────────────────────────────
 const ADM_HASH = "c1d0e46fdeb2b72758a6a5bd5eecf2622ff8b84a8964c8e9687c6c05c9f474b5";
+const ANTHROPIC_API_KEY = ''; // preencha com sua chave da Anthropic para busca automática no Rubinot
 let currentRole = null; // 'adm' | 'user' | 'visitor'
 let currentUser = null; // {id, name, passHash, status} when role='user'
 
@@ -1252,6 +1272,77 @@ function renderPT() {
   });
 }
 
+// ── BUSCA RUBINOT ─────────────────────────────────────────────────────────
+async function lookupCharacter() {
+  const name = document.getElementById('m-name').value.trim();
+  const statusEl = document.getElementById('char-lookup-status');
+  if (!name || !ANTHROPIC_API_KEY) { if (statusEl) statusEl.innerHTML = ''; return; }
+
+  statusEl.innerHTML = '<span style="color:var(--text-muted)">⌛ Buscando em Rubinot...</span>';
+
+  try {
+    // 1. Buscar HTML via proxy CORS
+    const proxyUrl = 'https://api.allorigins.win/get?url=' +
+      encodeURIComponent('https://rubinot.com.br/characters?name=' + encodeURIComponent(name));
+    const proxyRes = await fetch(proxyUrl);
+    if (!proxyRes.ok) throw new Error('proxy_error');
+    const proxyData = await proxyRes.json();
+    const html = proxyData.contents || '';
+
+    // Extrair trecho relevante do HTML para reduzir tokens
+    const bodyMatch = html.match(/<body[\s\S]*?<\/body>/i);
+    const body = bodyMatch ? bodyMatch[0] : html;
+    const snippet = body.substring(0, 9000);
+
+    // 2. Enviar para Claude (haiku) para extração estruturada
+    const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 256,
+        messages: [{
+          role: 'user',
+          content: `Do HTML abaixo, extraia o level e a vocação do personagem "${name}". ` +
+            `Responda SOMENTE com JSON puro (sem markdown, sem explicação): ` +
+            `{"level": NUMBER, "vocation": "STRING"} ou {"error": "not found"}. ` +
+            `A vocação deve ser exatamente uma dessas: "ELITE KNIGHT", "ELDER DRUID", ` +
+            `"MASTER SORCERER", "ROYAL PALADIN", "EXALTED MONK".\n\nHTML:\n${snippet}`
+        }]
+      })
+    });
+
+    const apiData = await apiRes.json();
+    const rawText = apiData.content?.[0]?.text?.trim() || '{"error":"parse"}';
+    // Extrair JSON mesmo que venha com markdown
+    const jsonMatch = rawText.match(/\{[\s\S]*?\}/);
+    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : '{"error":"parse"}');
+
+    if (parsed.error) {
+      statusEl.innerHTML = '<span style="color:#e05252">Personagem não encontrado</span>';
+      return;
+    }
+
+    // Preencher level
+    if (parsed.level) document.getElementById('m-level').value = Number(parsed.level);
+
+    // Preencher vocação
+    const validClasses = ['ELITE KNIGHT','ELDER DRUID','MASTER SORCERER','ROYAL PALADIN','EXALTED MONK'];
+    if (parsed.vocation && validClasses.includes(parsed.vocation)) {
+      document.getElementById('m-class').value = parsed.vocation;
+    }
+
+    statusEl.innerHTML = '<span style="color:#3dba6c">✓ Personagem encontrado!</span>';
+  } catch(e) {
+    console.error('[SW] lookupCharacter:', e);
+    statusEl.innerHTML = '<span style="color:#e05252">Erro ao buscar personagem</span>';
+  }
+}
+
 // ── ADD CHAR ──────────────────────────────────────────────────────────────
 function openAddModal() {
   populateServerSelects();
@@ -1712,23 +1803,44 @@ function runRecommend() {
     label.innerHTML = `<input type="checkbox" value="${esc(m)}"> ${esc(m)}`;
     list.appendChild(label);
   });
+  // Resetar filtro de membros
+  const search = document.getElementById('recommend-member-search');
+  if (search) { search.value = ''; filterMembers(''); }
+  // Popular datalist de servidores
+  const dl = document.getElementById('recommend-server-datalist');
+  dl.innerHTML = '';
+  servers.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); });
+  document.getElementById('recommend-server').value = '';
   openModal('modal-recommend');
 }
 
+function filterMembers(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#recommend-member-list .member-check-label').forEach(label => {
+    label.style.display = label.textContent.trim().toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
 function selectAllMembers(val) {
-  document.querySelectorAll('#recommend-member-list input[type=checkbox]').forEach(cb => cb.checked = val);
+  // Respeitar o filtro ativo: só afeta labels visíveis
+  document.querySelectorAll('#recommend-member-list .member-check-label').forEach(label => {
+    if (label.style.display !== 'none') label.querySelector('input').checked = val;
+  });
 }
 
 function confirmRecommend() {
   const selected = [...document.querySelectorAll('#recommend-member-list input[type=checkbox]')]
     .filter(cb => cb.checked).map(cb => cb.value);
   if (!selected.length) { toast('Selecione pelo menos um membro.', 'error'); return; }
+  // Validar servidor: aceitar só se bater exatamente com um servidor cadastrado
+  const srvInput = document.getElementById('recommend-server').value.trim();
+  const preferredServer = servers.includes(srvInput) ? srvInput : '';
   closeModal('modal-recommend');
-  buildRecommendation(selected);
+  buildRecommendation(selected, preferredServer);
 }
 
 // Tenta montar a melhor PT para os membros selecionados
-function buildRecommendation(selectedMembers) {
+function buildRecommendation(selectedMembers, preferredServer = '') {
   const memberSet = new Set(selectedMembers);
 
   const available = chars.filter(c =>
@@ -1742,23 +1854,37 @@ function buildRecommendation(selectedMembers) {
     serverGroups[srv].push(c);
   });
 
-  // Tentar primeiro com 1 char/membro; se falhar, relaxar para 2 automaticamente
-  let bestTeamGlobal = null, bestStdGlobal = Infinity, bestServerName = '';
-
-  for (const maxPerMember of [1, 2]) {
-    bestTeamGlobal = null; bestStdGlobal = Infinity; bestServerName = '';
-    for (const [srv, group] of Object.entries(serverGroups)) {
-      const result = tryFormPT(group, maxPerMember);
-      if (result && result.std < bestStdGlobal) {
-        bestStdGlobal = result.std;
-        bestTeamGlobal = result.team;
-        bestServerName = srv;
+  // Busca melhor time entre uma lista de servidores, com relaxamento automático
+  const searchServers = (srvList) => {
+    for (const maxPerMember of [1, 2]) {
+      let best = null, bestStd = Infinity, bestSrv = '';
+      for (const srv of srvList) {
+        if (!serverGroups[srv]) continue;
+        const r = tryFormPT(serverGroups[srv], maxPerMember);
+        if (r && r.std < bestStd) { bestStd = r.std; best = r.team; bestSrv = srv; }
       }
+      if (best) return { team: best, std: bestStd, server: bestSrv };
     }
-    if (bestTeamGlobal) break;
+    return null;
+  };
+
+  let result = null;
+  let usedFallback = false;
+
+  if (preferredServer) {
+    // 1º: tentar apenas o servidor preferido
+    result = searchServers([preferredServer]);
+    if (!result) {
+      // 2º: tentar demais servidores
+      const others = Object.keys(serverGroups).filter(s => s !== preferredServer);
+      result = searchServers(others);
+      if (result) usedFallback = true;
+    }
+  } else {
+    result = searchServers(Object.keys(serverGroups));
   }
 
-  if (!bestTeamGlobal) {
+  if (!result) {
     const allServers = [...new Set(available.map(c => c.server || '(sem servidor)'))];
     const detail = allServers.length ? allServers.map(srv => {
       const g = available.filter(c => (c.server || '(sem servidor)') === srv);
@@ -1780,13 +1906,22 @@ function buildRecommendation(selectedMembers) {
     return;
   }
 
-  lastRecommend = bestTeamGlobal;
-  const avg   = Math.round(bestTeamGlobal.map(c => c.level || 0).reduce((a, b) => a + b, 0) / 5);
-  const lines = bestTeamGlobal.map(c =>
+  lastRecommend = result.team;
+  const avg   = Math.round(result.team.map(c => c.level || 0).reduce((a, b) => a + b, 0) / 5);
+  const lines = result.team.map(c =>
     `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level || '?'} — ${esc(c.owner)}</div>`
   ).join('');
+
+  let srvLabel = `SERVIDOR: ${esc(result.server)}`;
+  let srvNote  = '';
+  if (preferredServer && !usedFallback) {
+    srvNote = `<span style="color:#3dba6c;font-size:.65rem;margin-left:.5rem">✓ preferido</span>`;
+  } else if (preferredServer && usedFallback) {
+    srvNote = `<span style="color:#e07b35;font-size:.65rem;margin-left:.5rem">(${esc(preferredServer)} sem composição — usando fallback)</span>`;
+  }
+
   document.getElementById('rec-result-body').innerHTML =
-    `<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStdGlobal)}</b></div>`;
+    `<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">${srvLabel}${srvNote}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(result.std)}</b></div>`;
   document.querySelector('.rec-result-footer').style.display = 'flex';
   document.getElementById('rec-result').classList.add('show');
 }
