@@ -278,7 +278,9 @@ body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
 body.visitor-mode .btn-approve,
-body.visitor-mode .btn-reject { display:none !important; }
+body.visitor-mode .btn-reject,
+body.visitor-mode .btn-delete-user { display:none !important; }
+body.user-mode .btn-delete-user { display:none !important; }
 body.visitor-mode .col-adm-actions { display:none !important; }
 body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !important; }
 
@@ -323,6 +325,11 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
   border:1px solid rgba(224,82,82,.3); background:transparent; color:rgba(224,82,82,.4);
   font-size:.85rem; cursor:pointer; transition:all .15s; margin-left:3px; }
 .btn-reject:hover { border-color:#e05252; color:#e05252; background:rgba(224,82,82,.1); }
+.btn-delete-user { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(160,60,60,.3); background:transparent; color:rgba(160,60,60,.45);
+  font-size:.8rem; cursor:pointer; transition:all .15s; margin-left:3px; }
+.btn-delete-user:hover { border-color:#c0392b; color:#c0392b; background:rgba(192,57,43,.12); }
 
 .btn-wpp { display:inline-flex; align-items:center; gap:.35rem;
   padding:.2rem .6rem; border-radius:3px; font-size:.78rem;
@@ -1659,6 +1666,7 @@ function renderUsers() {
         <td style="text-align:right;white-space:nowrap">
           <button class="btn-approve" data-uid="${u.id}" title="Aprovar">✓</button>
           <button class="btn-reject"  data-uid="${u.id}" title="Recusar">✕</button>
+          <button class="btn-delete-user" data-uid="${u.id}" title="Deletar permanentemente">🗑️</button>
         </td>`;
       pendingBody.appendChild(tr);
     });
@@ -1685,10 +1693,11 @@ function renderUsers() {
       <td>${approved
         ? '<span class="badge-approved-user">Aprovado</span>'
         : '<span class="badge-rejected">Recusado</span>'}</td>
-      <td style="text-align:right">
+      <td style="text-align:right;white-space:nowrap">
         ${approved
           ? `<button class="btn-reject"  data-uid="${u.id}" title="Revogar acesso">✕</button>`
           : `<button class="btn-approve" data-uid="${u.id}" title="Reativar">✓</button>`}
+        <button class="btn-delete-user" data-uid="${u.id}" title="Deletar permanentemente">🗑️</button>
       </td>`;
     listBody.appendChild(tr);
   });
@@ -1711,6 +1720,16 @@ function rejectUser(id) {
   u.status = 'rejected';
   save(); renderUsers();
   toast(`Usuário recusado.`);
+}
+
+function deleteUser(id) {
+  if (currentRole !== 'adm') return;
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm(`Deletar permanentemente "${u.name}"? Esta ação não pode ser desfeita.`)) return;
+  users = users.filter(x => x.id !== id);
+  save(); renderUsers();
+  toast(`${u.name} removido permanentemente.`);
 }
 
 // ── RECOMENDAÇÃO PT ───────────────────────────────────────────────────────
@@ -1958,6 +1977,9 @@ document.addEventListener('click', function(e) {
   // Reject user
   const rejUser = e.target.closest('.btn-reject[data-uid]');
   if (rejUser) { e.stopPropagation(); rejectUser(parseInt(rejUser.dataset.uid)); return; }
+  // Delete user permanently
+  const delUser = e.target.closest('.btn-delete-user[data-uid]');
+  if (delUser) { e.stopPropagation(); deleteUser(parseInt(delUser.dataset.uid)); return; }
 });
 
 // ── MODAL HELPERS ─────────────────────────────────────────────────────────
