@@ -729,7 +729,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 <script>
 // ── LOGIN ─────────────────────────────────────────────────────────────────
 const ADM_HASH = "c1d0e46fdeb2b72758a6a5bd5eecf2622ff8b84a8964c8e9687c6c05c9f474b5";
-const ANTHROPIC_API_KEY = ''; // preencha com sua chave da Anthropic para busca automática no Rubinot
 let currentRole = null; // 'adm' | 'user' | 'visitor'
 let currentUser = null; // {id, name, passHash, status} when role='user'
 
@@ -1276,65 +1275,52 @@ function renderPT() {
 async function lookupCharacter() {
   const name = document.getElementById('m-name').value.trim();
   const statusEl = document.getElementById('char-lookup-status');
-  if (!name || !ANTHROPIC_API_KEY) { if (statusEl) statusEl.innerHTML = ''; return; }
+  if (!name) { if (statusEl) statusEl.innerHTML = ''; return; }
 
   statusEl.innerHTML = '<span style="color:var(--text-muted)">⌛ Buscando em Rubinot...</span>';
 
   try {
-    // 1. Buscar HTML via proxy CORS
     const proxyUrl = 'https://api.allorigins.win/get?url=' +
       encodeURIComponent('https://rubinot.com.br/characters?name=' + encodeURIComponent(name));
-    const proxyRes = await fetch(proxyUrl);
-    if (!proxyRes.ok) throw new Error('proxy_error');
-    const proxyData = await proxyRes.json();
-    const html = proxyData.contents || '';
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error('proxy');
+    const data = await res.json();
+    const html = data.contents || '';
 
-    // Extrair trecho relevante do HTML para reduzir tokens
-    const bodyMatch = html.match(/<body[\s\S]*?<\/body>/i);
-    const body = bodyMatch ? bodyMatch[0] : html;
-    const snippet = body.substring(0, 9000);
+    // Mapear vocação — padrões case-insensitive, do mais específico para o mais genérico
+    const VOC_MAP = [
+      [/elite\s*knight/i,    'ELITE KNIGHT'],
+      [/elder\s*druid/i,     'ELDER DRUID'],
+      [/master\s*sorcerer/i, 'MASTER SORCERER'],
+      [/royal\s*paladin/i,   'ROYAL PALADIN'],
+      [/exalted\s*monk/i,    'EXALTED MONK'],
+    ];
+    let vocation = null;
+    for (const [pat, cls] of VOC_MAP) {
+      if (pat.test(html)) { vocation = cls; break; }
+    }
 
-    // 2. Enviar para Claude (haiku) para extração estruturada
-    const apiRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 256,
-        messages: [{
-          role: 'user',
-          content: `Do HTML abaixo, extraia o level e a vocação do personagem "${name}". ` +
-            `Responda SOMENTE com JSON puro (sem markdown, sem explicação): ` +
-            `{"level": NUMBER, "vocation": "STRING"} ou {"error": "not found"}. ` +
-            `A vocação deve ser exatamente uma dessas: "ELITE KNIGHT", "ELDER DRUID", ` +
-            `"MASTER SORCERER", "ROYAL PALADIN", "EXALTED MONK".\n\nHTML:\n${snippet}`
-        }]
-      })
-    });
-
-    const apiData = await apiRes.json();
-    const rawText = apiData.content?.[0]?.text?.trim() || '{"error":"parse"}';
-    // Extrair JSON mesmo que venha com markdown
-    const jsonMatch = rawText.match(/\{[\s\S]*?\}/);
-    const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : '{"error":"parse"}');
-
-    if (parsed.error) {
+    // Se não encontrou vocação, personagem não existe neste servidor
+    if (!vocation) {
       statusEl.innerHTML = '<span style="color:#e05252">Personagem não encontrado</span>';
       return;
     }
 
-    // Preencher level
-    if (parsed.level) document.getElementById('m-level').value = Number(parsed.level);
-
-    // Preencher vocação
-    const validClasses = ['ELITE KNIGHT','ELDER DRUID','MASTER SORCERER','ROYAL PALADIN','EXALTED MONK'];
-    if (parsed.vocation && validClasses.includes(parsed.vocation)) {
-      document.getElementById('m-class').value = parsed.vocation;
+    // Extrair level — tenta padrões de tabela e atributos comuns
+    let level = null;
+    const LEVEL_PATS = [
+      /Level\s*<\/td>\s*<td[^>]*>\s*(\d+)/i,
+      /level[^>]*>\s*(\d+)/i,
+      /"level"\s*:\s*(\d+)/i,
+      /Level:\s*(\d+)/i,
+    ];
+    for (const pat of LEVEL_PATS) {
+      const m = html.match(pat);
+      if (m && Number(m[1]) >= 1) { level = Number(m[1]); break; }
     }
+
+    if (level) document.getElementById('m-level').value = level;
+    document.getElementById('m-class').value = vocation;
 
     statusEl.innerHTML = '<span style="color:#3dba6c">✓ Personagem encontrado!</span>';
   } catch(e) {
