@@ -99,6 +99,10 @@ tbody tr:hover td{background:rgba(201,146,42,.04);}
   background:transparent;color:rgba(224,82,82,.4);font-size:.85rem;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:4px;}
 .btn-del:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+.btn-edit{width:26px;height:26px;border-radius:50%;border:1px solid rgba(107,112,153,.3);
+  background:transparent;color:rgba(107,112,153,.6);font-size:.75rem;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:4px;}
+.btn-edit:hover{border-color:#8a91c0;color:#b0b8e8;background:rgba(107,112,153,.12);}
 
 .empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;}
 
@@ -387,9 +391,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       </div>
       <div id="user-login-area">
         <div class="login-field">
-          <input type="text" id="user-login-name" placeholder="Seu nome..." onkeydown="if(event.key==='Enter')doUserLogin()">
-        </div>
-        <div class="login-field">
           <input type="password" id="user-login-pwd" placeholder="Sua senha..." onkeydown="if(event.key==='Enter')doUserLogin()">
         </div>
         <button class="btn-login" onclick="doUserLogin()">Entrar</button>
@@ -565,6 +566,42 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
   </div>
 </div>
 
+<!-- MODAL: EDITAR PERSONAGEM -->
+<div class="modal-overlay" id="modal-edit" onclick="if(event.target===this)closeModal('modal-edit')">
+  <div class="modal">
+    <h2>Editar personagem</h2>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nome do personagem</label>
+        <input type="text" id="e-name" placeholder="Ex: DarkSlayer">
+      </div>
+      <div class="form-group full">
+        <label>Classe / Vocação</label>
+        <select id="e-class">
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <input type="number" id="e-level" placeholder="500" min="1">
+      </div>
+      <div class="form-group">
+        <label>Servidor</label>
+        <select id="e-server"></select>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <input type="text" id="e-obs" placeholder="Opcional...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-edit')">Cancelar</button>
+      <button class="btn-confirm" onclick="saveEdit()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: ENVIAR PARA PT -->
 <div class="modal-overlay" id="modal-pt" onclick="if(event.target===this)closeModal('modal-pt')">
   <div class="modal">
@@ -645,15 +682,14 @@ function setUserSub(sub) {
 }
 
 async function doUserLogin() {
-  const name = document.getElementById('user-login-name').value.trim();
-  const pwd  = document.getElementById('user-login-pwd').value;
-  const err  = document.getElementById('login-error');
+  const pwd = document.getElementById('user-login-pwd').value;
+  const err = document.getElementById('login-error');
   err.style.color = '';
-  if (!name || !pwd) { err.textContent = 'Preencha nome e senha.'; return; }
+  if (!pwd) { err.textContent = 'Digite sua senha.'; return; }
   const hash = await sha256(pwd);
-  const user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.passHash === hash);
+  const user = users.find(u => u.passHash === hash);
   if (!user) {
-    err.textContent = 'Nome ou senha incorretos.';
+    err.textContent = 'Senha incorreta.';
     document.getElementById('user-login-pwd').value = '';
     return;
   }
@@ -776,6 +812,7 @@ let userNextId = 1;
 let nextId  = 1;
 let pendingSendId = null;
 let selectedPT    = null;
+let editingCharId = null;
 
 const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
 
@@ -965,6 +1002,7 @@ function renderChars() {
   empty.style.display = list.length?'none':'block';
   list.forEach((c,i)=>{
     const sent = c.sentTo!==null && c.sentTo!==undefined;
+    const canEdit = currentRole === 'adm' || (currentRole === 'user' && currentUser && c.owner === currentUser.name);
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
@@ -977,6 +1015,7 @@ function renderChars() {
       <td class="td-wpp" style="display:none">${currentRole === 'adm' && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
+        ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
         <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
       </td>`;
     tbody.appendChild(tr);
@@ -1130,6 +1169,47 @@ function addChar() {
   save(); closeModal('modal-add'); renderChars();
   toast(`${name} adicionado!`, 'success');
 }
+function openEditModal(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  editingCharId = id;
+  document.getElementById('e-name').value  = c.name;
+  document.getElementById('e-class').value = c.cls;
+  document.getElementById('e-level').value = c.level || '';
+  document.getElementById('e-obs').value   = c.obs || '';
+  // Preencher select de servidor
+  const eServer = document.getElementById('e-server');
+  eServer.innerHTML = '';
+  servers.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    if (s === c.server) o.selected = true;
+    eServer.appendChild(o);
+  });
+  openModal('modal-edit');
+  setTimeout(() => document.getElementById('e-name').focus(), 120);
+}
+
+function saveEdit() {
+  const c = chars.find(x => x.id === editingCharId);
+  if (!c) return;
+  const name = document.getElementById('e-name').value.trim();
+  if (!name) { document.getElementById('e-name').focus(); return; }
+  const level = parseInt(document.getElementById('e-level').value) || 0;
+  if (level < 400) {
+    document.getElementById('e-level').focus();
+    toast('Level mínimo é 400.', 'error');
+    return;
+  }
+  c.name   = name;
+  c.cls    = document.getElementById('e-class').value;
+  c.level  = level;
+  c.server = document.getElementById('e-server').value;
+  c.obs    = document.getElementById('e-obs').value.trim();
+  save(); closeModal('modal-edit'); renderChars();
+  toast(`${name} atualizado!`, 'success');
+}
+
 function deleteChar(id) {
   const c=chars.find(x=>x.id===id);
   if(!c) return;
@@ -1570,6 +1650,9 @@ function applyRecommend() {
 
 // ── EVENT DELEGATION para botões de delete/approve/reject ─────────────────
 document.addEventListener('click', function(e) {
+  // Edit char
+  const editBtn = e.target.closest('.btn-edit[data-eid]');
+  if (editBtn) { e.stopPropagation(); openEditModal(parseInt(editBtn.dataset.eid)); return; }
   // Delete char
   const delBtn = e.target.closest('.btn-del[data-id]');
   if (delBtn) { e.stopPropagation(); deleteChar(parseInt(delBtn.dataset.id)); return; }
