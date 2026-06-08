@@ -1280,12 +1280,15 @@ async function lookupCharacter() {
   statusEl.innerHTML = '<span style="color:var(--text-muted)">⌛ Buscando em Rubinot...</span>';
 
   try {
-    const proxyUrl = 'https://api.allorigins.win/get?url=' +
-      encodeURIComponent('https://rubinot.com.br/characters?name=' + encodeURIComponent(name));
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error('proxy');
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({ action: 'lookupCharacter', name })
+    });
+    if (!res.ok) throw new Error('apps_script');
     const data = await res.json();
-    const html = data.contents || '';
+    if (!data.ok) throw new Error('rubinot_fetch');
+    const html = data.html || '';
     console.log('[SW] Rubinot HTML bruto:', html);
 
     // Mapear vocação — padrões case-insensitive, do mais específico para o mais genérico
