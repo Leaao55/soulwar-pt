@@ -327,9 +327,88 @@ body:not(.visitor-mode) .visitor-pending-label { display:none !important; }
 
 
 select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── CADASTRO / ÁREA ADM ── */
+.login-tab-bar { display:flex; gap:0; margin-bottom:1.5rem; border:1px solid var(--border); border-radius:3px; overflow:hidden; }
+.login-tab { flex:1; padding:.6rem; font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.08em;
+  text-transform:uppercase; background:transparent; color:var(--text-muted);
+  border:none; cursor:pointer; transition:all .18s; border-right:1px solid var(--border); }
+.login-tab:last-child { border-right:none; }
+.login-tab.active { background:var(--surface2); color:var(--gold2); }
+.login-tab:hover:not(.active) { color:var(--text); }
+
+.pending-users-section { margin-bottom:1.5rem; }
+.pending-users-title { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.12em;
+  text-transform:uppercase; color:#e07b35; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.pending-users-title::after { content:''; flex:1; height:1px; background:rgba(224,123,53,.25); }
+.active-users-title { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.12em;
+  text-transform:uppercase; color:#3dba6c; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.active-users-title::after { content:''; flex:1; height:1px; background:rgba(61,186,108,.25); }
+.user-card { display:flex; align-items:center; justify-content:space-between;
+  padding:.7rem 1rem; background:var(--surface2); border:1px solid var(--border);
+  border-radius:3px; margin-bottom:.5rem; }
+.user-card-name { font-weight:600; color:var(--text); font-size:.95rem; }
+.user-card-actions { display:flex; gap:.5rem; }
+
 </style>
 </head>
 <body>
+
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-ornament">
+      <div class="orn-line"></div><div class="orn-diamond"></div><div class="orn-line r"></div>
+    </div>
+    <h1>Soulwar</h1>
+    <p class="login-sub">PT Manager · Rubinot</p>
+
+    <div class="login-tab-bar">
+      <button class="login-tab" id="ltab-visitor" onclick="setLoginTab('visitor')">👁 Visitante</button>
+      <button class="login-tab active" id="ltab-user" onclick="setLoginTab('user')">⚔ Entrar</button>
+      <button class="login-tab" id="ltab-register" onclick="setLoginTab('register')">✦ Cadastrar</button>
+      <button class="login-tab" id="ltab-adm" onclick="setLoginTab('adm')">🛡 ADM</button>
+    </div>
+
+    <div id="lform-visitor" style="display:none">
+      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
+      <button class="btn-login" onclick="doLoginVisitor()">Entrar como Visitante</button>
+    </div>
+
+    <div id="lform-user">
+      <div class="login-field">
+        <input type="password" id="user-pwd-input" placeholder="Sua senha..." onkeydown="if(event.key==='Enter')doLoginUser()">
+      </div>
+      <button class="btn-login" onclick="doLoginUser()">Entrar</button>
+    </div>
+
+    <div id="lform-register" style="display:none">
+      <div class="login-field">
+        <input type="text" id="reg-name" placeholder="Seu nome (aparece como dono dos chars)..." style="letter-spacing:.02em">
+      </div>
+      <div class="login-field">
+        <input type="password" id="reg-pwd" placeholder="Escolha uma senha...">
+      </div>
+      <div class="login-field">
+        <input type="password" id="reg-pwd2" placeholder="Confirme a senha...">
+      </div>
+      <button class="btn-login" onclick="doRegister()">Solicitar cadastro</button>
+    </div>
+
+    <div id="lform-adm" style="display:none">
+      <div class="login-field">
+        <input type="password" id="adm-pwd-input" placeholder="Senha do ADM..." onkeydown="if(event.key==='Enter')doLoginAdm()">
+      </div>
+      <button class="btn-login" onclick="doLoginAdm()">Entrar como ADM</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
 
 <!-- ══ APP ════════════════════════════════════════════════════════════════ -->
 
@@ -374,6 +453,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div class="tabs">
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" id="tab-users-btn" style="display:none" onclick="switchTab('users',this)">👥 Usuários</button>
       <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
   </div>
   </header>
@@ -420,6 +500,18 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <tbody id="char-body"></tbody>
         </table>
         <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TAB: USUÁRIOS -->
+    <div class="section" id="tab-users">
+      <div class="pending-users-section" id="pending-users-section" style="display:none">
+        <div class="pending-users-title">Aguardando aprovação <span class="pending-count" id="pending-users-count">0</span></div>
+        <div id="pending-users-list"></div>
+      </div>
+      <div>
+        <div class="active-users-title">Usuários ativos <span class="approved-count" id="active-users-count">0</span></div>
+        <div id="active-users-list"></div>
       </div>
     </div>
 
@@ -572,28 +664,163 @@ function doLoginVisitor() {
   enterApp('visitor');
 }
 
+
+// ── ABAS DO LOGIN ─────────────────────────────────────────────────────────
+function setLoginTab(tab) {
+  ['visitor','user','register','adm'].forEach(t => {
+    document.getElementById('ltab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('lform-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.getElementById('login-error').textContent = '';
+}
+
+// ── LOGIN USUÁRIO ─────────────────────────────────────────────────────────
+async function doLoginUser() {
+  const pwd = document.getElementById('user-pwd-input').value;
+  if (!pwd) return;
+  const h = await sha256(pwd);
+  const u = users.find(u => u.pwdHash === h && u.status === 'active');
+  if (u) {
+    currentUser = u.name;
+    enterApp('user');
+  } else {
+    const pending = users.find(u => u.pwdHash === h && u.status === 'pending');
+    document.getElementById('login-error').textContent = pending
+      ? 'Cadastro ainda aguardando aprovação do ADM.'
+      : 'Senha incorreta ou usuário não encontrado.';
+    document.getElementById('user-pwd-input').value = '';
+  }
+}
+
+// ── LOGIN ADM ─────────────────────────────────────────────────────────────
+async function doLoginAdm() {
+  const val = document.getElementById('adm-pwd-input').value;
+  const h   = await sha256(val);
+  if (h === ADM_HASH) {
+    currentUser = null;
+    enterApp('adm');
+  } else {
+    document.getElementById('login-error').textContent = 'Senha incorreta.';
+    document.getElementById('adm-pwd-input').value = '';
+  }
+}
+
+// ── CADASTRO ──────────────────────────────────────────────────────────────
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const pwd  = document.getElementById('reg-pwd').value;
+  const pwd2 = document.getElementById('reg-pwd2').value;
+  const err  = document.getElementById('login-error');
+
+  if (!name) { err.textContent = 'Informe seu nome.'; return; }
+  if (!pwd)  { err.textContent = 'Informe uma senha.'; return; }
+  if (pwd !== pwd2) { err.textContent = 'As senhas não coincidem.'; return; }
+  if (pwd.length < 4) { err.textContent = 'Senha deve ter no mínimo 4 caracteres.'; return; }
+
+  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'Este nome já está em uso.'; return;
+  }
+  const h = await sha256(pwd);
+  if (h === ADM_HASH || users.find(u => u.pwdHash === h)) {
+    err.textContent = 'Esta senha já está em uso. Escolha outra.'; return;
+  }
+
+  users.push({ id: Date.now(), name, pwdHash: h, status: 'pending' });
+  await save();
+  document.getElementById('reg-name').value = '';
+  document.getElementById('reg-pwd').value  = '';
+  document.getElementById('reg-pwd2').value = '';
+  err.style.color = '#3dba6c';
+  err.textContent = 'Cadastro enviado! Aguarde aprovação do ADM.';
+  setTimeout(() => { err.textContent = ''; err.style.color = ''; }, 4000);
+}
+
+// ── GERENCIAR USUÁRIOS (ADM) ──────────────────────────────────────────────
+function approveUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'active';
+  if (!members.includes(u.name)) members.push(u.name);
+  save(); renderUsers(); populateServerSelects();
+  toast(u.name + ' aprovado!', 'success');
+}
+function rejectUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm('Recusar cadastro de "' + u.name + '"?')) return;
+  users = users.filter(x => x.id !== id);
+  save(); renderUsers();
+  toast('Cadastro recusado.');
+}
+function removeUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm('Remover usuário "' + u.name + '"?')) return;
+  users = users.filter(x => x.id !== id);
+  save(); renderUsers();
+  toast(u.name + ' removido.');
+}
+function renderUsers() {
+  const pendingList  = document.getElementById('pending-users-list');
+  const activeList   = document.getElementById('active-users-list');
+  const pendingSec   = document.getElementById('pending-users-section');
+  const pendingCount = document.getElementById('pending-users-count');
+  const activeCount  = document.getElementById('active-users-count');
+  if (!pendingList) return;
+  const pending = users.filter(u => u.status === 'pending');
+  const active  = users.filter(u => u.status === 'active');
+  pendingCount.textContent = pending.length;
+  activeCount.textContent  = active.length;
+  pendingSec.style.display = pending.length ? 'block' : 'none';
+  pendingList.innerHTML = pending.map(u => `
+    <div class="user-card">
+      <span class="user-card-name">${esc(u.name)}</span>
+      <div class="user-card-actions">
+        <button class="btn-approve" data-user-id="${u.id}" title="Aprovar">✓</button>
+        <button class="btn-reject-user" data-user-id="${u.id}" title="Recusar">✕</button>
+      </div>
+    </div>`).join('');
+  activeList.innerHTML = active.length ? active.map(u => `
+    <div class="user-card">
+      <span class="user-card-name">${esc(u.name)}</span>
+      <div class="user-card-actions">
+        <button class="btn-remove-user" data-user-id="${u.id}" title="Remover">✕</button>
+      </div>
+    </div>`).join('') : '<div style="color:var(--text-muted);font-style:italic;font-size:.9rem;padding:.5rem 0">Nenhum usuário ativo.</div>';
+}
+
 function enterApp(role) {
   currentRole = role;
   sessionStorage.setItem('sw_role', role);
+  if (currentUser) sessionStorage.setItem('sw_user', currentUser);
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const badge = document.getElementById('role-badge');
+  const thWpp = document.getElementById('th-wpp');
+  const usersBtn = document.getElementById('tab-users-btn');
+
   if (role === 'adm') {
     badge.textContent = '⚔ ADM';
     badge.className = 'role-badge adm';
     document.body.classList.remove('visitor-mode');
-    // Mostrar coluna WhatsApp pro ADM
-    const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = '';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
+    if (usersBtn) usersBtn.style.display = '';
+    renderUsers();
+  } else if (role === 'user') {
+    badge.textContent = '⚔ ' + currentUser;
+    badge.className = 'role-badge adm';
+    document.body.classList.remove('visitor-mode');
+    if (thWpp) thWpp.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+    if (usersBtn) usersBtn.style.display = 'none';
   } else {
     badge.textContent = '👁 Visitante';
     badge.className = 'role-badge visitor';
     document.body.classList.add('visitor-mode');
-    // Esconder coluna WhatsApp do visitante
-    const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = 'none';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+    if (usersBtn) usersBtn.style.display = 'none';
   }
 }
 
@@ -604,10 +831,17 @@ function doLogout() {
 
 // Verificar sessão ao carregar
 const savedRole = sessionStorage.getItem('sw_role');
+const savedUser = sessionStorage.getItem('sw_user');
 if (savedRole) {
+  if (savedRole === 'user' && savedUser) currentUser = savedUser;
   enterApp(savedRole);
+} else {
+  setLoginTab('user');
 }
 
+
+let users = [];
+let currentUser = null;
 
 // ── DADOS ─────────────────────────────────────────────────────────────────
 const BADGE = {"ELITE KNIGHT":"badge-ek","ELDER DRUID":"badge-ed","MASTER SORCERER":"badge-ms","ROYAL PALADIN":"badge-rp","EXALTED MONK":"badge-em"};
@@ -665,7 +899,7 @@ async function save() {
     await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds })
+      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds, users })
     });
     showSync('Salvo ✓', 'ok');
     // backup local
@@ -674,6 +908,7 @@ async function save() {
     localStorage.setItem('sw_servers', JSON.stringify(servers));
     localStorage.setItem('sw_members', JSON.stringify(members));
     localStorage.setItem('sw_nextId',  String(nextId));
+    localStorage.setItem('sw_users', JSON.stringify(users));
   } catch(e) {
     showSync('Erro ao salvar', 'err');
   }
@@ -708,6 +943,7 @@ async function load() {
       const d = j.data;
       if (d.chars)   { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
       if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
+      if (d.users) users = JSON.parse(d.users);
       if (d.pts)     pts     = JSON.parse(d.pts);
       if (d.servers) servers = JSON.parse(d.servers);
       if (d.members) members = JSON.parse(d.members);
@@ -721,6 +957,7 @@ async function load() {
     const mb=localStorage.getItem('sw_members');
     const n=localStorage.getItem('sw_nextId');
     if(c) { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
+    const us=localStorage.getItem('sw_users'); if(us) users=JSON.parse(us);
     if(p) pts=JSON.parse(p);
     if(s) servers=JSON.parse(s);
     if(mb) members=JSON.parse(mb);
@@ -913,6 +1150,18 @@ function addChar() {
   if (level < 400) {
     document.getElementById('m-level').focus();
     toast('Level mínimo para cadastro é 400.', 'error');
+    return;
+  }
+
+  // Usuário: aprovado direto com próprio nome
+  if (currentRole === 'user') {
+    chars.push({ id:nextId++, owner:currentUser, name,
+      cls:document.getElementById('m-class').value, level,
+      server:document.getElementById('m-server').value,
+      obs:document.getElementById('m-obs').value.trim(),
+      phone:'', status:'approved', sentTo:null });
+    save(); closeModal('modal-add'); renderChars();
+    toast(name + ' adicionado!', 'success');
     return;
   }
 
