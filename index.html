@@ -357,6 +357,12 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 
 select:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ── MODAL MEMBROS ONLINE ── */
+.member-check-label { display:flex; align-items:center; gap:.7rem; padding:.45rem .6rem;
+  border-radius:3px; cursor:pointer; font-size:.95rem; transition:background .12s; }
+.member-check-label:hover { background:rgba(201,146,42,.06); }
+.member-check-label input[type=checkbox] { accent-color:var(--gold); width:15px; height:15px; cursor:pointer; }
+
 /* ── FINALIZAR PT ── */
 .btn-finalize { width:100%; padding:.65rem 1rem; border:none;
   border-top:1px solid rgba(224,82,82,.2); background:transparent;
@@ -678,6 +684,23 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     </div>
     <div class="modal-footer">
       <button class="btn-confirm" onclick="closeModal('modal-members')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MEMBROS ONLINE (Recomendar PT) -->
+<div class="modal-overlay" id="modal-recommend" onclick="if(event.target===this)closeModal('modal-recommend')">
+  <div class="modal">
+    <h2>Quem está online?</h2>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">Selecione os membros presentes para montar a PT.</p>
+    <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+      <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(true)">Selecionar todos</button>
+      <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(false)">Limpar seleção</button>
+    </div>
+    <div id="recommend-member-list" style="max-height:240px;overflow-y:auto;margin-bottom:1.2rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-recommend')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmRecommend()">✦ Recomendar</button>
     </div>
   </div>
 </div>
@@ -1680,109 +1703,138 @@ function rejectUser(id) {
 let lastRecommend = null; // guarda o resultado pra aplicar depois
 
 function runRecommend() {
-  const COMP = [
-    "ELITE KNIGHT",
-    "ROYAL PALADIN",
-    "MASTER SORCERER",
-    "ELDER DRUID",
-    "ELDER DRUID"
-  ];
+  const list = document.getElementById('recommend-member-list');
+  list.innerHTML = '';
+  if (!members.length) { toast('Nenhum membro cadastrado.', 'error'); return; }
+  members.forEach(m => {
+    const label = document.createElement('label');
+    label.className = 'member-check-label';
+    label.innerHTML = `<input type="checkbox" value="${esc(m)}"> ${esc(m)}`;
+    list.appendChild(label);
+  });
+  openModal('modal-recommend');
+}
 
-  // Só personagens aprovados e não alocados em PT
-  // Para recomendação, considerar TODOS os chars aprovados (inclusive já alocados)
-  const free = chars.filter(c => c.status === 'approved' || !c.status);
+function selectAllMembers(val) {
+  document.querySelectorAll('#recommend-member-list input[type=checkbox]').forEach(cb => cb.checked = val);
+}
 
-  // Agrupar por servidor
+function confirmRecommend() {
+  const selected = [...document.querySelectorAll('#recommend-member-list input[type=checkbox]')]
+    .filter(cb => cb.checked).map(cb => cb.value);
+  if (!selected.length) { toast('Selecione pelo menos um membro.', 'error'); return; }
+  closeModal('modal-recommend');
+  buildRecommendation(selected);
+}
+
+// Tenta montar a melhor PT para os membros selecionados
+function buildRecommendation(selectedMembers) {
+  const memberSet    = new Set(selectedMembers);
+  // <5 membros: até 2 chars por membro; caso contrário máx 1
+  const maxPerMember = selectedMembers.length < 5 ? 2 : 1;
+
+  const available = chars.filter(c =>
+    (c.status === 'approved' || !c.status) && memberSet.has(c.owner)
+  );
+
   const serverGroups = {};
-  free.forEach(c => {
+  available.forEach(c => {
     const srv = c.server || '(sem servidor)';
     if (!serverGroups[srv]) serverGroups[srv] = [];
     serverGroups[srv].push(c);
   });
 
-  // Tentar cada servidor separadamente — encontrar o melhor resultado
-  let bestTeamGlobal = null;
-  let bestStdGlobal  = Infinity;
-  let bestServerName = '';
-
+  let bestTeamGlobal = null, bestStdGlobal = Infinity, bestServerName = '';
 
   for (const [srv, group] of Object.entries(serverGroups)) {
-    const sortLv = arr => [...arr].sort((a,b) => (b.level||0)-(a.level||0));
-
-    const EKs = sortLv(group.filter(c => c.cls === 'ELITE KNIGHT'));
-    const RPs = sortLv(group.filter(c => c.cls === 'ROYAL PALADIN'));
-    const MSs = sortLv(group.filter(c => c.cls === 'MASTER SORCERER'));
-    const EDs = sortLv(group.filter(c => c.cls === 'ELDER DRUID'));
-
-    if (!EKs.length || !RPs.length || !MSs.length || !EDs.length) {
-      continue;
-    }
-
-    // Pegar o melhor de cada classe obrigatória
-    const ek = EKs[0];
-    const rp = RPs[0];
-    const ms = MSs[0];
-    const ed = EDs[0];
-
-    const coreIds = new Set([ek.id, rp.id, ms.id, ed.id]);
-    if (coreIds.size < 4) continue; // IDs duplicados — pular
-
-    // 5º: qualquer não-EK não usado
-    const fifth = sortLv(group).find(c =>
-      c.cls !== 'ELITE KNIGHT' && !coreIds.has(c.id)
-    );
-    if (!fifth) continue;
-
-    const team = [ek, rp, ms, ed, fifth];
-    const levels = team.map(c => c.level || 0);
-    const avg = levels.reduce((a,b)=>a+b,0) / 5;
-    const sd  = Math.sqrt(levels.map(x=>(x-avg)**2).reduce((a,b)=>a+b,0) / 5);
-
-    if (sd < bestStdGlobal) {
-      bestStdGlobal = sd;
-      bestTeamGlobal = team;
+    const result = tryFormPT(group, maxPerMember);
+    if (result && result.std < bestStdGlobal) {
+      bestStdGlobal = result.std;
+      bestTeamGlobal = result.team;
       bestServerName = srv;
     }
   }
 
-  const bestTeam = bestTeamGlobal;
-  const bestStd  = bestStdGlobal;
-
-  // Nenhum servidor montou PT completa
-  if (!bestTeam) {
-    const allServers = [...new Set(free.map(c => c.server||'(sem servidor)'))];
-    const detail = allServers.map(srv => {
-      const g = free.filter(c => (c.server||'(sem servidor)') === srv);
-      const ek = g.filter(c=>c.cls==='ELITE KNIGHT').length;
-      const rp = g.filter(c=>c.cls==='ROYAL PALADIN').length;
-      const ms = g.filter(c=>c.cls==='MASTER SORCERER').length;
-      const ed = g.filter(c=>c.cls==='ELDER DRUID').length;
+  if (!bestTeamGlobal) {
+    const allServers = [...new Set(available.map(c => c.server || '(sem servidor)'))];
+    const detail = allServers.length ? allServers.map(srv => {
+      const g = available.filter(c => (c.server || '(sem servidor)') === srv);
+      const ek = g.filter(c => c.cls === 'ELITE KNIGHT').length;
+      const rp = g.filter(c => c.cls === 'ROYAL PALADIN').length;
+      const ms = g.filter(c => c.cls === 'MASTER SORCERER').length;
+      const ed = g.filter(c => c.cls === 'ELDER DRUID').length;
       const miss = [];
-      if(ek<1) miss.push('1 EK'); if(rp<1) miss.push('1 RP');
-      if(ms<1) miss.push('1 MS'); if(ed<1) miss.push('1 ED');
-      if(!miss.length && g.length < 5) miss.push('5º player (mín. 5 chars no servidor)');
-      const tag = miss.length ? ': falta '+miss.join(', ') : ' ✓ tem composição';
-      return `<b>${srv}</b>${tag} [EK:${ek} RP:${rp} MS:${ms} ED:${ed} total:${g.length}]`;
-    }).join('<br>');
+      if (ek < 1) miss.push('1 EK'); if (rp < 1) miss.push('1 RP');
+      if (ms < 1) miss.push('1 MS'); if (ed < 1) miss.push('1 ED');
+      if (!miss.length) miss.push('5º player ou restrição de 1 char/membro');
+      return `<b>${esc(srv)}</b>: falta ${miss.join(', ')} [EK:${ek} RP:${rp} MS:${ms} ED:${ed}]`;
+    }).join('<br>') : 'Nenhum personagem disponível para os membros selecionados.';
     document.getElementById('rec-result-body').innerHTML =
-      `<div style="color:#e05252">⚠ Nenhum servidor montou PT completa.<br><br>${detail}</div>`;
+      `<div style="color:#e05252">⚠ Não foi possível montar PT com os membros selecionados.<br><br>${detail}</div>`;
     document.getElementById('rec-result').classList.add('show');
     document.querySelector('.rec-result-footer').style.display = 'none';
     lastRecommend = null;
     return;
   }
 
-  lastRecommend = bestTeam;
-
-  const avg = Math.round(bestTeam.map(c=>c.level||0).reduce((a,b)=>a+b,0)/5);
-  const lines = bestTeam.map(c =>
-    `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
+  lastRecommend = bestTeamGlobal;
+  const avg   = Math.round(bestTeamGlobal.map(c => c.level || 0).reduce((a, b) => a + b, 0) / 5);
+  const lines = bestTeamGlobal.map(c =>
+    `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level || '?'} — ${esc(c.owner)}</div>`
   ).join('');
-
   document.getElementById('rec-result-body').innerHTML =
-    `<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStd)}</b></div>`;
+    `<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStdGlobal)}</b></div>`;
   document.querySelector('.rec-result-footer').style.display = 'flex';
   document.getElementById('rec-result').classList.add('show');
+}
+
+// Busca a melhor combinação EK+RP+MS+ED+5º no grupo respeitando maxPerMember por dono
+function tryFormPT(group, maxPerMember) {
+  const sortLv = arr => [...arr].sort((a, b) => (b.level || 0) - (a.level || 0));
+
+  const EKs    = sortLv(group.filter(c => c.cls === 'ELITE KNIGHT')).slice(0, 7);
+  const RPs    = sortLv(group.filter(c => c.cls === 'ROYAL PALADIN')).slice(0, 7);
+  const MSs    = sortLv(group.filter(c => c.cls === 'MASTER SORCERER')).slice(0, 7);
+  const EDs    = sortLv(group.filter(c => c.cls === 'ELDER DRUID')).slice(0, 7);
+  const nonEKs = sortLv(group.filter(c => c.cls !== 'ELITE KNIGHT'));
+
+  if (!EKs.length || !RPs.length || !MSs.length || !EDs.length) return null;
+
+  const ownerCount = team => {
+    const counts = {};
+    team.forEach(c => { counts[c.owner] = (counts[c.owner] || 0) + 1; });
+    return counts;
+  };
+  const fits = (owner, counts) => (counts[owner] || 0) < maxPerMember;
+
+  let best = null, bestStd = Infinity;
+
+  for (const ek of EKs) {
+    const oc1 = ownerCount([ek]);
+    for (const rp of RPs) {
+      if (rp.id === ek.id || !fits(rp.owner, oc1)) continue;
+      const oc2 = ownerCount([ek, rp]);
+      for (const ms of MSs) {
+        if ([ek.id, rp.id].includes(ms.id) || !fits(ms.owner, oc2)) continue;
+        const oc3 = ownerCount([ek, rp, ms]);
+        for (const ed of EDs) {
+          if ([ek.id, rp.id, ms.id].includes(ed.id) || !fits(ed.owner, oc3)) continue;
+          const oc4   = ownerCount([ek, rp, ms, ed]);
+          const used  = new Set([ek.id, rp.id, ms.id, ed.id]);
+          const fifth = nonEKs.find(c => !used.has(c.id) && fits(c.owner, oc4));
+          if (!fifth) continue;
+
+          const team   = [ek, rp, ms, ed, fifth];
+          const levels = team.map(c => c.level || 0);
+          const avg    = levels.reduce((a, b) => a + b, 0) / 5;
+          const std    = Math.sqrt(levels.map(x => (x - avg) ** 2).reduce((a, b) => a + b, 0) / 5);
+          if (std < bestStd) { bestStd = std; best = team; }
+        }
+      }
+    }
+  }
+
+  return best ? { team: best, std: bestStd } : null;
 }
 
 function clearRecommend() {
