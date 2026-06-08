@@ -1,39 +1,1614 @@
-const SHEET_ID = "1uVN4g06AgjTkd9AnjhBR-x5C6_wLAH4HQWqwRkbUk6c";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soulwar PT Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0d14;--surface:#111420;--surface2:#181c2e;
+  --border:#2a2f4a;--gold:#c9922a;--gold2:#e8c06a;--gold-dim:#7a5418;
+  --text:#dde0f0;--text-muted:#6b7099;
+  --ek:#3a7bd5;--ek-bg:#0d1e3a;--ed:#3dba6c;--ed-bg:#0d2619;
+  --ms:#9b59b6;--ms-bg:#1e0d2e;--rp:#e07b35;--rp-bg:#2e1a0d;
+  --em:#e05252;--em-bg:#2e0d0d;
+  --pt1:#c9922a;--pt2:#9b59b6;--pt3:#3dba6c;
+}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:16px;min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,146,42,.07) 0%,transparent 70%),
+  repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(42,47,74,.3) 60px),
+  repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(42,47,74,.15) 60px);}
 
-function doGet(e) {
-  const action = e.parameter.action;
-  const ss = SpreadsheetApp.openById(SHEET_ID);
+
+
+/* ── APP ── */
+#app{display:none;}
+header{text-align:center;padding:2.5rem 1rem 1.5rem;position:relative;}
+.header-ornament{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.75rem;}
+.ornament-line{height:1px;width:80px;background:linear-gradient(90deg,transparent,var(--gold));}
+.ornament-line.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.ornament-diamond{width:8px;height:8px;background:var(--gold);transform:rotate(45deg);}
+h1{font-family:'Cinzel',serif;font-size:clamp(1.5rem,4vw,2.4rem);font-weight:700;letter-spacing:.12em;
+  color:var(--gold2);text-shadow:0 0 40px rgba(201,146,42,.4);line-height:1.15;}
+h1 span{color:var(--text-muted);font-size:.5em;display:block;letter-spacing:.25em;font-weight:400;margin-top:.3rem;}
+
+.logout-btn:hover{border-color:var(--text-muted);color:var(--text);}
+
+.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:480px;
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.tab{flex:1;padding:.7rem 1rem;font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;
+  background:transparent;color:var(--text-muted);border:none;cursor:pointer;transition:all .2s;
+  border-right:1px solid var(--border);text-transform:uppercase;}
+.tab:last-child{border-right:none;}
+.tab.active{background:var(--surface);color:var(--gold2);}
+.tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.03);}
+
+main{max-width:1100px;margin:0 auto;padding:2rem 1rem 4rem;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+.toolbar input,.toolbar select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:'Crimson Pro',serif;font-size:.95rem;padding:.5rem .9rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.toolbar input{width:185px;}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--gold-dim);}
+.toolbar input::placeholder{color:var(--text-muted);}
+.btn{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border:1px solid var(--gold-dim);background:transparent;color:var(--gold2);
+  border-radius:3px;cursor:pointer;transition:all .18s;}
+.btn:hover{background:rgba(201,146,42,.1);border-color:var(--gold);}
+.btn-ml{margin-left:auto;}
+.btn-outline{border-color:var(--border);color:var(--text-muted);}
+.btn-outline:hover{border-color:var(--text-muted);color:var(--text);background:transparent;}
+
+/* ── TABLE ── */
+.table-wrap{border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;padding:.9rem 1rem;text-align:left;}
+td{padding:.8rem 1rem;border-bottom:1px solid rgba(42,47,74,.5);font-size:.95rem;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{background:var(--surface);transition:background .12s;}
+tbody tr:nth-child(even){background:rgba(24,28,46,.6);}
+tbody tr:hover td{background:rgba(201,146,42,.04);}
+.char-name{font-weight:600;color:#eef0ff;}
+.owner-name{color:var(--text-muted);font-size:.88rem;}
+.level-val{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2);}
+.server-val{color:var(--text-muted);font-size:.88rem;}
+
+.badge{display:inline-block;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.08em;
+  padding:.2rem .55rem;border-radius:2px;font-weight:600;text-transform:uppercase;}
+.badge-ek{background:var(--ek-bg);color:var(--ek);border:1px solid rgba(58,123,213,.3);}
+.badge-ed{background:var(--ed-bg);color:var(--ed);border:1px solid rgba(61,186,108,.3);}
+.badge-ms{background:var(--ms-bg);color:var(--ms);border:1px solid rgba(155,89,182,.3);}
+.badge-rp{background:var(--rp-bg);color:var(--rp);border:1px solid rgba(224,123,53,.3);}
+.badge-em{background:var(--em-bg);color:var(--em);border:1px solid rgba(224,82,82,.3);}
+
+.btn-send{width:28px;height:28px;border-radius:50%;border:1px solid var(--gold-dim);
+  background:transparent;color:var(--gold);font-size:1.1rem;line-height:1;cursor:pointer;
+  transition:all .18s;display:inline-flex;align-items:center;justify-content:center;}
+.btn-send:hover{background:rgba(201,146,42,.15);border-color:var(--gold);transform:scale(1.1);}
+.btn-send.sent{background:rgba(61,186,108,.15);border-color:#3dba6c;color:#3dba6c;pointer-events:none;font-size:.85rem;}
+
+.btn-del{width:26px;height:26px;border-radius:50%;border:1px solid rgba(224,82,82,.25);
+  background:transparent;color:rgba(224,82,82,.4);font-size:.85rem;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:4px;}
+.btn-del:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;}
+
+/* ── PT GRID ── */
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.pt-card{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--surface);}
+.pt-card-header{padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.pt-card-title{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.pt-card-count{font-size:.8rem;color:var(--text-muted);font-family:'Cinzel',serif;}
+.pt1-accent{color:var(--pt1)}.pt2-accent{color:var(--pt2)}.pt3-accent{color:var(--pt3)}
+.pt1-border{border-top:2px solid var(--pt1)}.pt2-border{border-top:2px solid var(--pt2)}.pt3-border{border-top:2px solid var(--pt3)}
+.pt-slot{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.2rem;border-bottom:1px solid rgba(42,47,74,.4);min-height:52px;}
+.pt-slot:last-child{border-bottom:none;}
+.slot-num{font-family:'Cinzel',serif;font-size:.7rem;color:var(--text-muted);width:18px;flex-shrink:0;}
+.slot-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:.65rem;font-weight:700;flex-shrink:0;}
+.slot-info{flex:1;min-width:0;}
+.slot-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.slot-sub{font-size:.78rem;color:var(--text-muted);margin-top:1px;}
+.btn-remove{width:22px;height:22px;border-radius:50%;border:1px solid rgba(224,82,82,.3);background:transparent;
+  color:rgba(224,82,82,.5);font-size:.9rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;}
+.btn-remove:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+.slot-empty{color:var(--text-muted);font-style:italic;font-size:.85rem;}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;
+  z-index:100;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--gold);
+  border-radius:4px;padding:2rem;width:min(480px,92vw);transform:translateY(16px);transition:transform .2s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal h2{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:.1em;color:var(--gold2);
+  margin-bottom:1.5rem;text-transform:uppercase;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:.4rem;}
+.form-group.full{grid-column:1/-1;}
+label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+.form-group input,.form-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:'Crimson Pro',serif;font-size:1rem;padding:.55rem .9rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--gold-dim);}
+.modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--text-muted);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border-radius:3px;cursor:pointer;transition:all .15s;}
+.btn-cancel:hover{border-color:var(--text-muted);color:var(--text);}
+.btn-confirm{background:rgba(201,146,42,.12);border:1px solid var(--gold-dim);color:var(--gold2);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.4rem;border-radius:3px;cursor:pointer;transition:all .15s;}
+.btn-confirm:hover{background:rgba(201,146,42,.22);border-color:var(--gold);}
+
+/* modal servidor */
+.server-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem;max-height:220px;overflow-y:auto;}
+.server-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:.9rem;}
+.server-item span{color:var(--text);} .member-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:.9rem;} .member-item span{color:var(--text);}
+
+/* pt options */
+.pt-options{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;}
+.pt-option{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;border:1px solid var(--border);
+  border-radius:3px;cursor:pointer;transition:all .15s;background:var(--surface2);}
+.pt-option:hover{border-color:var(--gold-dim);}
+.pt-option.selected{border-color:var(--gold);background:rgba(201,146,42,.08);}
+.pt-option-color{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pt-option-info{flex:1;}
+.pt-option-name{font-family:'Cinzel',serif;font-size:.82rem;color:var(--text);}
+.pt-option-slots{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
+.pt-option-full{opacity:.4;pointer-events:none;}
+
+/* toast */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--border);
+  border-left:3px solid var(--gold);padding:.8rem 1.2rem;border-radius:3px;font-size:.9rem;color:var(--text);
+  transform:translateX(120%);transition:transform .3s;z-index:200;max-width:300px;}
+.toast.show{transform:translateX(0);}
+.toast.success{border-left-color:#3dba6c;}
+.toast.error{border-left-color:#e05252;}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr;}
+  th:nth-child(2),td:nth-child(2){display:none;}
+  th:nth-child(6),td:nth-child(6){display:none;}
   
-  if (action === "load") {
-    const data = {};
-    ["chars","pts","members","servers","rejectedIds"].forEach(name => {
-      const sheet = ss.getSheetByName(name);
-      if (sheet && sheet.getLastRow() > 0) {
-        data[name] = sheet.getRange(1,1,1,1).getValue();
-      } else {
-        data[name] = null;
-      }
-    });
-    return ContentService.createTextOutput(JSON.stringify({ok:true,data}))
-      .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+
+/* ── SYNC STATUS ── */
+.sync-status {
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em;
+  text-transform:uppercase; padding:.3rem .8rem; border-radius:3px;
+  transition: opacity .5s; opacity:0;
+}
+.sync-status.saving { color:var(--gold2); opacity:1; }
+.sync-status.ok     { color:#3dba6c; opacity:1; }
+.sync-status.err    { color:#e05252; opacity:1; }
+
+
+/* ── LOGIN ── */
+#login-screen {
+  position:fixed; inset:0; background:var(--bg); z-index:999;
+  display:flex; align-items:center; justify-content:center;
+  background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,146,42,.09) 0%, transparent 70%);
+}
+.login-box { width:min(400px,90vw); text-align:center; }
+.login-ornament { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
+.orn-line  { height:1px; width:60px; background:linear-gradient(90deg,transparent,var(--gold)); }
+.orn-line.r{ background:linear-gradient(90deg,var(--gold),transparent); }
+.orn-diamond { width:7px; height:7px; background:var(--gold); transform:rotate(45deg); }
+.login-box h1 { font-family:'Cinzel',serif; font-size:1.7rem; font-weight:700; letter-spacing:.12em;
+  color:var(--gold2); text-shadow:0 0 40px rgba(201,146,42,.4); margin-bottom:.3rem; }
+.login-sub { font-size:.78rem; color:var(--text-muted); letter-spacing:.2em;
+  font-family:'Cinzel',serif; text-transform:uppercase; margin-bottom:2rem; }
+.login-modes { display:flex; gap:.75rem; margin-bottom:1.5rem; }
+.login-mode-btn { flex:1; padding:.65rem; border-radius:3px; cursor:pointer;
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted); transition:all .18s; }
+.login-mode-btn.active { border-color:var(--gold-dim); background:rgba(201,146,42,.1); color:var(--gold2); }
+.login-mode-btn:hover:not(.active) { border-color:var(--text-muted); color:var(--text); }
+.login-field { margin-bottom:.75rem; }
+.login-field input { width:100%; background:var(--surface2); border:1px solid var(--border);
+  color:var(--text); font-family:'Crimson Pro',serif; font-size:1.05rem;
+  padding:.75rem 1rem; border-radius:3px; outline:none; transition:border-color .2s;
+  text-align:center; letter-spacing:.1em; }
+.login-field input:focus { border-color:var(--gold-dim); }
+.login-field input::placeholder { letter-spacing:.05em; color:var(--text-muted); }
+.btn-login { width:100%; background:rgba(201,146,42,.1); border:1px solid var(--gold-dim);
+  color:var(--gold2); font-family:'Cinzel',serif; font-size:.8rem; letter-spacing:.12em;
+  text-transform:uppercase; padding:.75rem; border-radius:3px; cursor:pointer;
+  transition:all .18s; margin-top:.25rem; }
+.btn-login:hover { background:rgba(201,146,42,.2); border-color:var(--gold); }
+.login-error { color:#e05252; font-size:.85rem; margin-top:.6rem; min-height:1.2rem; font-style:italic; }
+.login-visitor-info { font-size:.8rem; color:var(--text-muted); margin-top:1.2rem;
+  line-height:1.6; font-style:italic; }
+
+/* ── BADGE DE PAPEL ── */
+.role-badge { position:absolute; top:1.2rem; left:1.5rem;
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.3rem .8rem; border-radius:3px; }
+.role-badge.adm  { background:rgba(201,146,42,.15); border:1px solid var(--gold-dim); color:var(--gold2); }
+.role-badge.visitor { background:rgba(107,112,153,.15); border:1px solid var(--border); color:var(--text-muted); }
+
+/* ── MODO VISITANTE: desabilitar ações ── */
+body.visitor-mode .btn-send,
+body.visitor-mode .btn-del,
+body.visitor-mode .btn[onclick*="openServerModal"],
+body.visitor-mode .btn[onclick*="openMemberModal"] { display:none !important; }
+body.visitor-mode .btn-remove { display:none !important; }
+body.visitor-mode .pt-toolbar { display:none !important; }
+body.visitor-mode .col-wpp { display:none !important; }
+body.visitor-mode .btn-approve,
+body.visitor-mode .btn-reject { display:none !important; }
+body.visitor-mode .col-adm-actions { display:none !important; }
+body:not(.visitor-mode) .visitor-pending-label { display:none !important; }
+
+.logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
+  border:1px solid var(--border); color:var(--text-muted); font-family:'Cinzel',serif;
+  font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.35rem .9rem; border-radius:3px; cursor:pointer; transition:all .15s; }
+.logout-btn:hover { border-color:var(--text-muted); color:var(--text); }
+
+
+/* ── PENDENTES ── */
+.badge-pending { background:rgba(224,123,53,.15); color:#e07b35; border:1px solid rgba(224,123,53,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+.row-pending td { opacity:.65; }
+.row-pending .char-name { color:#e07b35 !important; }
+
+.pending-section { margin-bottom:2rem; }
+.pending-title { font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.15em;
+  text-transform:uppercase; color:#e07b35; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.pending-title::after { content:''; flex:1; height:1px; background:rgba(224,123,53,.25); }
+.pending-count { background:rgba(224,123,53,.15); border:1px solid rgba(224,123,53,.3);
+  color:#e07b35; font-size:.65rem; padding:.15rem .5rem; border-radius:99px; }
+
+.approved-title {
+  font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.15em;
+  text-transform:uppercase; color:#3dba6c; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem;
+}
+.approved-title::after { content:''; flex:1; height:1px; background:rgba(61,186,108,.25); }
+.approved-count { background:rgba(61,186,108,.15); border:1px solid rgba(61,186,108,.3);
+  color:#3dba6c; font-size:.65rem; padding:.15rem .5rem; border-radius:99px; }
+
+.btn-approve { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(61,186,108,.35); background:transparent; color:rgba(61,186,108,.6);
+  font-size:.9rem; cursor:pointer; transition:all .15s; }
+.btn-approve:hover { border-color:#3dba6c; color:#3dba6c; background:rgba(61,186,108,.1); }
+.btn-reject { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(224,82,82,.3); background:transparent; color:rgba(224,82,82,.4);
+  font-size:.85rem; cursor:pointer; transition:all .15s; margin-left:3px; }
+.btn-reject:hover { border-color:#e05252; color:#e05252; background:rgba(224,82,82,.1); }
+
+.btn-wpp { display:inline-flex; align-items:center; gap:.35rem;
+  padding:.2rem .6rem; border-radius:3px; font-size:.78rem;
+  background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.3); color:#25d366;
+  text-decoration:none; font-family:'Cinzel',serif; letter-spacing:.05em;
+  transition:all .15s; cursor:pointer; white-space:nowrap; }
+.btn-wpp:hover { background:rgba(37,211,102,.22); border-color:#25d366; }
+.phone-val { font-size:.82rem; color:var(--text-muted); }
+
+
+/* ── RECOMENDAÇÃO PT ── */
+.pt-toolbar { display:flex; align-items:center; gap:.75rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.btn-rec-pt {
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.55rem 1.4rem; border:1px solid var(--gold-dim);
+  background:rgba(201,146,42,.08); color:var(--gold2);
+  border-radius:3px; cursor:pointer; transition:all .18s;
+}
+.btn-rec-pt:hover { background:rgba(201,146,42,.2); border-color:var(--gold); }
+
+.rec-result { margin-bottom:1.5rem; border:1px solid var(--gold-dim);
+  border-left:3px solid var(--gold); background:rgba(201,146,42,.06);
+  border-radius:3px; padding:1rem 1.2rem; display:none; }
+.rec-result.show { display:block; }
+.rec-result-title { font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gold2); margin-bottom:.6rem; }
+.rec-result-body { font-size:.88rem; color:var(--text-muted); line-height:1.8; }
+.rec-result-body b { color:var(--text); }
+.rec-result-warn { color:#e07b35; font-size:.82rem; margin-top:.5rem; font-style:italic; }
+.rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
+
+
+select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── CADASTRO / ÁREA ADM ── */
+.login-tab-bar { display:flex; gap:0; margin-bottom:1.5rem; border:1px solid var(--border); border-radius:3px; overflow:hidden; }
+.login-tab { flex:1; padding:.6rem; font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.08em;
+  text-transform:uppercase; background:transparent; color:var(--text-muted);
+  border:none; cursor:pointer; transition:all .18s; border-right:1px solid var(--border); }
+.login-tab:last-child { border-right:none; }
+.login-tab.active { background:var(--surface2); color:var(--gold2); }
+.login-tab:hover:not(.active) { color:var(--text); }
+
+.pending-users-section { margin-bottom:1.5rem; }
+.pending-users-title { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.12em;
+  text-transform:uppercase; color:#e07b35; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.pending-users-title::after { content:''; flex:1; height:1px; background:rgba(224,123,53,.25); }
+.active-users-title { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.12em;
+  text-transform:uppercase; color:#3dba6c; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.active-users-title::after { content:''; flex:1; height:1px; background:rgba(61,186,108,.25); }
+.user-card { display:flex; align-items:center; justify-content:space-between;
+  padding:.7rem 1rem; background:var(--surface2); border:1px solid var(--border);
+  border-radius:3px; margin-bottom:.5rem; }
+.user-card-name { font-weight:600; color:var(--text); font-size:.95rem; }
+.user-card-actions { display:flex; gap:.5rem; }
+
+</style>
+</head>
+<body>
+
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-ornament">
+      <div class="orn-line"></div><div class="orn-diamond"></div><div class="orn-line r"></div>
+    </div>
+    <h1>Soulwar</h1>
+    <p class="login-sub">PT Manager · Rubinot</p>
+
+    <div class="login-tab-bar">
+      <button class="login-tab" id="ltab-visitor" onclick="setLoginTab('visitor')">👁 Visitante</button>
+      <button class="login-tab active" id="ltab-user" onclick="setLoginTab('user')">⚔ Entrar</button>
+      <button class="login-tab" id="ltab-register" onclick="setLoginTab('register')">✦ Cadastrar</button>
+      <button class="login-tab" id="ltab-adm" onclick="setLoginTab('adm')">🛡 ADM</button>
+    </div>
+
+    <div id="lform-visitor" style="display:none">
+      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
+      <button class="btn-login" onclick="doLoginVisitor()">Entrar como Visitante</button>
+    </div>
+
+    <div id="lform-user">
+      <div class="login-field">
+        <input type="password" id="user-pwd-input" placeholder="Sua senha..." onkeydown="if(event.key==='Enter')doLoginUser()">
+      </div>
+      <button class="btn-login" onclick="doLoginUser()">Entrar</button>
+    </div>
+
+    <div id="lform-register" style="display:none">
+      <div class="login-field">
+        <input type="text" id="reg-name" placeholder="Seu nome (aparece como dono dos chars)..." style="letter-spacing:.02em">
+      </div>
+      <div class="login-field">
+        <input type="password" id="reg-pwd" placeholder="Escolha uma senha...">
+      </div>
+      <div class="login-field">
+        <input type="password" id="reg-pwd2" placeholder="Confirme a senha...">
+      </div>
+      <button class="btn-login" onclick="doRegister()">Solicitar cadastro</button>
+    </div>
+
+    <div id="lform-adm" style="display:none">
+      <div class="login-field">
+        <input type="password" id="adm-pwd-input" placeholder="Senha do ADM..." onkeydown="if(event.key==='Enter')doLoginAdm()">
+      </div>
+      <button class="btn-login" onclick="doLoginAdm()">Entrar como ADM</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-ornament">
+      <div class="orn-line"></div><div class="orn-diamond"></div><div class="orn-line r"></div>
+    </div>
+    <h1>Soulwar</h1>
+    <p class="login-sub">PT Manager · Rubinot</p>
+
+    <div class="login-modes">
+      <button class="login-mode-btn" id="mode-adm" onclick="setMode('adm')">⚔ Administrador</button>
+      <button class="login-mode-btn active" id="mode-visitor" onclick="setMode('visitor')">👁 Visitante</button>
+    </div>
+
+    <div id="adm-fields" style="display:none">
+      <div class="login-field">
+        <input type="password" id="pwd-input" placeholder="Senha do time..." onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar como ADM</button>
+    </div>
+
+    <div id="visitor-fields">
+      <p class="login-visitor-info">Acesso de visitante permite visualizar os personagens e PTs cadastrados e adicionar personagens para aprovação. Não é permitido editar ou remover.</p>
+      <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+      <span class="role-badge" id="role-badge"></span>
+    <button class="logout-btn" onclick="doLogout()">Sair</button>
+    <div class="header-ornament">
+      <div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line r"></div>
+    </div>
+    <h1>Soulwar PT Manager <span>Rubinot · Quest Party Builder</span></h1>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
+      <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" id="tab-users-btn" style="display:none" onclick="switchTab('users',this)">👥 Usuários</button>
+      <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
+  </div>
+  </header>
+
+  <main>
+    <!-- TAB: PERSONAGENS -->
+    <div class="section active" id="tab-chars">
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="Buscar personagem..." oninput="renderChars()">
+        <select id="filter-class" onchange="renderChars()">
+          <option value="">Todas as classes</option>
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+        <select id="filter-server" onchange="renderChars()">
+          <option value="">Todos os servidores</option>
+        </select>
+        <select id="filter-member" onchange="renderChars()">
+          <option value="">Todos os membros</option>
+        </select>
+        <button class="btn btn-outline" onclick="load()" title="Atualizar dados">↻ Atualizar</button>
+        <button class="btn btn-outline" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
+        <button class="btn btn-outline" onclick="openMemberModal()" title="Gerenciar membros">⚙ Membros</button>
+        <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
+      </div>
+      <div class="pending-section" id="pending-section" style="display:none">
+        <div class="pending-title">Aguardando aprovação <span class="pending-count" id="pending-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
+            </tr></thead>
+            <tbody id="pending-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="approved-title" id="approved-title">Personagens aprovados <span class="approved-count" id="approved-count">0</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Dono</th><th>Personagem</th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
+          </tr></thead>
+          <tbody id="char-body"></tbody>
+        </table>
+        <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TAB: USUÁRIOS -->
+    <div class="section" id="tab-users">
+      <div class="pending-users-section" id="pending-users-section" style="display:none">
+        <div class="pending-users-title">Aguardando aprovação <span class="pending-count" id="pending-users-count">0</span></div>
+        <div id="pending-users-list"></div>
+      </div>
+      <div>
+        <div class="active-users-title">Usuários ativos <span class="approved-count" id="active-users-count">0</span></div>
+        <div id="active-users-list"></div>
+      </div>
+    </div>
+
+    <!-- TAB: PT -->
+    <div class="section" id="tab-pt">
+      <div class="pt-toolbar" id="pt-toolbar">
+        <button class="btn-rec-pt" onclick="runRecommend()">✦ Recomendar PT</button>
+      </div>
+      <div class="rec-result" id="rec-result">
+        <div class="rec-result-title">✦ PT Recomendada</div>
+        <div class="rec-result-body" id="rec-result-body"></div>
+        <div class="rec-result-footer">
+          <button class="btn-confirm" onclick="applyRecommend()">Aplicar nos slots</button>
+          <button class="btn-cancel" onclick="clearRecommend()">Cancelar</button>
+        </div>
+      </div>
+      <div class="pt-grid" id="pt-grid"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: ADD PERSONAGEM -->
+<div class="modal-overlay" id="modal-add" onclick="if(event.target===this)closeModal('modal-add')">
+  <div class="modal">
+    <h2>Novo personagem</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Dono</label>
+        <select id="m-owner"></select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <input type="number" id="m-level" placeholder="500" min="1">
+      </div>
+      <div class="form-group full">
+        <label>Nome do personagem</label>
+        <input type="text" id="m-name" placeholder="Ex: DarkSlayer">
+      </div>
+      <div class="form-group full">
+        <label>Classe / Vocação</label>
+        <select id="m-class">
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Servidor</label>
+        <select id="m-server"></select>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <input type="text" id="m-obs" placeholder="Opcional...">
+      </div>
+      <div class="form-group full" id="m-phone-group" style="display:none">
+        <label>WhatsApp para contato <span style="color:#e05252">*</span></label>
+        <input type="tel" id="m-phone" placeholder="Ex: 11999999999 (só números)">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-add')">Cancelar</button>
+      <button class="btn-confirm" onclick="addChar()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ENVIAR PARA PT -->
+<div class="modal-overlay" id="modal-pt" onclick="if(event.target===this)closeModal('modal-pt')">
+  <div class="modal">
+    <h2>Enviar para PT</h2>
+    <p id="pt-char-name" style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.2rem;"></p>
+    <div class="pt-options" id="pt-options"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-pt')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmSendPT()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SERVIDORES -->
+<div class="modal-overlay" id="modal-servers" onclick="if(event.target===this)closeModal('modal-servers')">
+  <div class="modal">
+    <h2>Gerenciar servidores</h2>
+    <div class="server-list" id="server-list"></div>
+    <div class="form-group" style="margin-bottom:.5rem">
+      <label>Adicionar novo servidor</label>
+      <div style="display:flex;gap:.6rem">
+        <input type="text" id="new-server-input" placeholder="Nome do servidor..." style="flex:1"
+          onkeydown="if(event.key==='Enter')addServer()">
+        <button class="btn-confirm" onclick="addServer()" style="white-space:nowrap">Adicionar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('modal-servers')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MEMBROS -->
+<div class="modal-overlay" id="modal-members" onclick="if(event.target===this)closeModal('modal-members')">
+  <div class="modal">
+    <h2>Gerenciar membros</h2>
+    <div class="server-list" id="member-list"></div>
+    <div class="form-group" style="margin-bottom:.5rem">
+      <label>Adicionar novo membro</label>
+      <div style="display:flex;gap:.6rem">
+        <input type="text" id="new-member-input" placeholder="Nome do membro..." style="flex:1"
+          onkeydown="if(event.key==='Enter')addMember()">
+        <button class="btn-confirm" onclick="addMember()" style="white-space:nowrap">Adicionar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('modal-members')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+const ADM_HASH = "c1d0e46fdeb2b72758a6a5bd5eecf2622ff8b84a8964c8e9687c6c05c9f474b5";
+let currentRole = null; // 'adm' | 'visitor'
+
+function setMode(mode) {
+  document.getElementById('mode-adm').classList.toggle('active', mode==='adm');
+  document.getElementById('mode-visitor').classList.toggle('active', mode==='visitor');
+  document.getElementById('adm-fields').style.display   = mode==='adm'     ? 'block' : 'none';
+  document.getElementById('visitor-fields').style.display = mode==='visitor' ? 'block' : 'none';
+  document.getElementById('login-error').textContent = '';
+}
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const val = document.getElementById('pwd-input').value;
+  const h   = await sha256(val);
+  if (h === ADM_HASH) {
+    enterApp('adm');
+  } else {
+    document.getElementById('login-error').textContent = 'Senha incorreta.';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
   }
-  return ContentService.createTextOutput(JSON.stringify({ok:false}))
-    .setMimeType(ContentService.MimeType.JSON);
 }
 
-function doPost(e) {
-  const body = JSON.parse(e.postData.contents);
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  
-  ["chars","pts","members","servers","rejectedIds"].forEach(name => {
-    if (body[name] !== undefined) {
-      let sheet = ss.getSheetByName(name);
-      if (!sheet) sheet = ss.insertSheet(name);
-      sheet.clearContents();
-      sheet.getRange(1,1).setValue(JSON.stringify(body[name]));
-    }
-  });
-  
-  return ContentService.createTextOutput(JSON.stringify({ok:true}))
-    .setMimeType(ContentService.MimeType.JSON);
+function doLoginVisitor() {
+  enterApp('visitor');
 }
+
+
+// ── ABAS DO LOGIN ─────────────────────────────────────────────────────────
+function setLoginTab(tab) {
+  ['visitor','user','register','adm'].forEach(t => {
+    document.getElementById('ltab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('lform-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.getElementById('login-error').textContent = '';
+}
+
+// ── LOGIN USUÁRIO ─────────────────────────────────────────────────────────
+async function doLoginUser() {
+  const pwd = document.getElementById('user-pwd-input').value;
+  if (!pwd) return;
+  const h = await sha256(pwd);
+  const u = users.find(u => u.pwdHash === h && u.status === 'active');
+  if (u) {
+    currentUser = u.name;
+    enterApp('user');
+  } else {
+    const pending = users.find(u => u.pwdHash === h && u.status === 'pending');
+    document.getElementById('login-error').textContent = pending
+      ? 'Cadastro ainda aguardando aprovação do ADM.'
+      : 'Senha incorreta ou usuário não encontrado.';
+    document.getElementById('user-pwd-input').value = '';
+  }
+}
+
+// ── LOGIN ADM ─────────────────────────────────────────────────────────────
+async function doLoginAdm() {
+  const val = document.getElementById('adm-pwd-input').value;
+  const h   = await sha256(val);
+  if (h === ADM_HASH) {
+    currentUser = null;
+    enterApp('adm');
+  } else {
+    document.getElementById('login-error').textContent = 'Senha incorreta.';
+    document.getElementById('adm-pwd-input').value = '';
+  }
+}
+
+// ── CADASTRO ──────────────────────────────────────────────────────────────
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const pwd  = document.getElementById('reg-pwd').value;
+  const pwd2 = document.getElementById('reg-pwd2').value;
+  const err  = document.getElementById('login-error');
+
+  if (!name) { err.textContent = 'Informe seu nome.'; return; }
+  if (!pwd)  { err.textContent = 'Informe uma senha.'; return; }
+  if (pwd !== pwd2) { err.textContent = 'As senhas não coincidem.'; return; }
+  if (pwd.length < 4) { err.textContent = 'Senha deve ter no mínimo 4 caracteres.'; return; }
+
+  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'Este nome já está em uso.'; return;
+  }
+  const h = await sha256(pwd);
+  if (h === ADM_HASH || users.find(u => u.pwdHash === h)) {
+    err.textContent = 'Esta senha já está em uso. Escolha outra.'; return;
+  }
+
+  users.push({ id: Date.now(), name, pwdHash: h, status: 'pending' });
+  await save();
+  document.getElementById('reg-name').value = '';
+  document.getElementById('reg-pwd').value  = '';
+  document.getElementById('reg-pwd2').value = '';
+  err.style.color = '#3dba6c';
+  err.textContent = 'Cadastro enviado! Aguarde aprovação do ADM.';
+  setTimeout(() => { err.textContent = ''; err.style.color = ''; }, 4000);
+}
+
+// ── GERENCIAR USUÁRIOS (ADM) ──────────────────────────────────────────────
+function approveUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'active';
+  if (!members.includes(u.name)) members.push(u.name);
+  save(); renderUsers(); populateServerSelects();
+  toast(u.name + ' aprovado!', 'success');
+}
+function rejectUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm('Recusar cadastro de "' + u.name + '"?')) return;
+  users = users.filter(x => x.id !== id);
+  save(); renderUsers();
+  toast('Cadastro recusado.');
+}
+function removeUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm('Remover usuário "' + u.name + '"?')) return;
+  users = users.filter(x => x.id !== id);
+  save(); renderUsers();
+  toast(u.name + ' removido.');
+}
+function renderUsers() {
+  const pendingList  = document.getElementById('pending-users-list');
+  const activeList   = document.getElementById('active-users-list');
+  const pendingSec   = document.getElementById('pending-users-section');
+  const pendingCount = document.getElementById('pending-users-count');
+  const activeCount  = document.getElementById('active-users-count');
+  if (!pendingList) return;
+  const pending = users.filter(u => u.status === 'pending');
+  const active  = users.filter(u => u.status === 'active');
+  pendingCount.textContent = pending.length;
+  activeCount.textContent  = active.length;
+  pendingSec.style.display = pending.length ? 'block' : 'none';
+  pendingList.innerHTML = pending.map(u => `
+    <div class="user-card">
+      <span class="user-card-name">${esc(u.name)}</span>
+      <div class="user-card-actions">
+        <button class="btn-approve" data-user-id="${u.id}" title="Aprovar">✓</button>
+        <button class="btn-reject-user" data-user-id="${u.id}" title="Recusar">✕</button>
+      </div>
+    </div>`).join('');
+  activeList.innerHTML = active.length ? active.map(u => `
+    <div class="user-card">
+      <span class="user-card-name">${esc(u.name)}</span>
+      <div class="user-card-actions">
+        <button class="btn-remove-user" data-user-id="${u.id}" title="Remover">✕</button>
+      </div>
+    </div>`).join('') : '<div style="color:var(--text-muted);font-style:italic;font-size:.9rem;padding:.5rem 0">Nenhum usuário ativo.</div>';
+}
+
+function enterApp(role) {
+  currentRole = role;
+  sessionStorage.setItem('sw_role', role);
+  if (currentUser) sessionStorage.setItem('sw_user', currentUser);
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const badge = document.getElementById('role-badge');
+  const thWpp = document.getElementById('th-wpp');
+  const usersBtn = document.getElementById('tab-users-btn');
+
+  if (role === 'adm') {
+    badge.textContent = '⚔ ADM';
+    badge.className = 'role-badge adm';
+    document.body.classList.remove('visitor-mode');
+    if (thWpp) thWpp.style.display = '';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
+    if (usersBtn) usersBtn.style.display = '';
+    renderUsers();
+  } else if (role === 'user') {
+    badge.textContent = '⚔ ' + currentUser;
+    badge.className = 'role-badge adm';
+    document.body.classList.remove('visitor-mode');
+    if (thWpp) thWpp.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+    if (usersBtn) usersBtn.style.display = 'none';
+  } else {
+    badge.textContent = '👁 Visitante';
+    badge.className = 'role-badge visitor';
+    document.body.classList.add('visitor-mode');
+    if (thWpp) thWpp.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+    if (usersBtn) usersBtn.style.display = 'none';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('sw_role');
+  location.reload();
+}
+
+// Verificar sessão ao carregar
+const savedRole = sessionStorage.getItem('sw_role');
+const savedUser = sessionStorage.getItem('sw_user');
+if (savedRole) {
+  if (savedRole === 'user' && savedUser) currentUser = savedUser;
+  enterApp(savedRole);
+} else {
+  setLoginTab('user');
+}
+
+
+let users = [];
+let currentUser = null;
+
+// ── DADOS ─────────────────────────────────────────────────────────────────
+const BADGE = {"ELITE KNIGHT":"badge-ek","ELDER DRUID":"badge-ed","MASTER SORCERER":"badge-ms","ROYAL PALADIN":"badge-rp","EXALTED MONK":"badge-em"};
+const SHORT = {"ELITE KNIGHT":"EK","ELDER DRUID":"ED","MASTER SORCERER":"MS","ROYAL PALADIN":"RP","EXALTED MONK":"EM"};
+const CLASS_COLOR = {"ELITE KNIGHT":"#3a7bd5","ELDER DRUID":"#3dba6c","MASTER SORCERER":"#9b59b6","ROYAL PALADIN":"#e07b35","EXALTED MONK":"#e05252"};
+const PT_COLORS = ["#c9922a","#9b59b6","#3dba6c"];
+const PT_NAMES  = ["PT 1","PT 2","PT 3"];
+const PT_BORDER = ["pt1-border","pt2-border","pt3-border"];
+const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
+
+let chars   = [];
+let rejectedIds = []; // IDs de chars recusados pelo ADM
+let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
+let members = ["Leão","LC","Tito","Nandao"];
+let nextId  = 1;
+let pendingSendId = null;
+let selectedPT    = null;
+
+const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
+
+function showSync(msg, type) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'sync-status ' + (type||'');
+  el.style.opacity = '1';
+  if (type === 'ok') setTimeout(()=>{ el.style.opacity='0'; }, 2000);
+}
+
+async function save() {
+  showSync('Salvando...', 'saving');
+  try {
+    // Buscar dados remotos para mesclar APENAS personagens pendentes de visitantes
+    // que ainda não existem localmente — sem reintroduzir deletados
+    const r = await fetch(API + '?action=load');
+    const j = await r.json();
+    if (j.ok && j.data && j.data.chars) {
+      const remoteChars = JSON.parse(j.data.chars);
+      remoteChars.forEach(c => { c.id = Number(c.id); });
+      const localIds = new Set(chars.map(c => Number(c.id)));
+      // Só adicionar chars remotos que:
+      // 1) Não existem localmente (novo visitante adicionou)
+      // 2) São pendentes
+      // 3) Não foram recusados pelo ADM
+      const rejSet = new Set(rejectedIds);
+      remoteChars.forEach(rc => {
+        if (!localIds.has(rc.id) && rc.status === 'pending' && !rejSet.has(rc.id)) {
+          chars.push(rc);
+          if (rc.id >= nextId) nextId = rc.id + 1;
+        }
+      });
+    }
+
+    await fetch(API, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({ chars, pts, servers, members, nextId: String(nextId), rejectedIds, users })
+    });
+    showSync('Salvo ✓', 'ok');
+    // backup local
+    localStorage.setItem('sw_chars',   JSON.stringify(chars));
+    localStorage.setItem('sw_pts',     JSON.stringify(pts));
+    localStorage.setItem('sw_servers', JSON.stringify(servers));
+    localStorage.setItem('sw_members', JSON.stringify(members));
+    localStorage.setItem('sw_nextId',  String(nextId));
+    localStorage.setItem('sw_users', JSON.stringify(users));
+  } catch(e) {
+    showSync('Erro ao salvar', 'err');
+  }
+}
+
+
+// ── CORRIGIR IDs DUPLICADOS ───────────────────────────────────────────────
+function fixDuplicateIds() {
+  const seen = new Set();
+  let maxId = 0;
+  chars.forEach(c => {
+    c.id = Number(c.id);
+    if (c.id > maxId) maxId = c.id;
+  });
+  chars.forEach(c => {
+    if (seen.has(c.id)) {
+      maxId++;
+      console.warn('ID duplicado corrigido:', c.name, c.id, '->', maxId);
+      c.id = maxId;
+    }
+    seen.add(c.id);
+  });
+  nextId = maxId + 1;
+}
+
+async function load() {
+  showSync('Carregando...', 'saving');
+  try {
+    const r = await fetch(API + '?action=load');
+    const j = await r.json();
+    if (j.ok && j.data) {
+      const d = j.data;
+      if (d.chars)   { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
+      if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
+      if (d.users) users = JSON.parse(d.users);
+      if (d.pts)     pts     = JSON.parse(d.pts);
+      if (d.servers) servers = JSON.parse(d.servers);
+      if (d.members) members = JSON.parse(d.members);
+      if (d.nextId)  nextId  = parseInt(d.nextId)||1;
+    }
+  } catch(e) {
+    // fallback localStorage
+    const c=localStorage.getItem('sw_chars');
+    const p=localStorage.getItem('sw_pts');
+    const s=localStorage.getItem('sw_servers');
+    const mb=localStorage.getItem('sw_members');
+    const n=localStorage.getItem('sw_nextId');
+    if(c) { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
+    const us=localStorage.getItem('sw_users'); if(us) users=JSON.parse(us);
+    if(p) pts=JSON.parse(p);
+    if(s) servers=JSON.parse(s);
+    if(mb) members=JSON.parse(mb);
+    if(n) nextId=parseInt(n)||1;
+    showSync('Offline — dados locais', 'err');
+  }
+  while(pts.length<3) pts.push([null,null,null,null,null]);
+  pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
+  showSync('', '');
+  renderChars();
+}
+
+load();
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='chars') renderChars(); else renderPT();
+}
+
+// ── SERVER FILTER / SELECT ────────────────────────────────────────────────
+function populateServerSelects() {
+  // filtro
+  const fs = document.getElementById('filter-server');
+  const cur = fs.value;
+  fs.innerHTML = '<option value="">Todos os servidores</option>';
+  servers.forEach(s => {
+    const o=document.createElement('option');
+    o.value=s; o.textContent=s;
+    if(s===cur) o.selected=true;
+    fs.appendChild(o);
+  });
+  // filtro de membro
+  const fm = document.getElementById('filter-member');
+  const curMember = fm ? fm.value : '';
+  if (fm) {
+    fm.innerHTML = '<option value="">Todos os membros</option>';
+    members.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = m;
+      if (m === curMember) o.selected = true;
+      fm.appendChild(o);
+    });
+  }
+  // select de dono (membros)
+  const mo = document.getElementById('m-owner');
+  const curOwner = mo.value;
+  mo.innerHTML = '';
+  members.forEach(m => {
+    const o=document.createElement('option');
+    o.value=m; o.textContent=m;
+    if(m===curOwner) o.selected=true;
+    mo.appendChild(o);
+  });
+  // form de add personagem
+  const ms = document.getElementById('m-server');
+  const cur2 = ms.value;
+  ms.innerHTML = '';
+  servers.forEach(s => {
+    const o=document.createElement('option');
+    o.value=s; o.textContent=s;
+    if(s===cur2) o.selected=true;
+    ms.appendChild(o);
+  });
+}
+
+// ── RENDER CHARS ──────────────────────────────────────────────────────────
+function renderChars() {
+  populateServerSelects();
+  renderPending();
+  const q  = document.getElementById('search').value.toLowerCase();
+  const fc = document.getElementById('filter-class').value;
+  const fs = document.getElementById('filter-server').value;
+  const fm2 = document.getElementById('filter-member') ? document.getElementById('filter-member').value : '';
+  chars.forEach(c => { if (!c.status) c.status = 'approved'; });
+  const approvedCount = document.getElementById('approved-count');
+  if (approvedCount) approvedCount.textContent = chars.filter(c => c.status !== 'pending').length;
+  const list = chars.filter(c=>
+    c.status !== 'pending' &&
+    (!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q))&&
+    (!fc||c.cls===fc)&&(!fs||c.server===fs)&&(!fm2||c.owner===fm2));
+  const tbody = document.getElementById('char-body');
+  const empty = document.getElementById('chars-empty');
+  tbody.innerHTML='';
+  empty.style.display = list.length?'none':'block';
+  list.forEach((c,i)=>{
+    const sent = c.sentTo!==null && c.sentTo!==undefined;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
+      <td class="owner-name">${esc(c.owner)}</td>
+      <td class="char-name">${esc(c.name)}</td>
+      <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
+      <td class="level-val">${c.level||'—'}</td>
+      <td class="server-val">${esc(c.server||'')}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${currentRole === 'adm' && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
+        <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  // Sincronizar visibilidade da coluna WhatsApp após render
+  const thWpp = document.getElementById('th-wpp');
+  const isAdm = currentRole === 'adm';
+  if (thWpp) thWpp.style.display = isAdm ? '' : 'none';
+  document.querySelectorAll('.td-wpp').forEach(el => el.style.display = isAdm ? '' : 'none');
+}
+
+// ── RENDER PT ─────────────────────────────────────────────────────────────
+function renderPT() {
+  const grid=document.getElementById('pt-grid');
+  grid.innerHTML='';
+  pts.forEach((pt,pi)=>{
+    const card=document.createElement('div');
+    card.className=`pt-card ${PT_BORDER[pi]}`;
+    let slots='';
+    for(let s=0;s<5;s++){
+      const cid=pt[s];
+      const c=cid!=null?chars.find(x=>x.id===cid):null;
+      if(c){
+        const cc=CLASS_COLOR[c.cls];
+        slots+=`<div class="pt-slot">
+          <span class="slot-num">${s+1}</span>
+          <div class="slot-avatar" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${SHORT[c.cls]}</div>
+          <div class="slot-info">
+            <div class="slot-name">${esc(c.name)}</div>
+            <div class="slot-sub">${esc(c.owner)} · Lv ${c.level||'?'} · ${esc(c.server||'')}</div>
+          </div>
+          <button class="btn-remove" onclick="removeFromPT(${pi},${c.id})" title="Remover">✕</button>
+        </div>`;
+      } else {
+        slots+=`<div class="pt-slot">
+          <span class="slot-num">${s+1}</span>
+          <div class="slot-avatar" style="background:var(--surface2);border:1px dashed var(--border)"></div>
+          <span class="slot-empty">Slot vazio</span>
+        </div>`;
+      }
+    }
+    const filled=pt.filter(x=>x!=null).length;
+    card.innerHTML=`
+      <div class="pt-card-header">
+        <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
+        <span class="pt-card-count">${filled}/5</span>
+      </div>${slots}`;
+    grid.appendChild(card);
+  });
+}
+
+// ── ADD CHAR ──────────────────────────────────────────────────────────────
+function openAddModal() {
+  populateServerSelects();
+  document.getElementById('m-name').value='';
+  document.getElementById('m-level').value='';
+  document.getElementById('m-obs').value='';
+  document.getElementById('m-phone').value='';
+
+  // Visitante: fixar dono como "Visitante" e bloquear o select
+  const ownerSel = document.getElementById('m-owner');
+  if (currentRole === 'visitor') {
+    // Garantir que existe a opção "Visitante"
+    let visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
+    if (!visOpt) {
+      visOpt = new Option('Visitante', 'Visitante');
+      ownerSel.add(visOpt, 0);
+    }
+    ownerSel.value = 'Visitante';
+    ownerSel.disabled = true;
+  } else {
+    ownerSel.disabled = false;
+    // Remover opção "Visitante" do select de ADM se existir
+    const visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
+    if (visOpt) ownerSel.remove(visOpt.index);
+  }
+
+  // Mostrar campo de telefone só pro visitante
+  const phoneGroup = document.getElementById('m-phone-group');
+  if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
+  openModal('modal-add');
+  setTimeout(()=>document.getElementById('m-name').focus(),120);
+}
+function addChar() {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) { document.getElementById('m-name').focus(); return; }
+  const level = parseInt(document.getElementById('m-level').value) || 0;
+  if (level < 400) {
+    document.getElementById('m-level').focus();
+    toast('Level mínimo para cadastro é 400.', 'error');
+    return;
+  }
+
+  // Usuário: aprovado direto com próprio nome
+  if (currentRole === 'user') {
+    chars.push({ id:nextId++, owner:currentUser, name,
+      cls:document.getElementById('m-class').value, level,
+      server:document.getElementById('m-server').value,
+      obs:document.getElementById('m-obs').value.trim(),
+      phone:'', status:'approved', sentTo:null });
+    save(); closeModal('modal-add'); renderChars();
+    toast(name + ' adicionado!', 'success');
+    return;
+  }
+
+  // Visitante precisa informar telefone
+  if (currentRole === 'visitor') {
+    const phone = document.getElementById('m-phone').value.trim();
+    if (!phone) {
+      document.getElementById('m-phone').focus();
+      toast('Informe seu WhatsApp para contato.', 'error');
+      return;
+    }
+    chars.push({
+      id:nextId++,
+      owner: document.getElementById('m-owner').value,
+      name, cls: document.getElementById('m-class').value,
+      level: level,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      phone: phone,
+      status: 'pending',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast('Personagem enviado para aprovação!', 'success');
+    return;
+  }
+
+  // ADM: aprovado direto
+  chars.push({
+    id:nextId++,
+    owner: document.getElementById('m-owner').value,
+    name, cls: document.getElementById('m-class').value,
+    level: level,
+    server: document.getElementById('m-server').value,
+    obs: document.getElementById('m-obs').value.trim(),
+    phone: '',
+    status: 'approved',
+    sentTo: null
+  });
+  save(); closeModal('modal-add'); renderChars();
+  toast(`${name} adicionado!`, 'success');
+}
+function deleteChar(id) {
+  const c=chars.find(x=>x.id===id);
+  if(!c) return;
+  if(!confirm(`Remover "${c.name}"?`)) return;
+  pts.forEach((pt,pi)=>{const idx=pt.indexOf(id);if(idx>-1)pts[pi][idx]=null;});
+  chars=chars.filter(x=>x.id!==id);
+  save(); renderChars();
+  toast(`${c.name} removido.`);
+}
+
+// ── SEND TO PT ────────────────────────────────────────────────────────────
+function openSendPT(id) {
+  const c=chars.find(x=>x.id===id);
+  if(!c||c.sentTo!==null) return;
+  pendingSendId=id; selectedPT=null;
+  document.getElementById('pt-char-name').textContent=`Personagem: ${c.name} (${SHORT[c.cls]})`;
+  const container=document.getElementById('pt-options');
+  container.innerHTML='';
+  pts.forEach((pt,pi)=>{
+    const count=pt.filter(x=>x!=null).length;
+    const full=count>=5;
+    const div=document.createElement('div');
+    div.className=`pt-option${full?' pt-option-full':''}`;
+    div.innerHTML=`
+      <div class="pt-option-color" style="background:${PT_COLORS[pi]}"></div>
+      <div class="pt-option-info">
+        <div class="pt-option-name">${PT_NAMES[pi]}</div>
+        <div class="pt-option-slots">${count}/5 personagens${full?' — Cheia':''}</div>
+      </div>
+      <span style="color:var(--text-muted);font-size:1rem">${full?'✗':'›'}</span>`;
+    if(!full) div.onclick=()=>{
+      document.querySelectorAll('.pt-option').forEach(el=>el.classList.remove('selected'));
+      div.classList.add('selected'); selectedPT=pi;
+    };
+    container.appendChild(div);
+  });
+  openModal('modal-pt');
+}
+function confirmSendPT() {
+  if(selectedPT===null){toast('Selecione uma PT!','error');return;}
+  const c=chars.find(x=>x.id===pendingSendId);
+  if(!c) return;
+  const slot=pts[selectedPT].findIndex(x=>x===null);
+  if(slot===-1){toast('PT cheia!','error');return;}
+  pts[selectedPT][slot]=c.id; c.sentTo=selectedPT;
+  save(); closeModal('modal-pt'); renderChars();
+  toast(`${c.name} → ${PT_NAMES[selectedPT]}!`,'success');
+}
+function removeFromPT(pi,cid) {
+  const idx=pts[pi].indexOf(cid);
+  if(idx>-1) pts[pi][idx]=null;
+  const c=chars.find(x=>x.id===cid);
+  if(c) c.sentTo=null;
+  save(); renderPT();
+}
+
+// ── SERVIDORES ────────────────────────────────────────────────────────────
+function openServerModal() {
+  renderServerList();
+  openModal('modal-servers');
+  setTimeout(()=>document.getElementById('new-server-input').focus(),120);
+}
+function renderServerList() {
+  const list=document.getElementById('server-list');
+  list.innerHTML='';
+  if(!servers.length){
+    list.innerHTML='<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum servidor cadastrado.</div>';
+    return;
+  }
+  servers.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='server-item';
+    div.innerHTML=`<span>${esc(s)}</span>
+      <button class="btn-del" onclick="removeServer(${i})" title="Remover servidor">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function addServer() {
+  const inp=document.getElementById('new-server-input');
+  const name=inp.value.trim();
+  if(!name) return;
+  if(servers.includes(name)){toast('Servidor já existe.','error');return;}
+  servers.push(name);
+  inp.value='';
+  save(); renderServerList(); populateServerSelects();
+  toast(`${name} adicionado!`,'success');
+}
+function removeServer(i) {
+  const name=servers[i];
+  if(chars.some(c=>c.server===name)){
+    toast('Servidor em uso por algum personagem.','error'); return;
+  }
+  servers.splice(i,1);
+  save(); renderServerList(); populateServerSelects();
+  toast(`${name} removido.`);
+}
+
+
+// ── MEMBROS ───────────────────────────────────────────────────────────────
+function openMemberModal() {
+  renderMemberList();
+  openModal('modal-members');
+  setTimeout(()=>document.getElementById('new-member-input').focus(),120);
+}
+function renderMemberList() {
+  const list=document.getElementById('member-list');
+  list.innerHTML='';
+  if(!members.length){
+    list.innerHTML='<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum membro cadastrado.</div>';
+    return;
+  }
+  members.forEach((m,i)=>{
+    const div=document.createElement('div');
+    div.className='member-item';
+    // editar nome inline
+    div.innerHTML=`
+      <input type="text" value="${esc(m)}" 
+        style="flex:1;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;outline:none;padding:0"
+        onblur="renameMember(${i},this.value)"
+        onkeydown="if(event.key==='Enter')this.blur()">
+      <button class="btn-del" onclick="removeMember(${i})" title="Remover membro">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function addMember() {
+  const inp=document.getElementById('new-member-input');
+  const name=inp.value.trim();
+  if(!name) return;
+  if(members.includes(name)){toast('Membro já existe.','error');return;}
+  members.push(name);
+  inp.value='';
+  save(); renderMemberList(); populateServerSelects();
+  toast(`${name} adicionado!`,'success');
+}
+function removeMember(i) {
+  const name=members[i];
+  if(chars.some(c=>c.owner===name)){
+    toast('Membro possui personagens cadastrados.','error'); return;
+  }
+  members.splice(i,1);
+  save(); renderMemberList(); populateServerSelects();
+  toast(`${name} removido.`);
+}
+function renameMember(i, newName) {
+  newName = newName.trim();
+  if(!newName || newName===members[i]) return;
+  if(members.includes(newName)){toast('Nome já existe.','error');renderMemberList();return;}
+  const old=members[i];
+  chars.forEach(c=>{ if(c.owner===old) c.owner=newName; });
+  members[i]=newName;
+  save(); renderMemberList(); populateServerSelects(); renderChars();
+  toast(`"${old}" renomeado para "${newName}".`,'success');
+}
+
+
+// ── PENDENTES ─────────────────────────────────────────────────────────────
+function renderPending() {
+  const pending = chars.filter(c => c.status === 'pending');
+  const section = document.getElementById('pending-section');
+  const tbody   = document.getElementById('pending-body');
+  const count   = document.getElementById('pending-count');
+
+  // Visitante e ADM veem pendentes, mas visitante não tem botões de ação
+  if (pending.length === 0) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  count.textContent = pending.length;
+  tbody.innerHTML = '';
+
+  pending.forEach(c => {
+    const phone = c.phone ? c.phone.replace(/\D/g,'') : '';
+    const wppUrl = phone ? `https://wa.me/55${phone}` : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
+      <td class="char-name">${esc(c.name)}</td>
+      <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
+      <td class="level-val">${c.level||'—'}</td>
+      <td class="server-val">${esc(c.server||'')}</td>
+      <td>${currentRole === 'adm' && wppUrl
+        ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
+        : currentRole === 'adm' ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
+      </td>
+      <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
+      <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
+        <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
+        <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
+        <span class="visitor-pending-label" style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando ADM</span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function approveChar(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  c.status = 'approved';
+  save(); renderChars();
+  toast(`${c.name} aprovado!`, 'success');
+}
+
+function rejectChar(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`Recusar "${c.name}" de ${c.owner}?`)) return;
+  rejectedIds.push(Number(id));
+  chars = chars.filter(x => x.id !== id);
+  save(); renderChars();
+  toast(`Personagem recusado.`);
+}
+
+
+// ── RECOMENDAÇÃO PT ───────────────────────────────────────────────────────
+let lastRecommend = null; // guarda o resultado pra aplicar depois
+
+function runRecommend() {
+  const COMP = [
+    "ELITE KNIGHT",
+    "ROYAL PALADIN",
+    "MASTER SORCERER",
+    "ELDER DRUID",
+    "ELDER DRUID"
+  ];
+
+  // Só personagens aprovados e não alocados em PT
+  // Para recomendação, considerar TODOS os chars aprovados (inclusive já alocados)
+  const free = chars.filter(c => c.status === 'approved' || !c.status);
+
+  // Agrupar por servidor
+  const serverGroups = {};
+  free.forEach(c => {
+    const srv = c.server || '(sem servidor)';
+    if (!serverGroups[srv]) serverGroups[srv] = [];
+    serverGroups[srv].push(c);
+  });
+
+  // Tentar cada servidor separadamente — encontrar o melhor resultado
+  let bestTeamGlobal = null;
+  let bestStdGlobal  = Infinity;
+  let bestServerName = '';
+
+
+  for (const [srv, group] of Object.entries(serverGroups)) {
+    const sortLv = arr => [...arr].sort((a,b) => (b.level||0)-(a.level||0));
+
+    const EKs = sortLv(group.filter(c => c.cls === 'ELITE KNIGHT'));
+    const RPs = sortLv(group.filter(c => c.cls === 'ROYAL PALADIN'));
+    const MSs = sortLv(group.filter(c => c.cls === 'MASTER SORCERER'));
+    const EDs = sortLv(group.filter(c => c.cls === 'ELDER DRUID'));
+
+    if (!EKs.length || !RPs.length || !MSs.length || !EDs.length) {
+      continue;
+    }
+
+    // Pegar o melhor de cada classe obrigatória
+    const ek = EKs[0];
+    const rp = RPs[0];
+    const ms = MSs[0];
+    const ed = EDs[0];
+
+    const coreIds = new Set([ek.id, rp.id, ms.id, ed.id]);
+    if (coreIds.size < 4) continue; // IDs duplicados — pular
+
+    // 5º: qualquer não-EK não usado
+    const fifth = sortLv(group).find(c =>
+      c.cls !== 'ELITE KNIGHT' && !coreIds.has(c.id)
+    );
+    if (!fifth) continue;
+
+    const team = [ek, rp, ms, ed, fifth];
+    const levels = team.map(c => c.level || 0);
+    const avg = levels.reduce((a,b)=>a+b,0) / 5;
+    const sd  = Math.sqrt(levels.map(x=>(x-avg)**2).reduce((a,b)=>a+b,0) / 5);
+
+    if (sd < bestStdGlobal) {
+      bestStdGlobal = sd;
+      bestTeamGlobal = team;
+      bestServerName = srv;
+    }
+  }
+
+  const bestTeam = bestTeamGlobal;
+  const bestStd  = bestStdGlobal;
+
+  // Nenhum servidor montou PT completa
+  if (!bestTeam) {
+    const allServers = [...new Set(free.map(c => c.server||'(sem servidor)'))];
+    const detail = allServers.map(srv => {
+      const g = free.filter(c => (c.server||'(sem servidor)') === srv);
+      const ek = g.filter(c=>c.cls==='ELITE KNIGHT').length;
+      const rp = g.filter(c=>c.cls==='ROYAL PALADIN').length;
+      const ms = g.filter(c=>c.cls==='MASTER SORCERER').length;
+      const ed = g.filter(c=>c.cls==='ELDER DRUID').length;
+      const miss = [];
+      if(ek<1) miss.push('1 EK'); if(rp<1) miss.push('1 RP');
+      if(ms<1) miss.push('1 MS'); if(ed<1) miss.push('1 ED');
+      if(!miss.length && g.length < 5) miss.push('5º player (mín. 5 chars no servidor)');
+      const tag = miss.length ? ': falta '+miss.join(', ') : ' ✓ tem composição';
+      return `<b>${srv}</b>${tag} [EK:${ek} RP:${rp} MS:${ms} ED:${ed} total:${g.length}]`;
+    }).join('<br>');
+    document.getElementById('rec-result-body').innerHTML =
+      `<div style="color:#e05252">⚠ Nenhum servidor montou PT completa.<br><br>${detail}</div>`;
+    document.getElementById('rec-result').classList.add('show');
+    document.querySelector('.rec-result-footer').style.display = 'none';
+    lastRecommend = null;
+    return;
+  }
+
+  lastRecommend = bestTeam;
+
+  const avg = Math.round(bestTeam.map(c=>c.level||0).reduce((a,b)=>a+b,0)/5);
+  const lines = bestTeam.map(c =>
+    `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
+  ).join('');
+
+  document.getElementById('rec-result-body').innerHTML =
+    `<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStd)}</b></div>`;
+  document.querySelector('.rec-result-footer').style.display = 'flex';
+  document.getElementById('rec-result').classList.add('show');
+}
+
+function clearRecommend() {
+  lastRecommend = null;
+  document.getElementById('rec-result').classList.remove('show');
+}
+
+function applyRecommend() {
+  if (!lastRecommend) return;
+
+  // Verificar se alguma PT tem slots ocupados
+  const anyOccupied = pts.some(pt => pt.some(x => x !== null));
+
+  if (anyOccupied) {
+    if (!confirm('Já existem personagens nos slots da PT. Deseja substituir tudo pela recomendação?')) return;
+  }
+
+  // Limpar todas as PTs e remover sentTo dos chars afetados
+  pts.forEach((pt, pi) => {
+    pt.forEach(cid => {
+      if (cid !== null) {
+        const c = chars.find(x => x.id === cid);
+        if (c) c.sentTo = null;
+      }
+      pts[pi] = [null, null, null, null, null];
+    });
+  });
+
+  // Alocar os 5 recomendados na PT 1
+  lastRecommend.forEach((c, i) => {
+    pts[0][i] = c.id;
+    c.sentTo = 0;
+  });
+
+  save();
+  clearRecommend();
+  renderPT();
+  toast('PT recomendada aplicada nos slots!', 'success');
+}
+
+
+// ── EVENT DELEGATION para botões de delete/approve/reject ─────────────────
+document.addEventListener('click', function(e) {
+  // Delete char
+  const delBtn = e.target.closest('.btn-del[data-id]');
+  if (delBtn) {
+    e.stopPropagation();
+    deleteChar(parseInt(delBtn.dataset.id));
+    return;
+  }
+  // Approve
+  const appBtn = e.target.closest('.btn-approve[data-id]');
+  if (appBtn) {
+    e.stopPropagation();
+    approveChar(parseInt(appBtn.dataset.id));
+    return;
+  }
+  // Reject
+  const rejBtn = e.target.closest('.btn-reject[data-id]');
+  if (rejBtn) {
+    e.stopPropagation();
+    rejectChar(parseInt(rejBtn.dataset.id));
+    return;
+  }
+});
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay').forEach(el=>el.classList.remove('open'));
+});
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show '+(type||'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+</script>
+</body>
+</html>
