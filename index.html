@@ -704,6 +704,7 @@ function setUserSub(sub) {
 }
 
 async function doUserLogin() {
+  await dataReady;
   const pwd = document.getElementById('user-login-pwd').value;
   const err = document.getElementById('login-error');
   err.style.color = '';
@@ -721,6 +722,7 @@ async function doUserLogin() {
 }
 
 async function doUserRegister() {
+  await dataReady;
   const name = document.getElementById('user-reg-name').value.trim();
   const pwd  = document.getElementById('user-reg-pwd').value;
   const err  = document.getElementById('login-error');
@@ -1071,7 +1073,7 @@ async function load() {
   renderChars();
 }
 
-load();
+const dataReady = load();
 
 // ── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(t, btn) {
