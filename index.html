@@ -356,6 +356,17 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 
 
 select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── BACKUP ── */
+.backup-item { display:flex; align-items:center; justify-content:space-between;
+  padding:.85rem 1.2rem; background:var(--surface); border:1px solid var(--border);
+  border-radius:3px; margin-bottom:.5rem; }
+.backup-item:last-child { margin-bottom:0; }
+.backup-meta { display:flex; flex-direction:column; gap:.2rem; }
+.backup-ts { font-family:'Cinzel',serif; font-size:.82rem; color:var(--gold2); }
+.backup-count { font-size:.8rem; color:var(--text-muted); }
+.backup-wrap { border:1px solid var(--border); border-radius:4px; overflow:hidden;
+  background:var(--surface2); padding:1rem; }
 </style>
 </head>
 <body>
@@ -428,6 +439,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
+      <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
       <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
   </div>
   </header>
@@ -500,6 +512,16 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
             <tbody id="users-list-body"></tbody>
           </table>
           <div id="users-empty" class="empty" style="display:none">Nenhum usuário cadastrado.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: BACKUP (ADM only) -->
+    <div class="section" id="tab-backup">
+      <div style="margin-bottom:1.5rem">
+        <div class="approved-title" style="color:var(--gold2)">Backups automáticos <span class="approved-count" id="backup-count">0</span></div>
+        <div class="backup-wrap">
+          <div id="backup-list"></div>
         </div>
       </div>
     </div>
@@ -757,6 +779,8 @@ function enterApp(role, user) {
     badge.textContent = '⚔ ADM';
     badge.className = 'role-badge adm';
     if (usersTabBtn) usersTabBtn.style.display = '';
+    const backupTabBtn = document.getElementById('tab-backup-btn');
+    if (backupTabBtn) backupTabBtn.style.display = '';
     const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = '';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
@@ -805,6 +829,7 @@ const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
 let chars   = [];
 let rejectedIds = [];
 let deletedIds  = [];
+let backups     = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
 let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
 let members = ["Leão"];
@@ -890,37 +915,58 @@ async function save() {
         const { remoteUsers, remoteUserNextId } = extractUsersFromMembers(rawMembers);
         console.log('[SW] save() — users remotos:', remoteUsers.length, remoteUsers.map(u => `${u.name}(${u.status})`));
 
+        // maxId para resolver colisões de ID entre sessões concorrentes
+        let maxId = remoteUsers.reduce((m, u) => Math.max(m, Number(u.id)), remoteUserNextId - 1);
+
         if (currentRole !== 'adm') {
-          // Sessão não-ADM: remoto é autoridade em status; só acrescenta novos cadastros locais.
-          const remoteIds = new Set(remoteUsers.map(u => Number(u.id)));
+          // Sessão não-ADM: remoto é autoridade em status.
+          // Identifica novos cadastros locais pelo NOME (não pelo ID) para evitar
+          // colisão quando dois usuários se cadastram com o mesmo userNextId.
+          const remoteNames = new Set(remoteUsers.map(u => u.name.toLowerCase()));
           users.forEach(u => {
-            if (!remoteIds.has(u.id)) {
+            if (!remoteNames.has(u.name.toLowerCase())) {
+              // Novo cadastro local — garantir ID único
+              if (remoteUsers.some(r => Number(r.id) === Number(u.id))) {
+                maxId++;
+                u.id = maxId;
+              }
               remoteUsers.push(u);
-              if (u.id >= remoteUserNextId) remoteUserNextId = u.id + 1;
+              if (u.id > maxId) maxId = u.id;
             }
           });
           users = remoteUsers;
-          userNextId = remoteUserNextId;
+          userNextId = maxId + 1;
         } else {
-          // Sessão ADM: estado local é autoridade; absorve novos cadastros remotos.
-          const localIds = new Set(users.map(u => Number(u.id)));
+          // Sessão ADM: estado local é autoridade; absorve novos cadastros remotos pelo NOME.
+          const localNames = new Set(users.map(u => u.name.toLowerCase()));
+          maxId = users.reduce((m, u) => Math.max(m, Number(u.id)), userNextId - 1);
           remoteUsers.forEach(ru => {
-            if (!localIds.has(ru.id)) {
+            if (!localNames.has(ru.name.toLowerCase())) {
+              if (users.some(u => Number(u.id) === Number(ru.id))) {
+                maxId++;
+                ru.id = maxId;
+              }
               users.push(ru);
-              if (ru.id >= userNextId) userNextId = ru.id + 1;
+              if (ru.id > maxId) maxId = ru.id;
             }
           });
+          userNextId = maxId + 1;
         }
       }
     }
 
     // ── 2. Enviar para a API (users embutidos em members) ──────────────────
+    const now = new Date();
+    const ts = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const newBackups = [{ ts, chars: JSON.parse(JSON.stringify(chars)) }, ...backups].slice(0, 5);
+
     const payload = {
       chars, pts, servers,
       members: buildMembersPayload(),
       nextId: String(nextId),
       rejectedIds,
-      deletedIds
+      deletedIds,
+      backups: newBackups
     };
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
@@ -930,6 +976,7 @@ async function save() {
       headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify(payload)
     });
+    backups = newBackups;
     showSync('Salvo ✓', 'ok');
 
     // ── 3. Backup local ────────────────────────────────────────────────────
@@ -942,6 +989,7 @@ async function save() {
     localStorage.setItem('sw_userNextId',  String(userNextId));
     localStorage.setItem('sw_rejectedIds', JSON.stringify(rejectedIds));
     localStorage.setItem('sw_deletedIds',  JSON.stringify(deletedIds));
+    localStorage.setItem('sw_backups',     JSON.stringify(backups));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -979,6 +1027,7 @@ async function load() {
       if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
       if (d.rejectedIds) rejectedIds = JSON.parse(d.rejectedIds).map(Number);
       if (d.deletedIds)  deletedIds  = JSON.parse(d.deletedIds).map(Number);
+      if (d.backups)     backups     = JSON.parse(d.backups);
       if (d.pts)         pts     = JSON.parse(d.pts);
       if (d.servers)     servers = JSON.parse(d.servers);
       if (d.nextId)      nextId  = parseInt(d.nextId)||1;
@@ -1012,6 +1061,8 @@ async function load() {
     if(un) userNextId=parseInt(un)||1;
     if(ri) rejectedIds=JSON.parse(ri).map(Number);
     if(di) deletedIds=JSON.parse(di).map(Number);
+    const bk = localStorage.getItem('sw_backups');
+    if(bk) backups=JSON.parse(bk);
     showSync('Offline — dados locais', 'err');
   }
   while(pts.length<3) pts.push([null,null,null,null,null]);
@@ -1031,6 +1082,7 @@ function switchTab(t, btn) {
   if(t==='chars') renderChars();
   else if(t==='pt') renderPT();
   else if(t==='users') renderUsers();
+  else if(t==='backup') renderBackups();
 }
 
 // ── SERVER FILTER / SELECT ────────────────────────────────────────────────
@@ -1746,6 +1798,51 @@ function applyRecommend() {
   toast('PT recomendada aplicada nos slots!', 'success');
 }
 
+
+// ── BACKUP ────────────────────────────────────────────────────────────────
+function renderBackups() {
+  const list  = document.getElementById('backup-list');
+  const count = document.getElementById('backup-count');
+  if (count) count.textContent = backups.length;
+  if (!backups.length) {
+    list.innerHTML = '<div class="empty">Nenhum backup disponível. Os backups são criados automaticamente a cada salvamento.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  backups.forEach((b, i) => {
+    const div = document.createElement('div');
+    div.className = 'backup-item';
+    div.innerHTML = `
+      <div class="backup-meta">
+        <span class="backup-ts">📅 ${esc(b.ts)}</span>
+        <span class="backup-count">${b.chars.length} personagem${b.chars.length !== 1 ? 's' : ''}</span>
+      </div>
+      <button class="btn-confirm" onclick="restoreBackup(${i})">↩ Restaurar</button>`;
+    list.appendChild(div);
+  });
+}
+
+function restoreBackup(idx) {
+  const b = backups[idx];
+  if (!b) return;
+  if (!confirm(`Restaurar personagens do backup de ${b.ts}?\n\nOs personagens atuais serão substituídos pelos ${b.chars.length} personagem(s) deste backup.`)) return;
+  chars = JSON.parse(JSON.stringify(b.chars));
+  chars.forEach(c => { c.id = Number(c.id); });
+  fixDuplicateIds();
+  // Limpar PTs cujos chars não existem mais no backup
+  const charIds = new Set(chars.map(c => c.id));
+  pts.forEach((pt, pi) => {
+    pts[pi] = pt.map(cid => (cid !== null && charIds.has(cid)) ? cid : null);
+  });
+  // Sincronizar sentTo com estado real das PTs
+  chars.forEach(c => {
+    c.sentTo = null;
+    pts.forEach((pt, pi) => { if (pt.includes(c.id)) c.sentTo = pi; });
+  });
+  save();
+  renderChars();
+  toast(`Backup de ${b.ts} restaurado!`, 'success');
+}
 
 // ── EVENT DELEGATION para botões de delete/approve/reject ─────────────────
 document.addEventListener('click', function(e) {
