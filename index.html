@@ -1286,6 +1286,7 @@ async function lookupCharacter() {
     if (!res.ok) throw new Error('proxy');
     const data = await res.json();
     const html = data.contents || '';
+    console.log('[SW] Rubinot HTML bruto:', html);
 
     // Mapear vocação — padrões case-insensitive, do mais específico para o mais genérico
     const VOC_MAP = [
