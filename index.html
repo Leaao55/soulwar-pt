@@ -868,7 +868,8 @@ const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
 let chars   = [];
 let rejectedIds = [];
 let deletedIds  = [];
-let deletedUserIds = [];
+let deletedUserIds   = [];
+let deletedUserNames = []; // nomes dos users deletados permanentemente (sessão)
 let backups     = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
 let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
@@ -909,8 +910,10 @@ function extractUsersFromMembers(rawMembers) {
 
 // ── Lista unificada de membros ativos: extras manuais + users aprovados ───
 function getActiveMembers() {
+  const delNamesSet = new Set(deletedUserNames);
   const approvedNames = users.filter(u => u.status === 'approved').map(u => u.name);
-  return [...new Set([...members, ...approvedNames])];
+  const filteredExtras = members.filter(m => !delNamesSet.has(m));
+  return [...new Set([...filteredExtras, ...approvedNames])];
 }
 
 // ── Monta array members com users embutidos para envio à API ──────────────
@@ -1748,8 +1751,10 @@ function deleteUser(id) {
   if (!u) return;
   if (!confirm(`Deletar permanentemente "${u.name}"? Esta ação não pode ser desfeita.`)) return;
   deletedUserIds.push(Number(id));
+  deletedUserNames.push(u.name);
+  members = members.filter(m => m !== u.name);
   users = users.filter(x => x.id !== id);
-  save(); renderUsers();
+  save(); renderUsers(); populateServerSelects();
   toast(`${u.name} removido permanentemente.`);
 }
 
