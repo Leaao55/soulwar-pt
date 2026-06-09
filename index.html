@@ -932,9 +932,10 @@ function getActiveMembers() {
 // ── Monta array members com users embutidos para envio à API ──────────────
 function buildMembersPayload() {
   const TAG = '__USERS__:';
-  // Só persiste os extras manuais (members); users aprovados já estão em __USERS__
   const approvedNames = new Set(users.filter(u => u.status === 'approved').map(u => u.name));
-  const extras = members.filter(m => !approvedNames.has(m));
+  const delNamesSet   = new Set(deletedUserNames);
+  // Persiste apenas extras manuais limpos — sem users aprovados (já em __USERS__) e sem deletados
+  const extras = members.filter(m => !approvedNames.has(m) && !delNamesSet.has(m));
   return [...extras, TAG + JSON.stringify({ u: users, n: userNextId })];
 }
 
@@ -1115,11 +1116,20 @@ async function load() {
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
         const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
-        // Manter em members apenas extras manuais sem user correspondente (ex: "Leão").
-        // Remover: users aprovados (vêm via getActiveMembers), users deletados permanentemente.
-        const userNames     = new Set(remoteUsers.map(u => u.name));
-        const delNamesSet   = new Set(deletedUserNames);
-        members    = cleanMembers.filter(m => !userNames.has(m) && !delNamesSet.has(m));
+        // Manter em members apenas "Leão" (ADM, não é um user registrado).
+        // Qualquer outro nome é gerenciado pelo array users ou é dado obsoleto.
+        // Nomes sem user correspondente (ex: "teste") são auto-tombstonados em deletedUserNames.
+        const ADM_EXTRAS   = new Set(['Leão']);
+        const allUserNames = new Set(remoteUsers.map(u => u.name));
+        const delNamesSet  = new Set(deletedUserNames);
+        members = cleanMembers.filter(m => {
+          if (delNamesSet.has(m))  return false;           // deletado permanentemente
+          if (ADM_EXTRAS.has(m))  return true;            // extra fixo do ADM
+          if (allUserNames.has(m)) return false;           // gerenciado pelo array users
+          // Nome desconhecido sem user: dado obsoleto — tombstonar e remover
+          deletedUserNames.push(m);
+          return false;
+        });
         users      = remoteUsers;
         userNextId = remoteUserNextId;
       }
