@@ -882,7 +882,7 @@ let chars   = [];
 let rejectedIds = [];
 let deletedIds  = [];
 let deletedUserIds   = [];
-let deletedUserNames = []; // nomes dos users deletados permanentemente (sessão)
+let deletedUserNames = [];
 let backups     = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
 let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
@@ -963,6 +963,11 @@ async function save() {
         const localDelSet = new Set(deletedUserIds);
         remoteDel.forEach(id => { if (!localDelSet.has(id)) deletedUserIds.push(id); });
       }
+      if (j.data.deletedUserNames) {
+        const remoteDel = JSON.parse(j.data.deletedUserNames);
+        const localDelSet = new Set(deletedUserNames);
+        remoteDel.forEach(n => { if (!localDelSet.has(n)) deletedUserNames.push(n); });
+      }
 
       // ── Mesclar chars de outras sessões (todos os status) ────────────────
       if (j.data.chars) {
@@ -1036,6 +1041,7 @@ async function save() {
       rejectedIds,
       deletedIds,
       deletedUserIds,
+      deletedUserNames,
       backups: newBackups
     };
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
@@ -1059,8 +1065,9 @@ async function save() {
     localStorage.setItem('sw_users',       JSON.stringify(users));
     localStorage.setItem('sw_userNextId',  String(userNextId));
     localStorage.setItem('sw_rejectedIds',    JSON.stringify(rejectedIds));
-    localStorage.setItem('sw_deletedIds',     JSON.stringify(deletedIds));
-    localStorage.setItem('sw_deletedUserIds', JSON.stringify(deletedUserIds));
+    localStorage.setItem('sw_deletedIds',      JSON.stringify(deletedIds));
+    localStorage.setItem('sw_deletedUserIds',  JSON.stringify(deletedUserIds));
+    localStorage.setItem('sw_deletedUserNames',JSON.stringify(deletedUserNames));
     localStorage.setItem('sw_backups',     JSON.stringify(backups));
   } catch(e) {
     console.error('[SW] save() erro:', e);
@@ -1099,17 +1106,20 @@ async function load() {
       if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
       if (d.rejectedIds)    rejectedIds    = JSON.parse(d.rejectedIds).map(Number);
       if (d.deletedIds)     deletedIds     = JSON.parse(d.deletedIds).map(Number);
-      if (d.deletedUserIds) deletedUserIds = JSON.parse(d.deletedUserIds).map(Number);
-      if (d.backups)     backups     = JSON.parse(d.backups);
-      if (d.pts)         pts     = JSON.parse(d.pts);
-      if (d.servers)     servers = JSON.parse(d.servers);
-      if (d.nextId)      nextId  = parseInt(d.nextId)||1;
+      if (d.deletedUserIds)   deletedUserIds   = JSON.parse(d.deletedUserIds).map(Number);
+      if (d.deletedUserNames) deletedUserNames = JSON.parse(d.deletedUserNames);
+      if (d.backups)     backups  = JSON.parse(d.backups);
+      if (d.pts)         pts      = JSON.parse(d.pts);
+      if (d.servers)     servers  = JSON.parse(d.servers);
+      if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
         const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
-        // cleanMembers contém os extras manuais (ex: "Leão"); users aprovados vêm de remoteUsers
-        const approvedNames = new Set(remoteUsers.filter(u => u.status === 'approved').map(u => u.name));
-        members    = cleanMembers.filter(m => !approvedNames.has(m));
+        // Manter em members apenas extras manuais sem user correspondente (ex: "Leão").
+        // Remover: users aprovados (vêm via getActiveMembers), users deletados permanentemente.
+        const userNames     = new Set(remoteUsers.map(u => u.name));
+        const delNamesSet   = new Set(deletedUserNames);
+        members    = cleanMembers.filter(m => !userNames.has(m) && !delNamesSet.has(m));
         users      = remoteUsers;
         userNextId = remoteUserNextId;
       }
@@ -1126,7 +1136,8 @@ async function load() {
     const un = localStorage.getItem('sw_userNextId');
     const ri  = localStorage.getItem('sw_rejectedIds');
     const di  = localStorage.getItem('sw_deletedIds');
-    const dui = localStorage.getItem('sw_deletedUserIds');
+    const dui  = localStorage.getItem('sw_deletedUserIds');
+    const dun  = localStorage.getItem('sw_deletedUserNames');
     if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
     if(p)  pts=JSON.parse(p);
     if(s)  servers=JSON.parse(s);
@@ -1136,7 +1147,8 @@ async function load() {
     if(un) userNextId=parseInt(un)||1;
     if(ri)  rejectedIds    = JSON.parse(ri).map(Number);
     if(di)  deletedIds     = JSON.parse(di).map(Number);
-    if(dui) deletedUserIds = JSON.parse(dui).map(Number);
+    if(dui) deletedUserIds   = JSON.parse(dui).map(Number);
+    if(dun) deletedUserNames = JSON.parse(dun);
     const bk = localStorage.getItem('sw_backups');
     if(bk) backups=JSON.parse(bk);
     showSync('Offline — dados locais', 'err');
