@@ -57,6 +57,29 @@ main{max-width:1100px;margin:0 auto;padding:2rem 1rem 4rem;}
 .toolbar input{width:185px;}
 .toolbar input:focus,.toolbar select:focus{border-color:var(--gold-dim);}
 .toolbar input::placeholder{color:var(--text-muted);}
+/* ── FILTER AUTOCOMPLETE ── */
+.filter-ac{position:relative;}
+.filter-ac-field{position:relative;display:inline-flex;align-items:stretch;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;
+  transition:border-color .2s;}
+.filter-ac-field:focus-within{border-color:var(--gold-dim);}
+.filter-ac-input{background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;
+  padding:.5rem .9rem;position:relative;z-index:2;cursor:pointer;min-width:0;}
+.filter-ac-input::placeholder{color:var(--text-muted);}
+.filter-ac-ghost{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;padding:.5rem .9rem;
+  font-family:'Crimson Pro',serif;font-size:.95rem;color:var(--text-muted);
+  pointer-events:none;white-space:nowrap;overflow:hidden;z-index:1;}
+.filter-ac-list{display:none;position:absolute;top:calc(100% + 3px);left:0;
+  background:var(--surface);border:1px solid var(--gold-dim);border-radius:3px;
+  z-index:500;max-height:200px;overflow-y:auto;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);min-width:100%;}
+.filter-ac-list.open{display:block;}
+.filter-ac-item{padding:.4rem .9rem;font-family:'Crimson Pro',serif;font-size:.9rem;
+  color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;}
+.filter-ac-item:hover,.filter-ac-item.ac-hi{background:rgba(201,146,42,.12);color:var(--gold2);}
+.filter-ac-item.ac-reset{color:var(--text-muted);font-style:italic;}
 .btn{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
   padding:.55rem 1.2rem;border:1px solid var(--gold-dim);background:transparent;color:var(--gold2);
   border-radius:3px;cursor:pointer;transition:all .18s;}
@@ -467,17 +490,42 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div class="section active" id="tab-chars">
       <div class="toolbar">
         <input type="text" id="search" placeholder="Buscar personagem..." oninput="renderChars()">
-        <select id="filter-class" onchange="renderChars()">
-          <option value="">Todas as classes</option>
-          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
-          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
-        </select>
-        <select id="filter-server" onchange="renderChars()">
-          <option value="">Todos os servidores</option>
-        </select>
-        <select id="filter-member" onchange="renderChars()">
-          <option value="">Todos os membros</option>
-        </select>
+        <div class="filter-ac">
+          <div class="filter-ac-field">
+            <input type="text" id="filter-class" class="filter-ac-input" placeholder="Todas as classes"
+              style="width:158px" autocomplete="off"
+              oninput="facInput('filter-class')"
+              onfocus="facOpen('filter-class')"
+              onblur="setTimeout(()=>facClose('filter-class'),150)"
+              onkeydown="facKey(event,'filter-class')">
+            <div class="filter-ac-ghost" id="filter-class-ghost"></div>
+          </div>
+          <div class="filter-ac-list" id="filter-class-list"></div>
+        </div>
+        <div class="filter-ac">
+          <div class="filter-ac-field">
+            <input type="text" id="filter-server" class="filter-ac-input" placeholder="Todos os servidores"
+              style="width:145px" autocomplete="off"
+              oninput="facInput('filter-server')"
+              onfocus="facOpen('filter-server')"
+              onblur="setTimeout(()=>facClose('filter-server'),150)"
+              onkeydown="facKey(event,'filter-server')">
+            <div class="filter-ac-ghost" id="filter-server-ghost"></div>
+          </div>
+          <div class="filter-ac-list" id="filter-server-list"></div>
+        </div>
+        <div class="filter-ac">
+          <div class="filter-ac-field">
+            <input type="text" id="filter-member" class="filter-ac-input" placeholder="Todos os membros"
+              style="width:133px" autocomplete="off"
+              oninput="facInput('filter-member')"
+              onfocus="facOpen('filter-member')"
+              onblur="setTimeout(()=>facClose('filter-member'),150)"
+              onkeydown="facKey(event,'filter-member')">
+            <div class="filter-ac-ghost" id="filter-member-ghost"></div>
+          </div>
+          <div class="filter-ac-list" id="filter-member-list"></div>
+        </div>
         <button class="btn btn-outline" onclick="load()" title="Atualizar dados">↻ Atualizar</button>
         <button class="btn btn-outline" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
         <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
@@ -870,7 +918,8 @@ let deletedUserIds   = [];
 let deletedUserNames = [];
 let backups     = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
-let servers = ["Grimoria","Vesperia","Lunarian","Serenian"];
+const DEFAULT_SERVERS = ["Auroria","Belaria","Bellum","Divinian","Elysian","Etherian","Grimoria I","Grimoria II","Grimoria III","Grimoria IV","Halorian","Lunarian","Mystian","Serenian","Solarian","Spectrum","Tenebrium","Vesperia"];
+let servers = [...DEFAULT_SERVERS];
 let members = ["Leão"];
 let users   = [];
 let userNextId = 1;
@@ -1096,7 +1145,12 @@ async function load() {
       if (d.deletedUserNames) deletedUserNames = JSON.parse(d.deletedUserNames);
       if (d.backups)     backups  = JSON.parse(d.backups);
       if (d.pts)         pts      = JSON.parse(d.pts);
-      if (d.servers)     servers  = JSON.parse(d.servers);
+      if (d.servers) {
+        const _saved = JSON.parse(d.servers);
+        const _merged = [..._saved];
+        DEFAULT_SERVERS.forEach(s => { if (!_merged.includes(s)) _merged.push(s); });
+        servers = _merged;
+      }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
@@ -1135,7 +1189,7 @@ async function load() {
     const dun  = localStorage.getItem('sw_deletedUserNames');
     if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
     if(p)  pts=JSON.parse(p);
-    if(s)  servers=JSON.parse(s);
+    if(s) { const _sv=JSON.parse(s); const _mg=[..._sv]; DEFAULT_SERVERS.forEach(d=>{ if(!_mg.includes(d)) _mg.push(d); }); servers=_mg; }
     if(mb) members=JSON.parse(mb);
     if(n)  nextId=parseInt(n)||1;
     if(u)  { users=JSON.parse(u); users.forEach(x => { x.id = Number(x.id); }); }
@@ -1169,48 +1223,153 @@ function switchTab(t, btn) {
   else if(t==='backup') renderBackups();
 }
 
+// ── FILTER AUTOCOMPLETE ───────────────────────────────────────────────────
+const FAC_OPTS = {
+  'filter-class':  ['ELITE KNIGHT','ELDER DRUID','MASTER SORCERER','ROYAL PALADIN','EXALTED MONK'],
+  'filter-server': [],
+  'filter-member': []
+};
+const FAC_LABEL = {
+  'filter-class':  'Todas as classes',
+  'filter-server': 'Todos os servidores',
+  'filter-member': 'Todos os membros'
+};
+const FAC_VAL = { 'filter-class':'', 'filter-server':'', 'filter-member':'' };
+const FAC_HI  = { 'filter-class':-1, 'filter-server':-1, 'filter-member':-1 };
+
+function facFiltered(id) {
+  const q = (document.getElementById(id).value || '').toLowerCase();
+  return FAC_OPTS[id].filter(o => o.toLowerCase().includes(q));
+}
+function facRender(id) {
+  const list = document.getElementById(id + '-list');
+  const opts = facFiltered(id);
+  FAC_HI[id] = -1;
+  list.innerHTML = '';
+  const reset = document.createElement('div');
+  reset.className = 'filter-ac-item ac-reset';
+  reset.textContent = FAC_LABEL[id];
+  reset.addEventListener('mousedown', e => { e.preventDefault(); facSelect(id, ''); });
+  list.appendChild(reset);
+  opts.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'filter-ac-item' + (o === FAC_VAL[id] ? ' ac-hi' : '');
+    div.textContent = o;
+    div.addEventListener('mousedown', e => { e.preventDefault(); facSelect(id, o); });
+    list.appendChild(div);
+  });
+}
+function facOpen(id) {
+  facRender(id);
+  document.getElementById(id + '-list').classList.add('open');
+}
+function facClose(id) {
+  document.getElementById(id + '-list').classList.remove('open');
+  document.getElementById(id).value = FAC_VAL[id];
+  facGhost(id, '');
+}
+function facInput(id) {
+  facRender(id);
+  document.getElementById(id + '-list').classList.add('open');
+  const q = document.getElementById(id).value;
+  if (q.length >= 3) {
+    const match = FAC_OPTS[id].find(o => o.toLowerCase().startsWith(q.toLowerCase()));
+    facGhost(id, match && match.length > q.length ? match : '');
+  } else {
+    facGhost(id, '');
+  }
+}
+function facGhost(id, suggestion) {
+  const ghost = document.getElementById(id + '-ghost');
+  const q = document.getElementById(id).value;
+  ghost.innerHTML = '';
+  if (suggestion && suggestion.length > q.length) {
+    const t = document.createElement('span');
+    t.style.color = 'transparent';
+    t.textContent = q;
+    const s = document.createElement('span');
+    s.textContent = suggestion.slice(q.length);
+    ghost.appendChild(t);
+    ghost.appendChild(s);
+  }
+}
+function facSelect(id, val) {
+  FAC_VAL[id] = val;
+  document.getElementById(id).value = val;
+  facGhost(id, '');
+  document.getElementById(id + '-list').classList.remove('open');
+  renderChars();
+}
+function facKey(e, id) {
+  const list = document.getElementById(id + '-list');
+  if (!list.classList.contains('open')) { facOpen(id); return; }
+  const items = [...list.querySelectorAll('.filter-ac-item:not(.ac-reset)')];
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    FAC_HI[id] = Math.min(FAC_HI[id] + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('ac-hi', i === FAC_HI[id]));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    FAC_HI[id] = Math.max(FAC_HI[id] - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('ac-hi', i === FAC_HI[id]));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (FAC_HI[id] >= 0 && items[FAC_HI[id]]) {
+      facSelect(id, items[FAC_HI[id]].textContent);
+    } else {
+      const ghost = document.getElementById(id + '-ghost');
+      if (ghost.children[1]?.textContent) {
+        const full = document.getElementById(id).value + ghost.children[1].textContent;
+        const match = FAC_OPTS[id].find(o => o.toLowerCase() === full.toLowerCase());
+        if (match !== undefined) facSelect(id, match);
+      }
+    }
+  } else if (e.key === 'Tab') {
+    const ghost = document.getElementById(id + '-ghost');
+    if (ghost.children[1]?.textContent) {
+      e.preventDefault();
+      const full = document.getElementById(id).value + ghost.children[1].textContent;
+      const match = FAC_OPTS[id].find(o => o.toLowerCase() === full.toLowerCase());
+      if (match !== undefined) facSelect(id, match);
+    }
+  } else if (e.key === 'Escape') {
+    facClose(id);
+  }
+}
+
 // ── SERVER FILTER / SELECT ────────────────────────────────────────────────
 function populateServerSelects() {
-  // filtro
-  const fs = document.getElementById('filter-server');
-  const cur = fs.value;
-  fs.innerHTML = '<option value="">Todos os servidores</option>';
-  servers.forEach(s => {
-    const o=document.createElement('option');
-    o.value=s; o.textContent=s;
-    if(s===cur) o.selected=true;
-    fs.appendChild(o);
-  });
-  // filtro de membro
-  const fm = document.getElementById('filter-member');
-  const curMember = fm ? fm.value : '';
-  if (fm) {
-    fm.innerHTML = '<option value="">Todos os membros</option>';
-    getActiveMembers().forEach(m => {
-      const o = document.createElement('option');
-      o.value = m; o.textContent = m;
-      if (m === curMember) o.selected = true;
-      fm.appendChild(o);
-    });
+  // Atualiza opções dos filtros autocomplete
+  FAC_OPTS['filter-server'] = [...servers];
+  FAC_OPTS['filter-member'] = getActiveMembers();
+  // Invalida seleção se o valor não existe mais
+  if (FAC_VAL['filter-server'] && !servers.includes(FAC_VAL['filter-server'])) {
+    FAC_VAL['filter-server'] = '';
+    document.getElementById('filter-server').value = '';
   }
-  // select de dono (membros)
+  const activeMembers = getActiveMembers();
+  if (FAC_VAL['filter-member'] && !activeMembers.includes(FAC_VAL['filter-member'])) {
+    FAC_VAL['filter-member'] = '';
+    document.getElementById('filter-member').value = '';
+  }
+  // select de dono (membros) — mantido como <select> normal
   const mo = document.getElementById('m-owner');
   const curOwner = mo.value;
   mo.innerHTML = '';
-  getActiveMembers().forEach(m => {
-    const o=document.createElement('option');
-    o.value=m; o.textContent=m;
-    if(m===curOwner) o.selected=true;
+  activeMembers.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    if (m === curOwner) o.selected = true;
     mo.appendChild(o);
   });
-  // form de add personagem
+  // select de servidor no form de add/edit
   const ms = document.getElementById('m-server');
   const cur2 = ms.value;
   ms.innerHTML = '';
   servers.forEach(s => {
-    const o=document.createElement('option');
-    o.value=s; o.textContent=s;
-    if(s===cur2) o.selected=true;
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    if (s === cur2) o.selected = true;
     ms.appendChild(o);
   });
 }
@@ -1220,9 +1379,9 @@ function renderChars() {
   populateServerSelects();
   renderPending();
   const q  = document.getElementById('search').value.toLowerCase();
-  const fc = document.getElementById('filter-class').value;
-  const fs = document.getElementById('filter-server').value;
-  const fm2 = document.getElementById('filter-member') ? document.getElementById('filter-member').value : '';
+  const fc  = FAC_VAL['filter-class'];
+  const fs  = FAC_VAL['filter-server'];
+  const fm2 = FAC_VAL['filter-member'];
   chars.forEach(c => { if (!c.status) c.status = 'approved'; });
   const approvedCount = document.getElementById('approved-count');
   if (approvedCount) approvedCount.textContent = chars.filter(c => c.status !== 'pending').length;
