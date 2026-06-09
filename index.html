@@ -638,10 +638,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <select id="m-server"></select>
       </div>
       <div class="form-group full">
-        <label>Observações</label>
-        <input type="text" id="m-obs" placeholder="Opcional...">
-      </div>
-      <div class="form-group full">
         <label>Conta <span id="m-conta-req" style="color:#e05252">*</span></label>
         <select id="m-conta">
           <option value="">Selecione...</option>
@@ -651,6 +647,10 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <option value="4">4</option>
           <option value="5">5</option>
         </select>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <input type="text" id="m-obs" placeholder="Opcional...">
       </div>
       <div class="form-group full" id="m-phone-group" style="display:none">
         <label>WhatsApp para contato <span style="color:#e05252">*</span></label>
@@ -1224,6 +1224,16 @@ async function load() {
     if(bk) backups=JSON.parse(bk);
     showSync('Offline — dados locais', 'err');
   }
+  // Migração automática: obs "CONTA N" → campo conta
+  let _migrated = false;
+  chars.forEach(c => {
+    if (!c.conta && c.obs) {
+      const _m = c.obs.trim().match(/^conta\s+([1-5])$/i);
+      if (_m) { c.conta = _m[1]; c.obs = ''; _migrated = true; }
+    }
+  });
+  if (_migrated) { console.log('[SW] Migração de conta concluída, salvando...'); save(); }
+
   while(pts.length<3) pts.push([null,null,null,null,null]);
   pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
   showSync('', '');
