@@ -910,7 +910,9 @@ function extractUsersFromMembers(rawMembers) {
 // ── Monta array members com users embutidos para envio à API ──────────────
 function buildMembersPayload() {
   const TAG = '__USERS__:';
-  return [...members, TAG + JSON.stringify({ u: users, n: userNextId })];
+  const payload = [...members, TAG + JSON.stringify({ u: users, n: userNextId })];
+  console.log('[SW] buildMembersPayload() — members no payload:', JSON.stringify(members));
+  return payload;
 }
 
 async function save() {
@@ -960,9 +962,8 @@ async function save() {
           const rawMembers = JSON.parse(j.data.members);
           const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
 
-          // Sincronizar members com o remoto em ambas as sessões
-          members = cleanMembers;
-
+          console.log('[SW] save() — members locais antes do merge:', JSON.stringify(members));
+          console.log('[SW] save() — cleanMembers remotos:', JSON.stringify(cleanMembers));
           console.log('[SW] save() — users locais antes do merge:', users.length, users.map(u => `${u.name}(${u.status})`));
           console.log('[SW] save() — users remotos:', remoteUsers.length, remoteUsers.map(u => `${u.name}(${u.status})`));
 
@@ -971,9 +972,8 @@ async function save() {
           let maxId = remoteUsers.reduce((m, u) => Math.max(m, Number(u.id)), remoteUserNextId - 1);
 
           if (currentRole !== 'adm') {
-            // Sessão não-ADM: remoto é autoridade em status.
-            // Identifica novos cadastros locais pelo NOME para evitar colisão de ID.
-            // Nunca reintroduz usuários deletados permanentemente.
+            // Sessão não-ADM: remoto é autoridade — substitui members e users locais.
+            members = cleanMembers;
             const remoteNames = new Set(remoteUsers.map(u => u.name.toLowerCase()));
             users.forEach(u => {
               if (!delUserSet.has(Number(u.id)) && !remoteNames.has(u.name.toLowerCase())) {
@@ -988,8 +988,12 @@ async function save() {
             users = remoteUsers.filter(u => !delUserSet.has(Number(u.id)));
             userNextId = maxId + 1;
           } else {
-            // Sessão ADM: estado local é autoridade; absorve novos cadastros remotos pelo NOME.
-            // Nunca reintroduz usuários deletados permanentemente.
+            // Sessão ADM: local é autoridade para members — apenas absorve adições remotas,
+            // nunca substitui (evita apagar aprovações feitas antes do save() chegar ao remoto).
+            const localMemberSet = new Set(members);
+            cleanMembers.forEach(m => { if (!localMemberSet.has(m)) members.push(m); });
+
+            // Absorve novos cadastros remotos de users pelo NOME; ignora deletados.
             const localNames = new Set(users.map(u => u.name.toLowerCase()));
             maxId = users.reduce((m, u) => Math.max(m, Number(u.id)), userNextId - 1);
             remoteUsers.forEach(ru => {
@@ -1101,6 +1105,7 @@ async function load() {
         members    = cleanMembers;
         users      = remoteUsers;
         userNextId = remoteUserNextId;
+        console.log('[SW] load() — members carregados:', JSON.stringify(members));
         console.log('[SW] load() — users carregados:', users.length, users.map(u => `${u.name}(${u.status})`));
       }
     }
@@ -1721,7 +1726,11 @@ function approveUser(id) {
   const u = users.find(x => x.id === id);
   if (!u) return;
   u.status = 'approved';
-  if (!members.includes(u.name)) { members.push(u.name); populateServerSelects(); }
+  if (!members.includes(u.name)) {
+    members.push(u.name);
+    populateServerSelects();
+    console.log('[SW] approveUser() — members após push:', JSON.stringify(members));
+  }
   save(); renderUsers();
   toast(`${u.name} aprovado!`, 'success');
 }
