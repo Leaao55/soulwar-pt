@@ -535,7 +535,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Visitante</th><th>Personagem</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
+              <th>Visitante</th><th>Personagem</th><th>Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
             </tr></thead>
             <tbody id="pending-body"></tbody>
           </table>
@@ -545,7 +545,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>#</th><th>Dono</th><th>Personagem</th>
+            <th>#</th><th>Dono</th><th>Personagem</th><th>Conta</th>
             <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
@@ -641,6 +641,17 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <label>Observações</label>
         <input type="text" id="m-obs" placeholder="Opcional...">
       </div>
+      <div class="form-group full">
+        <label>Conta <span id="m-conta-req" style="color:#e05252">*</span></label>
+        <select id="m-conta">
+          <option value="">Selecione...</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
       <div class="form-group full" id="m-phone-group" style="display:none">
         <label>WhatsApp para contato <span style="color:#e05252">*</span></label>
         <input type="tel" id="m-phone" placeholder="Ex: 11999999999 (só números)">
@@ -680,6 +691,17 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="form-group full">
         <label>Observações</label>
         <input type="text" id="e-obs" placeholder="Opcional...">
+      </div>
+      <div class="form-group full">
+        <label>Conta</label>
+        <select id="e-conta">
+          <option value="">—</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -1401,6 +1423,7 @@ function renderChars() {
       <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
       <td class="owner-name">${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
+      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
@@ -1469,6 +1492,7 @@ function openAddModal() {
   document.getElementById('m-name').value='';
   document.getElementById('m-level').value='';
   document.getElementById('m-obs').value='';
+  document.getElementById('m-conta').value='';
   document.getElementById('m-phone').value='';
 
   const ownerSel = document.getElementById('m-owner');
@@ -1495,6 +1519,11 @@ function openAddModal() {
 
   const phoneGroup = document.getElementById('m-phone-group');
   if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
+  const contaReq = document.getElementById('m-conta-req');
+  if (contaReq) {
+    contaReq.textContent = currentRole === 'visitor' ? '(opcional)' : '*';
+    contaReq.style.color = currentRole === 'visitor' ? 'var(--text-muted)' : '#e05252';
+  }
   openModal('modal-add');
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
@@ -1507,6 +1536,12 @@ function addChar() {
     toast('Level mínimo para cadastro é 400.', 'error');
     return;
   }
+  const conta = document.getElementById('m-conta').value;
+  if (currentRole !== 'visitor' && !conta) {
+    document.getElementById('m-conta').focus();
+    toast('Selecione a conta do personagem.', 'error');
+    return;
+  }
 
   // Usuário: aprovado direto com o próprio nome
   if (currentRole === 'user') {
@@ -1517,6 +1552,7 @@ function addChar() {
       level: level,
       server: document.getElementById('m-server').value,
       obs: document.getElementById('m-obs').value.trim(),
+      conta: conta || null,
       phone: '',
       status: 'approved',
       sentTo: null
@@ -1541,6 +1577,7 @@ function addChar() {
       level: level,
       server: document.getElementById('m-server').value,
       obs: document.getElementById('m-obs').value.trim(),
+      conta: conta || null,
       phone: phone,
       status: 'pending',
       sentTo: null
@@ -1558,6 +1595,7 @@ function addChar() {
     level: level,
     server: document.getElementById('m-server').value,
     obs: document.getElementById('m-obs').value.trim(),
+    conta: conta || null,
     phone: '',
     status: 'approved',
     sentTo: null
@@ -1573,6 +1611,7 @@ function openEditModal(id) {
   document.getElementById('e-class').value = c.cls;
   document.getElementById('e-level').value = c.level || '';
   document.getElementById('e-obs').value   = c.obs || '';
+  document.getElementById('e-conta').value = c.conta || '';
   // Preencher select de servidor
   const eServer = document.getElementById('e-server');
   eServer.innerHTML = '';
@@ -1602,6 +1641,7 @@ function saveEdit() {
   c.level  = level;
   c.server = document.getElementById('e-server').value;
   c.obs    = document.getElementById('e-obs').value.trim();
+  c.conta  = document.getElementById('e-conta').value || null;
   save(); closeModal('modal-edit'); renderChars();
   toast(`${name} atualizado!`, 'success');
 }
@@ -1744,6 +1784,7 @@ function renderPending() {
     tr.innerHTML = `
       <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
+      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
@@ -2071,29 +2112,30 @@ function tryFormPT(group, maxPerMember) {
 
   if (!EKs.length || !RPs.length || !MSs.length || !EDs.length) return null;
 
-  const ownerCount = team => {
-    const counts = {};
-    team.forEach(c => { counts[c.owner] = (counts[c.owner] || 0) + 1; });
-    return counts;
+  // Verifica maxPerMember e restrição de conta (mesmo dono + mesma conta = bloqueado)
+  const canAdd = (char, team) => {
+    const ownerChars = team.filter(c => c.owner === char.owner);
+    if (ownerChars.length >= maxPerMember) return false;
+    if (char.conta && ownerChars.some(c => c.conta === char.conta)) return false;
+    return true;
   };
-  const fits = (owner, counts) => (counts[owner] || 0) < maxPerMember;
 
   let best = null, bestStd = Infinity;
 
   for (const ek of EKs) {
-    const oc1 = ownerCount([ek]);
     for (const rp of RPs) {
-      if (rp.id === ek.id || !fits(rp.owner, oc1)) continue;
-      const oc2 = ownerCount([ek, rp]);
+      if (rp.id === ek.id || !canAdd(rp, [ek])) continue;
       for (const ms of MSs) {
-        if ([ek.id, rp.id].includes(ms.id) || !fits(ms.owner, oc2)) continue;
-        const oc3 = ownerCount([ek, rp, ms]);
+        if ([ek.id, rp.id].includes(ms.id) || !canAdd(ms, [ek, rp])) continue;
         for (const ed of EDs) {
-          if ([ek.id, rp.id, ms.id].includes(ed.id) || !fits(ed.owner, oc3)) continue;
-          const oc4   = ownerCount([ek, rp, ms, ed]);
+          if ([ek.id, rp.id, ms.id].includes(ed.id) || !canAdd(ed, [ek, rp, ms])) continue;
           const used  = new Set([ek.id, rp.id, ms.id, ed.id]);
-          // 5º slot: qualquer não-EK disponível no servidor, sem restrição de dono
-          const fifth = nonEKs.find(c => !used.has(c.id));
+          const base  = [ek, rp, ms, ed];
+          // 5º slot: sem restrição de maxPerMember, mas respeita a restrição de conta
+          const fifth = nonEKs.find(c =>
+            !used.has(c.id) &&
+            !(c.conta && base.some(b => b.owner === c.owner && b.conta === c.conta))
+          );
           if (!fifth) continue;
 
           const team   = [ek, rp, ms, ed, fifth];
