@@ -700,11 +700,24 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
   <div class="modal">
     <h2>Quem está online?</h2>
     <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">Selecione os membros presentes para montar a PT.</p>
-    <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+    <div style="display:flex;gap:.5rem;margin-bottom:.6rem">
       <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(true)">Selecionar todos</button>
       <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(false)">Limpar seleção</button>
     </div>
-    <div id="recommend-member-list" style="max-height:240px;overflow-y:auto;margin-bottom:1.2rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <input type="text" id="recommend-member-search" placeholder="Filtrar membros..." autocomplete="off"
+      oninput="filterMemberList(this.value)"
+      style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;margin-bottom:.5rem;transition:border-color .2s"
+      onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
+    <div id="recommend-member-list" style="max-height:220px;overflow-y:auto;margin-bottom:1rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <div style="margin-bottom:1.2rem">
+      <label style="display:block;font-size:.75rem;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.35rem">Servidor preferido</label>
+      <input type="text" id="recommend-server-input" list="recommend-server-datalist"
+        placeholder="Qualquer servidor..." autocomplete="off"
+        style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;transition:border-color .2s"
+        onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
+      <datalist id="recommend-server-datalist"></datalist>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem;font-style:italic">Se não houver PT completa no servidor preferido, outros serão tentados automaticamente.</div>
+    </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-recommend')">Cancelar</button>
       <button class="btn-confirm" onclick="confirmRecommend()">✦ Recomendar</button>
@@ -1772,7 +1785,26 @@ function runRecommend() {
     label.innerHTML = `<input type="checkbox" value="${esc(m)}"> ${esc(m)}`;
     list.appendChild(label);
   });
+  // Resetar busca de membros
+  const search = document.getElementById('recommend-member-search');
+  if (search) { search.value = ''; filterMemberList(''); }
+  // Popular datalist de servidores
+  const dl = document.getElementById('recommend-server-datalist');
+  if (dl) {
+    dl.innerHTML = '';
+    servers.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); });
+  }
+  const srvInput = document.getElementById('recommend-server-input');
+  if (srvInput) srvInput.value = '';
   openModal('modal-recommend');
+}
+
+function filterMemberList(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('#recommend-member-list .member-check-label').forEach(label => {
+    const name = label.textContent.trim().toLowerCase();
+    label.style.display = (!q || name.includes(q)) ? '' : 'none';
+  });
 }
 
 function selectAllMembers(val) {
@@ -1783,12 +1815,13 @@ function confirmRecommend() {
   const selected = [...document.querySelectorAll('#recommend-member-list input[type=checkbox]')]
     .filter(cb => cb.checked).map(cb => cb.value);
   if (!selected.length) { toast('Selecione pelo menos um membro.', 'error'); return; }
+  const preferredServer = (document.getElementById('recommend-server-input')?.value || '').trim();
   closeModal('modal-recommend');
-  buildRecommendation(selected);
+  buildRecommendation(selected, preferredServer);
 }
 
 // Tenta montar a melhor PT para os membros selecionados
-function buildRecommendation(selectedMembers) {
+function buildRecommendation(selectedMembers, preferredServer = '') {
   const memberSet = new Set(selectedMembers);
 
   const available = chars.filter(c =>
@@ -1802,21 +1835,31 @@ function buildRecommendation(selectedMembers) {
     serverGroups[srv].push(c);
   });
 
-  // Tentar primeiro com 1 char/membro; se falhar, relaxar para 2 automaticamente
-  let bestTeamGlobal = null, bestStdGlobal = Infinity, bestServerName = '';
-
-  for (const maxPerMember of [1, 2]) {
-    bestTeamGlobal = null; bestStdGlobal = Infinity; bestServerName = '';
-    for (const [srv, group] of Object.entries(serverGroups)) {
-      const result = tryFormPT(group, maxPerMember);
-      if (result && result.std < bestStdGlobal) {
-        bestStdGlobal = result.std;
-        bestTeamGlobal = result.team;
-        bestServerName = srv;
+  // Busca a melhor PT dentro de uma lista de servidores, com relaxamento automático
+  const searchIn = (srvList) => {
+    for (const maxPerMember of [1, 2]) {
+      let best = null, bestStd = Infinity, bestSrv = '';
+      for (const srv of srvList) {
+        if (!serverGroups[srv]) continue;
+        const r = tryFormPT(serverGroups[srv], maxPerMember);
+        if (r && r.std < bestStd) { bestStd = r.std; best = r.team; bestSrv = srv; }
       }
+      if (best) return { team: best, std: bestStd, server: bestSrv };
     }
-    if (bestTeamGlobal) break;
+    return null;
+  };
+
+  const allServers = Object.keys(serverGroups);
+  // Tentar servidor preferido primeiro; se falhar, tentar os demais
+  let found = preferredServer ? searchIn([preferredServer]) : null;
+  if (!found) {
+    const rest = preferredServer ? allServers.filter(s => s !== preferredServer) : allServers;
+    found = searchIn(rest);
   }
+
+  const bestTeamGlobal  = found?.team   ?? null;
+  const bestStdGlobal   = found?.std    ?? Infinity;
+  const bestServerName  = found?.server ?? '';
 
   if (!bestTeamGlobal) {
     const allServers = [...new Set(available.map(c => c.server || '(sem servidor)'))];
