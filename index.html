@@ -1890,13 +1890,38 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
     serverGroups[srv].push(c);
   });
 
-  // Busca a melhor PT dentro de uma lista de servidores, com relaxamento automático
+  // --- debug logs ---
+  const membersWithChars = new Set(available.map(c => c.owner));
+  const membersWithout   = selectedMembers.filter(m => !membersWithChars.has(m));
+  console.log(`[SW] buildRecommendation — membros selecionados: [${selectedMembers.join(', ')}]`);
+  if (membersWithout.length)
+    console.log(`[SW] Membros sem personagem (ignorados): [${membersWithout.join(', ')}]`);
+  console.log(`[SW] Total de personagens disponíveis: ${available.length}`);
+  Object.entries(serverGroups).forEach(([srv, group]) => {
+    const fmt = cls => group.filter(c => c.cls === cls)
+      .map(c => `${c.name}(${c.owner})`).join(', ') || '—';
+    const fifth = group.filter(c => c.cls !== 'ELITE KNIGHT')
+      .map(c => `${c.name}(${c.owner})`).join(', ') || '—';
+    console.log(
+      `[SW] ${srv} — EK: [${fmt('ELITE KNIGHT')}] | RP: [${fmt('ROYAL PALADIN')}]` +
+      ` | MS: [${fmt('MASTER SORCERER')}] | ED: [${fmt('ELDER DRUID')}]` +
+      ` | não-EK candidatos: [${fifth}] | total: ${group.length}`
+    );
+  });
+  // --- fim dos debug logs ---
+
+  // Busca a melhor PT dentro de uma lista de servidores, com relaxamento automático.
+  // Tenta 1 char/membro → 2 → sem limite (para quando poucos membros têm personagens).
   const searchIn = (srvList) => {
-    for (const maxPerMember of [1, 2]) {
+    for (const maxPerMember of [1, 2, Infinity]) {
       let best = null, bestStd = Infinity, bestSrv = '';
       for (const srv of srvList) {
-        if (!serverGroups[srv]) continue;
+        if (!serverGroups[srv]) {
+          console.log(`[SW] searchIn(maxPerMember=${maxPerMember}) — ${srv}: sem personagens neste servidor`);
+          continue;
+        }
         const r = tryFormPT(serverGroups[srv], maxPerMember);
+        console.log(`[SW] searchIn(maxPerMember=${maxPerMember === Infinity ? '∞' : maxPerMember}) — ${srv}: ${r ? `PT encontrada (std=${r.std.toFixed(1)})` : 'sem PT válida'}`);
         if (r && r.std < bestStd) { bestStd = r.std; best = r.team; bestSrv = srv; }
       }
       if (best) return { team: best, std: bestStd, server: bestSrv };
