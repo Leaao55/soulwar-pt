@@ -718,7 +718,10 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;transition:border-color .2s"
         onkeydown="this.style.borderColor='var(--gold-dim)'" onkeyup="this.style.borderColor='var(--gold-dim)'"
         onfocusin="this.style.borderColor='var(--gold-dim)'" onfocusout="this.style.borderColor='var(--border)'">
-      <div id="recommend-server-list" onclick="event.stopPropagation()" style="display:none;position:absolute;left:0;right:0;top:calc(100% - .3rem);background:var(--surface2);border:1px solid var(--gold-dim);border-top:none;border-radius:0 0 3px 3px;max-height:150px;overflow-y:auto;z-index:200"></div>
+      <div id="recommend-server-list"
+        onclick="event.stopPropagation();event.preventDefault()"
+        onmousedown="event.stopPropagation();event.preventDefault()"
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% - .3rem);background:var(--surface2);border:1px solid var(--gold-dim);border-top:none;border-radius:0 0 3px 3px;max-height:150px;overflow-y:auto;z-index:200"></div>
       <div style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem;font-style:italic">Se não houver PT completa no servidor preferido, outros serão tentados automaticamente.</div>
     </div>
     <div class="modal-footer">
@@ -1848,10 +1851,12 @@ function filterServerList(query) {
     div.style.cssText = 'padding:.4rem .75rem;cursor:pointer;font-family:\'Crimson Pro\',serif;font-size:.9rem;color:var(--text);transition:background .1s';
     div.onmouseenter = () => div.style.background = 'rgba(201,146,42,.1)';
     div.onmouseleave = () => div.style.background = '';
-    div.onmousedown  = () => {
+    div.addEventListener('mousedown', (e) => {
+      e.preventDefault();   // impede blur no input e cancela o click subsequente
+      e.stopPropagation();  // não borbulha até o overlay do modal
       document.getElementById('recommend-server-input').value = s;
       closeServerList();
-    };
+    });
     dl.appendChild(div);
   });
   dl.style.display = 'block';
