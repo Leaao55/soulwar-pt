@@ -249,8 +249,7 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
 .role-badge.user-role { background:rgba(58,123,213,.15); border:1px solid rgba(58,123,213,.3); color:#5a9bf5; }
 
 /* ── USER MODE: permissões ── */
-body.user-mode .btn[onclick*="openServerModal"],
-body.user-mode .btn[onclick*="openMemberModal"] { display:none !important; }
+body.user-mode .btn[onclick*="openServerModal"] { display:none !important; }
 body.user-mode .col-adm-actions { display:none !important; }
 
 /* ── USERS TAB ── */
@@ -272,8 +271,7 @@ body.user-mode .col-adm-actions { display:none !important; }
 /* ── MODO VISITANTE: desabilitar ações ── */
 body.visitor-mode .btn-send,
 body.visitor-mode .btn-del,
-body.visitor-mode .btn[onclick*="openServerModal"],
-body.visitor-mode .btn[onclick*="openMemberModal"] { display:none !important; }
+body.visitor-mode .btn[onclick*="openServerModal"] { display:none !important; }
 body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
@@ -482,7 +480,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         </select>
         <button class="btn btn-outline" onclick="load()" title="Atualizar dados">↻ Atualizar</button>
         <button class="btn btn-outline" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
-        <button class="btn btn-outline" onclick="openMemberModal()" title="Gerenciar membros">⚙ Membros</button>
         <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
       </div>
       <div class="pending-section" id="pending-section" style="display:none">
@@ -676,24 +673,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
   </div>
 </div>
 
-<!-- MODAL: MEMBROS -->
-<div class="modal-overlay" id="modal-members" onclick="if(event.target===this)closeModal('modal-members')">
-  <div class="modal">
-    <h2>Gerenciar membros</h2>
-    <div class="server-list" id="member-list"></div>
-    <div class="form-group" style="margin-bottom:.5rem">
-      <label>Adicionar novo membro</label>
-      <div style="display:flex;gap:.6rem">
-        <input type="text" id="new-member-input" placeholder="Nome do membro..." style="flex:1"
-          onkeydown="if(event.key==='Enter')addMember()">
-        <button class="btn-confirm" onclick="addMember()" style="white-space:nowrap">Adicionar</button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-confirm" onclick="closeModal('modal-members')">Fechar</button>
-    </div>
-  </div>
-</div>
 
 <!-- MODAL: MEMBROS ONLINE (Recomendar PT) -->
 <div class="modal-overlay" id="modal-recommend" onclick="if(event.target===this)closeModal('modal-recommend')">
@@ -1580,73 +1559,6 @@ function removeServer(i) {
 }
 
 
-// ── MEMBROS ───────────────────────────────────────────────────────────────
-function openMemberModal() {
-  renderMemberList();
-  openModal('modal-members');
-  setTimeout(()=>document.getElementById('new-member-input').focus(),120);
-}
-function renderMemberList() {
-  const list = document.getElementById('member-list');
-  list.innerHTML = '';
-  const approvedUsers = users.filter(u => u.status === 'approved');
-  const allActive = getActiveMembers();
-  if (!allActive.length) {
-    list.innerHTML = '<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum membro cadastrado.</div>';
-    return;
-  }
-  // Users aprovados — somente leitura (gerenciados pela aba Usuários)
-  approvedUsers.forEach(u => {
-    const div = document.createElement('div');
-    div.className = 'member-item';
-    div.innerHTML = `
-      <span style="flex:1;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem">${esc(u.name)}</span>
-      <span style="font-size:.72rem;color:var(--text-muted);font-style:italic">usuário registrado</span>`;
-    list.appendChild(div);
-  });
-  // Extras manuais (ex: ADM) — editáveis
-  members.forEach((m, i) => {
-    if (approvedUsers.some(u => u.name === m)) return; // já exibido acima
-    const div = document.createElement('div');
-    div.className = 'member-item';
-    div.innerHTML = `
-      <input type="text" value="${esc(m)}"
-        style="flex:1;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;outline:none;padding:0"
-        onblur="renameMember(${i},this.value)"
-        onkeydown="if(event.key==='Enter')this.blur()">
-      <button class="btn-del" onclick="removeMember(${i})" title="Remover membro">✕</button>`;
-    list.appendChild(div);
-  });
-}
-function addMember() {
-  const inp=document.getElementById('new-member-input');
-  const name=inp.value.trim();
-  if(!name) return;
-  if(members.includes(name)){toast('Membro já existe.','error');return;}
-  members.push(name);
-  inp.value='';
-  save(); renderMemberList(); populateServerSelects();
-  toast(`${name} adicionado!`,'success');
-}
-function removeMember(i) {
-  const name=members[i];
-  if(chars.some(c=>c.owner===name)){
-    toast('Membro possui personagens cadastrados.','error'); return;
-  }
-  members.splice(i,1);
-  save(); renderMemberList(); populateServerSelects();
-  toast(`${name} removido.`);
-}
-function renameMember(i, newName) {
-  newName = newName.trim();
-  if(!newName || newName===members[i]) return;
-  if(members.includes(newName)){toast('Nome já existe.','error');renderMemberList();return;}
-  const old=members[i];
-  chars.forEach(c=>{ if(c.owner===old) c.owner=newName; });
-  members[i]=newName;
-  save(); renderMemberList(); populateServerSelects(); renderChars();
-  toast(`"${old}" renomeado para "${newName}".`,'success');
-}
 
 
 // ── PENDENTES ─────────────────────────────────────────────────────────────
@@ -1953,7 +1865,17 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
       const miss = [];
       if (ek < 1) miss.push('1 EK'); if (rp < 1) miss.push('1 RP');
       if (ms < 1) miss.push('1 MS'); if (ed < 1) miss.push('1 ED');
-      if (!miss.length) miss.push('5º player');
+      if (!miss.length) {
+        // Todos os 4 obrigatórios existem — o problema é o 5º slot
+        const nonEkTotal = g.filter(c => c.cls !== 'ELITE KNIGHT').length;
+        // Se todos os não-EK disponíveis são exatamente os 3 slots obrigatórios (RP+MS+ED),
+        // não sobra nenhum para o 5º. Se há mais, o limite maxPerMember foi o gargalo.
+        if (nonEkTotal <= (rp + ms + ed)) {
+          miss.push('5º player não-EK (todos os não-EK já usados nos slots RP/MS/ED)');
+        } else {
+          miss.push('5º player não-EK (restrição de chars por membro)');
+        }
+      }
       return `<b>${esc(srv)}</b>: falta ${miss.join(', ')} [EK:${ek} RP:${rp} MS:${ms} ED:${ed}]`;
     }).join('<br>') : 'Nenhum personagem disponível para os membros selecionados.';
     document.getElementById('rec-result-body').innerHTML =
@@ -2011,7 +1933,8 @@ function tryFormPT(group, maxPerMember) {
           if ([ek.id, rp.id, ms.id].includes(ed.id) || !fits(ed.owner, oc3)) continue;
           const oc4   = ownerCount([ek, rp, ms, ed]);
           const used  = new Set([ek.id, rp.id, ms.id, ed.id]);
-          const fifth = nonEKs.find(c => !used.has(c.id) && fits(c.owner, oc4));
+          // 5º slot: qualquer não-EK disponível no servidor, sem restrição de dono
+          const fifth = nonEKs.find(c => !used.has(c.id));
           if (!fifth) continue;
 
           const team   = [ek, rp, ms, ed, fifth];
