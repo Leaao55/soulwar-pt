@@ -708,14 +708,17 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       oninput="filterMemberList(this.value)"
       style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;margin-bottom:.5rem;transition:border-color .2s"
       onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
-    <div id="recommend-member-list" style="max-height:220px;overflow-y:auto;margin-bottom:1rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
-    <div style="margin-bottom:1.2rem">
+    <div id="recommend-member-list" style="height:220px;overflow-y:auto;margin-bottom:1rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <div style="margin-bottom:1.2rem;position:relative">
       <label style="display:block;font-size:.75rem;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.35rem">Servidor preferido</label>
-      <input type="text" id="recommend-server-input" list="recommend-server-datalist"
+      <input type="text" id="recommend-server-input"
         placeholder="Qualquer servidor..." autocomplete="off"
+        oninput="filterServerList(this.value)"
+        onfocus="openServerList()" onblur="setTimeout(closeServerList,150)"
         style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;transition:border-color .2s"
-        onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
-      <datalist id="recommend-server-datalist"></datalist>
+        onkeydown="this.style.borderColor='var(--gold-dim)'" onkeyup="this.style.borderColor='var(--gold-dim)'"
+        onfocusin="this.style.borderColor='var(--gold-dim)'" onfocusout="this.style.borderColor='var(--border)'">
+      <div id="recommend-server-list" style="display:none;position:absolute;left:0;right:0;top:calc(100% - .3rem);background:var(--surface2);border:1px solid var(--gold-dim);border-top:none;border-radius:0 0 3px 3px;max-height:140px;overflow-y:auto;z-index:200"></div>
       <div style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem;font-style:italic">Se não houver PT completa no servidor preferido, outros serão tentados automaticamente.</div>
     </div>
     <div class="modal-footer">
@@ -1810,14 +1813,10 @@ function runRecommend() {
   // Resetar busca de membros
   const search = document.getElementById('recommend-member-search');
   if (search) { search.value = ''; filterMemberList(''); }
-  // Popular datalist de servidores
-  const dl = document.getElementById('recommend-server-datalist');
-  if (dl) {
-    dl.innerHTML = '';
-    servers.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); });
-  }
+  // Resetar campo de servidor
   const srvInput = document.getElementById('recommend-server-input');
   if (srvInput) srvInput.value = '';
+  closeServerList();
   openModal('modal-recommend');
 }
 
@@ -1827,6 +1826,35 @@ function filterMemberList(query) {
     const name = label.textContent.trim().toLowerCase();
     label.style.display = (!q || name.includes(q)) ? '' : 'none';
   });
+}
+
+function openServerList() {
+  filterServerList(document.getElementById('recommend-server-input')?.value || '');
+}
+function closeServerList() {
+  const dl = document.getElementById('recommend-server-list');
+  if (dl) dl.style.display = 'none';
+}
+function filterServerList(query) {
+  const dl = document.getElementById('recommend-server-list');
+  if (!dl) return;
+  const q = query.trim().toLowerCase();
+  const matches = servers.filter(s => !q || s.toLowerCase().includes(q));
+  if (!matches.length) { dl.style.display = 'none'; return; }
+  dl.innerHTML = '';
+  matches.forEach(s => {
+    const div = document.createElement('div');
+    div.textContent = s;
+    div.style.cssText = 'padding:.4rem .75rem;cursor:pointer;font-family:\'Crimson Pro\',serif;font-size:.9rem;color:var(--text);transition:background .1s';
+    div.onmouseenter = () => div.style.background = 'rgba(201,146,42,.1)';
+    div.onmouseleave = () => div.style.background = '';
+    div.onmousedown  = () => {
+      document.getElementById('recommend-server-input').value = s;
+      closeServerList();
+    };
+    dl.appendChild(div);
+  });
+  dl.style.display = 'block';
 }
 
 function selectAllMembers(val) {
