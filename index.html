@@ -907,12 +907,19 @@ function extractUsersFromMembers(rawMembers) {
   return { remoteUsers, remoteUserNextId, cleanMembers };
 }
 
+// ── Lista unificada de membros ativos: extras manuais + users aprovados ───
+function getActiveMembers() {
+  const approvedNames = users.filter(u => u.status === 'approved').map(u => u.name);
+  return [...new Set([...members, ...approvedNames])];
+}
+
 // ── Monta array members com users embutidos para envio à API ──────────────
 function buildMembersPayload() {
   const TAG = '__USERS__:';
-  const payload = [...members, TAG + JSON.stringify({ u: users, n: userNextId })];
-  console.log('[SW] buildMembersPayload() — members no payload:', JSON.stringify(members));
-  return payload;
+  // Só persiste os extras manuais (members); users aprovados já estão em __USERS__
+  const approvedNames = new Set(users.filter(u => u.status === 'approved').map(u => u.name));
+  const extras = members.filter(m => !approvedNames.has(m));
+  return [...extras, TAG + JSON.stringify({ u: users, n: userNextId })];
 }
 
 async function save() {
@@ -956,31 +963,26 @@ async function save() {
         });
       }
 
-      // ── Mesclar usuários (lidos de dentro do campo members) ──────────────
+      // ── Mesclar users (lidos de dentro do campo members) ─────────────────
+      // members (extras manuais) NÃO são mais sincronizados entre sessões —
+      // a lista ativa deriva de users via getActiveMembers().
       if (j.data.members) {
         try {
           const rawMembers = JSON.parse(j.data.members);
-          const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
+          const { remoteUsers, remoteUserNextId } = extractUsersFromMembers(rawMembers);
 
-          console.log('[SW] save() — members locais antes do merge:', JSON.stringify(members));
-          console.log('[SW] save() — cleanMembers remotos:', JSON.stringify(cleanMembers));
-          console.log('[SW] save() — users locais antes do merge:', users.length, users.map(u => `${u.name}(${u.status})`));
-          console.log('[SW] save() — users remotos:', remoteUsers.length, remoteUsers.map(u => `${u.name}(${u.status})`));
+          console.log('[SW] save() — users locais:', users.map(u => `${u.name}(${u.status})`));
+          console.log('[SW] save() — users remotos:', remoteUsers.map(u => `${u.name}(${u.status})`));
 
-          // maxId para resolver colisões de ID entre sessões concorrentes
           const delUserSet = new Set(deletedUserIds);
           let maxId = remoteUsers.reduce((m, u) => Math.max(m, Number(u.id)), remoteUserNextId - 1);
 
           if (currentRole !== 'adm') {
-            // Sessão não-ADM: remoto é autoridade — substitui members e users locais.
-            members = cleanMembers;
+            // Não-ADM: remoto é autoridade para users.
             const remoteNames = new Set(remoteUsers.map(u => u.name.toLowerCase()));
             users.forEach(u => {
               if (!delUserSet.has(Number(u.id)) && !remoteNames.has(u.name.toLowerCase())) {
-                if (remoteUsers.some(r => Number(r.id) === Number(u.id))) {
-                  maxId++;
-                  u.id = maxId;
-                }
+                if (remoteUsers.some(r => Number(r.id) === Number(u.id))) { maxId++; u.id = maxId; }
                 remoteUsers.push(u);
                 if (u.id > maxId) maxId = u.id;
               }
@@ -988,34 +990,21 @@ async function save() {
             users = remoteUsers.filter(u => !delUserSet.has(Number(u.id)));
             userNextId = maxId + 1;
           } else {
-            // Sessão ADM: local é autoridade para members — apenas absorve adições remotas,
-            // nunca substitui (evita apagar aprovações feitas antes do save() chegar ao remoto).
-            const localMemberSet = new Set(members);
-            cleanMembers.forEach(m => { if (!localMemberSet.has(m)) members.push(m); });
-
-            // Absorve novos cadastros remotos de users pelo NOME; ignora deletados.
+            // ADM: absorve novos cadastros remotos de users; ignora deletados.
             const localNames = new Set(users.map(u => u.name.toLowerCase()));
             maxId = users.reduce((m, u) => Math.max(m, Number(u.id)), userNextId - 1);
             remoteUsers.forEach(ru => {
               if (!delUserSet.has(Number(ru.id)) && !localNames.has(ru.name.toLowerCase())) {
-                if (users.some(u => Number(u.id) === Number(ru.id))) {
-                  maxId++;
-                  ru.id = maxId;
-                }
+                if (users.some(u => Number(u.id) === Number(ru.id))) { maxId++; ru.id = maxId; }
                 users.push(ru);
                 if (ru.id > maxId) maxId = ru.id;
               }
             });
             userNextId = maxId + 1;
           }
-
-          console.log('[SW] save() — users após merge:', users.length, users.map(u => `${u.name}(${u.status})`));
         } catch(mergeErr) {
           console.error('[SW] save() — erro no merge de users:', mergeErr);
         }
-      } else {
-        // members não veio do remoto — registrar para diagnóstico
-        console.warn('[SW] save() — j.data.members ausente, pulando merge de users. j.data keys:', Object.keys(j.data || {}));
       }
     }
 
@@ -1102,11 +1091,11 @@ async function load() {
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
         const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
-        members    = cleanMembers;
+        // cleanMembers contém os extras manuais (ex: "Leão"); users aprovados vêm de remoteUsers
+        const approvedNames = new Set(remoteUsers.filter(u => u.status === 'approved').map(u => u.name));
+        members    = cleanMembers.filter(m => !approvedNames.has(m));
         users      = remoteUsers;
         userNextId = remoteUserNextId;
-        console.log('[SW] load() — members carregados:', JSON.stringify(members));
-        console.log('[SW] load() — users carregados:', users.length, users.map(u => `${u.name}(${u.status})`));
       }
     }
   } catch(e) {
@@ -1174,7 +1163,7 @@ function populateServerSelects() {
   const curMember = fm ? fm.value : '';
   if (fm) {
     fm.innerHTML = '<option value="">Todos os membros</option>';
-    members.forEach(m => {
+    getActiveMembers().forEach(m => {
       const o = document.createElement('option');
       o.value = m; o.textContent = m;
       if (m === curMember) o.selected = true;
@@ -1185,7 +1174,7 @@ function populateServerSelects() {
   const mo = document.getElementById('m-owner');
   const curOwner = mo.value;
   mo.innerHTML = '';
-  members.forEach(m => {
+  getActiveMembers().forEach(m => {
     const o=document.createElement('option');
     o.value=m; o.textContent=m;
     if(m===curOwner) o.selected=true;
@@ -1554,18 +1543,30 @@ function openMemberModal() {
   setTimeout(()=>document.getElementById('new-member-input').focus(),120);
 }
 function renderMemberList() {
-  const list=document.getElementById('member-list');
-  list.innerHTML='';
-  if(!members.length){
-    list.innerHTML='<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum membro cadastrado.</div>';
+  const list = document.getElementById('member-list');
+  list.innerHTML = '';
+  const approvedUsers = users.filter(u => u.status === 'approved');
+  const allActive = getActiveMembers();
+  if (!allActive.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum membro cadastrado.</div>';
     return;
   }
-  members.forEach((m,i)=>{
-    const div=document.createElement('div');
-    div.className='member-item';
-    // editar nome inline
-    div.innerHTML=`
-      <input type="text" value="${esc(m)}" 
+  // Users aprovados — somente leitura (gerenciados pela aba Usuários)
+  approvedUsers.forEach(u => {
+    const div = document.createElement('div');
+    div.className = 'member-item';
+    div.innerHTML = `
+      <span style="flex:1;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem">${esc(u.name)}</span>
+      <span style="font-size:.72rem;color:var(--text-muted);font-style:italic">usuário registrado</span>`;
+    list.appendChild(div);
+  });
+  // Extras manuais (ex: ADM) — editáveis
+  members.forEach((m, i) => {
+    if (approvedUsers.some(u => u.name === m)) return; // já exibido acima
+    const div = document.createElement('div');
+    div.className = 'member-item';
+    div.innerHTML = `
+      <input type="text" value="${esc(m)}"
         style="flex:1;background:transparent;border:none;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;outline:none;padding:0"
         onblur="renameMember(${i},this.value)"
         onkeydown="if(event.key==='Enter')this.blur()">
@@ -1726,12 +1727,8 @@ function approveUser(id) {
   const u = users.find(x => x.id === id);
   if (!u) return;
   u.status = 'approved';
-  if (!members.includes(u.name)) {
-    members.push(u.name);
-    populateServerSelects();
-    console.log('[SW] approveUser() — members após push:', JSON.stringify(members));
-  }
-  save(); renderUsers();
+  // Sem members.push — getActiveMembers() inclui users aprovados automaticamente
+  save(); renderUsers(); populateServerSelects();
   toast(`${u.name} aprovado!`, 'success');
 }
 
@@ -1762,8 +1759,9 @@ let lastRecommend = null; // guarda o resultado pra aplicar depois
 function runRecommend() {
   const list = document.getElementById('recommend-member-list');
   list.innerHTML = '';
-  if (!members.length) { toast('Nenhum membro cadastrado.', 'error'); return; }
-  members.forEach(m => {
+  const activeMembers = getActiveMembers();
+  if (!activeMembers.length) { toast('Nenhum membro cadastrado.', 'error'); return; }
+  activeMembers.forEach(m => {
     const label = document.createElement('label');
     label.className = 'member-check-label';
     label.innerHTML = `<input type="checkbox" value="${esc(m)}"> ${esc(m)}`;
