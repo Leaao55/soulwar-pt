@@ -388,9 +388,15 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 .rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
 
 /* ── RANKING ── */
-.ranking-header { text-align:center; margin-bottom:1.4rem; }
-.ranking-title { font-family:'Cinzel',serif; font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); }
 .ranking-wrap { max-width:500px; margin:0 auto; }
+.ranking-wrap + .ranking-wrap { margin-top:2.5rem; }
+.ranking-section-header { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
+.ranking-title { font-family:'Cinzel',serif; font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); }
+.ranking-prize { font-size:.75rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:.06em; }
+.btn-reset-rank { font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:.3rem .8rem; border:1px solid var(--em); background:transparent; color:var(--em);
+  border-radius:3px; cursor:pointer; transition:all .18s; margin-left:auto; }
+.btn-reset-rank:hover { background:rgba(224,82,82,.12); }
 .ranking-body td { padding:.75rem 1rem; }
 .rank-pos { font-family:'Cinzel',serif; font-size:.82rem; color:var(--text-muted); width:3.2rem; white-space:nowrap; }
 .rank-cell { display:flex; align-items:baseline; gap:.5rem; }
@@ -588,19 +594,30 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 
     <!-- TAB: RANKING -->
     <div class="section" id="tab-ranking">
-      <div class="ranking-header">
-        <span class="ranking-title">🏆 Ranking de Soulwars</span>
-      </div>
+      <!-- Semanal -->
       <div class="ranking-wrap">
+        <div class="ranking-section-header">
+          <span class="ranking-title">📅 Ranking Semanal</span>
+          <span class="ranking-prize">🏆 1º lugar ganha 250 RC</span>
+          <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
+        </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th style="width:3.2rem">#</th>
-                <th>Membro</th>
-              </tr>
-            </thead>
-            <tbody id="ranking-body" class="ranking-body"></tbody>
+            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+            <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- All-Time -->
+      <div class="ranking-wrap">
+        <div class="ranking-section-header">
+          <span class="ranking-title">⚔ Ranking All-Time</span>
+          <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+            <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
           </table>
         </div>
       </div>
@@ -1027,7 +1044,8 @@ let members = ["Leão"];
 let users   = [];
 let userNextId = 1;
 let nextId  = 1;
-let ranking = {}; // { memberName: count }
+let rankingWeekly  = {}; // { memberName: count }
+let rankingAllTime = {}; // { memberName: count }
 let pendingSendId    = null;
 let selectedPT       = null;
 let editingCharId    = null;
@@ -1179,9 +1197,11 @@ async function save() {
       deletedUserIds,
       deletedUserNames,
       backup_chars: backups,
-      ranking
+      ranking_weekly:  rankingWeekly,
+      ranking_alltime: rankingAllTime
     };
-    console.log('[SW] save() — ranking a enviar:', JSON.stringify(ranking));
+    console.log('[SW] save() — ranking_weekly a enviar:', JSON.stringify(rankingWeekly));
+    console.log('[SW] save() — ranking_alltime a enviar:', JSON.stringify(rankingAllTime));
     console.log('[SW] save() — backup_chars count:', backups.length);
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
@@ -1209,7 +1229,8 @@ async function save() {
     localStorage.setItem('sw_deletedUserIds',  JSON.stringify(deletedUserIds));
     localStorage.setItem('sw_deletedUserNames',JSON.stringify(deletedUserNames));
     localStorage.setItem('sw_backup_chars', JSON.stringify(backups));
-    localStorage.setItem('sw_ranking',     JSON.stringify(ranking));
+    localStorage.setItem('sw_ranking_weekly',  JSON.stringify(rankingWeekly));
+    localStorage.setItem('sw_ranking_alltime', JSON.stringify(rankingAllTime));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -1242,7 +1263,8 @@ async function load() {
     const r = await fetch(API + '?action=load');
     const j = await r.json();
     console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
-    console.log('[SW] load() — d.ranking raw:', j.data?.ranking);
+    console.log('[SW] load() — d.ranking_weekly raw:', j.data?.ranking_weekly);
+    console.log('[SW] load() — d.ranking_alltime raw:', j.data?.ranking_alltime);
     console.log('[SW] load() — d.backup_chars raw (length):', j.data?.backup_chars ? JSON.parse(j.data.backup_chars).length : 'ausente');
     if (j.ok && j.data) {
       const d = j.data;
@@ -1269,13 +1291,25 @@ async function load() {
         DEFAULT_SERVERS.forEach(s => { if (!_merged.includes(s)) _merged.push(s); });
         servers = _merged;
       }
-      if (d.ranking) {
-        ranking = JSON.parse(d.ranking);
-        console.log('[SW] load() — ranking do GAS:', JSON.stringify(ranking));
+      if (d.ranking_weekly) {
+        rankingWeekly = JSON.parse(d.ranking_weekly);
+        console.log('[SW] load() — ranking_weekly do GAS:', JSON.stringify(rankingWeekly));
       } else {
-        const _lr = localStorage.getItem('sw_ranking');
-        if (_lr) ranking = JSON.parse(_lr);
-        console.log('[SW] load() — ranking do localStorage:', JSON.stringify(ranking), '(GAS não retornou o campo)');
+        const _lw = localStorage.getItem('sw_ranking_weekly');
+        if (_lw) rankingWeekly = JSON.parse(_lw);
+        console.log('[SW] load() — ranking_weekly do localStorage:', JSON.stringify(rankingWeekly));
+      }
+      if (d.ranking_alltime) {
+        rankingAllTime = JSON.parse(d.ranking_alltime);
+        console.log('[SW] load() — ranking_alltime do GAS:', JSON.stringify(rankingAllTime));
+      } else if (d.ranking) {
+        // Migração: campo legado → all-time
+        rankingAllTime = JSON.parse(d.ranking);
+        console.log('[SW] load() — ranking_alltime migrado do campo legado:', JSON.stringify(rankingAllTime));
+      } else {
+        const _la = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
+        if (_la) rankingAllTime = JSON.parse(_la);
+        console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
       }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       if (d.members) {
@@ -1315,8 +1349,10 @@ async function load() {
     const dun  = localStorage.getItem('sw_deletedUserNames');
     if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
     if(p)  pts=JSON.parse(p);
-    const rk = localStorage.getItem('sw_ranking');
-    if(rk) ranking=JSON.parse(rk);
+    const rkW = localStorage.getItem('sw_ranking_weekly');
+    if(rkW) rankingWeekly=JSON.parse(rkW);
+    const rkA = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
+    if(rkA) rankingAllTime=JSON.parse(rkA);
     if(s) { const _sv=JSON.parse(s); const _mg=[..._sv]; DEFAULT_SERVERS.forEach(d=>{ if(!_mg.includes(d)) _mg.push(d); }); servers=_mg; }
     if(mb) members=JSON.parse(mb);
     if(n)  nextId=parseInt(n)||1;
@@ -1893,7 +1929,10 @@ function confirmFinalize() {
 
   document.querySelectorAll('#finalize-table-body select').forEach(sel => {
     const member = sel.value;
-    if (member) ranking[member] = (ranking[member] || 0) + 1;
+    if (member) {
+      rankingWeekly[member]  = (rankingWeekly[member]  || 0) + 1;
+      rankingAllTime[member] = (rankingAllTime[member] || 0) + 1;
+    }
   });
 
   // Snapshot completo de chars antes de deletar
@@ -2395,22 +2434,19 @@ function tryFormPT(group, maxPerMember) {
 }
 
 // ── RANKING ───────────────────────────────────────────────────────────────
-function renderRanking() {
-  const tbody = document.getElementById('ranking-body');
+function renderRankingTable(tbodyId, data) {
+  const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
-
+  const medals = ['🥇', '🥈', '🥉'];
   const activeMembers = getActiveMembers();
-  const allNames = new Set([...activeMembers, ...Object.keys(ranking)]);
+  const allNames = new Set([...activeMembers, ...Object.keys(data)]);
   const sorted = [...allNames]
-    .map(m => ({ name: m, count: ranking[m] || 0 }))
+    .map(m => ({ name: m, count: data[m] || 0 }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'pt-BR'));
-
   if (!sorted.length) {
     tbody.innerHTML = `<tr><td colspan="2" class="rank-empty">Nenhum registro ainda.</td></tr>`;
     return;
   }
-
-  const medals = ['🥇', '🥈', '🥉'];
   tbody.innerHTML = '';
   sorted.forEach((entry, i) => {
     const rank = i + 1;
@@ -2426,6 +2462,32 @@ function renderRanking() {
       </div></td>`;
     tbody.appendChild(tr);
   });
+}
+
+function renderRanking() {
+  renderRankingTable('ranking-weekly-body',  rankingWeekly);
+  renderRankingTable('ranking-alltime-body', rankingAllTime);
+  const isAdm = currentRole === 'adm';
+  const btnW = document.getElementById('btn-reset-weekly');
+  const btnA = document.getElementById('btn-reset-alltime');
+  if (btnW) btnW.style.display = isAdm ? '' : 'none';
+  if (btnA) btnA.style.display = isAdm ? '' : 'none';
+}
+
+function resetWeeklyRanking() {
+  if (currentRole !== 'adm') return;
+  if (!confirm('Resetar o Ranking Semanal? Todos os pontos da semana serão zerados.')) return;
+  rankingWeekly = {};
+  save(); renderRanking();
+  toast('Ranking Semanal resetado.', 'success');
+}
+
+function resetAllTimeRanking() {
+  if (currentRole !== 'adm') return;
+  if (!confirm('Resetar o Ranking All-Time? Esta ação não pode ser desfeita.')) return;
+  rankingAllTime = {};
+  save(); renderRanking();
+  toast('Ranking All-Time resetado.', 'success');
 }
 
 function clearRecommend() {
