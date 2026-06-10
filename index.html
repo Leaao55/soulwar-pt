@@ -496,6 +496,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
               style="width:158px" autocomplete="off"
               oninput="facInput('filter-class')"
               onfocus="facOpen('filter-class')"
+              onclick="facOpen('filter-class')"
               onblur="setTimeout(()=>facClose('filter-class'),150)"
               onkeydown="facKey(event,'filter-class')">
             <div class="filter-ac-ghost" id="filter-class-ghost"></div>
@@ -508,6 +509,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
               style="width:145px" autocomplete="off"
               oninput="facInput('filter-server')"
               onfocus="facOpen('filter-server')"
+              onclick="facOpen('filter-server')"
               onblur="setTimeout(()=>facClose('filter-server'),150)"
               onkeydown="facKey(event,'filter-server')">
             <div class="filter-ac-ghost" id="filter-server-ghost"></div>
@@ -520,6 +522,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
               style="width:133px" autocomplete="off"
               oninput="facInput('filter-member')"
               onfocus="facOpen('filter-member')"
+              onclick="facOpen('filter-member')"
               onblur="setTimeout(()=>facClose('filter-member'),150)"
               onkeydown="facKey(event,'filter-member')">
             <div class="filter-ac-ghost" id="filter-member-ghost"></div>
@@ -629,6 +632,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="form-group full">
         <label>Classe / Vocação</label>
         <select id="m-class">
+          <option value="" disabled selected>Selecione...</option>
           <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
           <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
         </select>
@@ -676,6 +680,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="form-group full">
         <label>Classe / Vocação</label>
         <select id="e-class">
+          <option value="">Selecione...</option>
           <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
           <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
         </select>
@@ -896,9 +901,9 @@ function enterApp(role, user) {
     badge.className = 'role-badge user-role';
     document.body.classList.add('user-mode');
     if (usersTabBtn) usersTabBtn.style.display = 'none';
-    const thWpp = document.getElementById('th-wpp');
-    if (thWpp) thWpp.style.display = 'none';
-    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+    const thWppU = document.getElementById('th-wpp');
+    if (thWppU) thWppU.style.display = '';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
   } else {
     badge.textContent = '👁 Visitante';
     badge.className = 'role-badge visitor';
@@ -1292,8 +1297,13 @@ function facRender(id) {
   });
 }
 function facOpen(id) {
+  const list = document.getElementById(id + '-list');
+  if (!list.classList.contains('open')) {
+    document.getElementById(id).value = '';
+    facGhost(id, '');
+  }
   facRender(id);
-  document.getElementById(id + '-list').classList.add('open');
+  list.classList.add('open');
 }
 function facClose(id) {
   document.getElementById(id + '-list').classList.remove('open');
@@ -1372,7 +1382,7 @@ function facKey(e, id) {
 // ── SERVER FILTER / SELECT ────────────────────────────────────────────────
 function populateServerSelects() {
   // Atualiza opções dos filtros autocomplete
-  FAC_OPTS['filter-server'] = [...servers];
+  FAC_OPTS['filter-server'] = [...servers].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   FAC_OPTS['filter-member'] = getActiveMembers();
   // Invalida seleção se o valor não existe mais
   if (FAC_VAL['filter-server'] && !servers.includes(FAC_VAL['filter-server'])) {
@@ -1397,8 +1407,8 @@ function populateServerSelects() {
   // select de servidor no form de add/edit
   const ms = document.getElementById('m-server');
   const cur2 = ms.value;
-  ms.innerHTML = '';
-  servers.forEach(s => {
+  ms.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+  [...servers].sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(s => {
     const o = document.createElement('option');
     o.value = s; o.textContent = s;
     if (s === cur2) o.selected = true;
@@ -1438,7 +1448,7 @@ function renderChars() {
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
       <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
-      <td class="td-wpp" style="display:none">${currentRole === 'adm' && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
@@ -1448,9 +1458,9 @@ function renderChars() {
   });
   // Sincronizar visibilidade da coluna WhatsApp após render
   const thWpp = document.getElementById('th-wpp');
-  const isAdm = currentRole === 'adm';
-  if (thWpp) thWpp.style.display = isAdm ? '' : 'none';
-  document.querySelectorAll('.td-wpp').forEach(el => el.style.display = isAdm ? '' : 'none');
+  const canSeeWpp = currentRole === 'adm' || currentRole === 'user';
+  if (thWpp) thWpp.style.display = canSeeWpp ? '' : 'none';
+  document.querySelectorAll('.td-wpp').forEach(el => el.style.display = canSeeWpp ? '' : 'none');
 }
 
 // ── RENDER PT ─────────────────────────────────────────────────────────────
@@ -1504,6 +1514,8 @@ function openAddModal() {
   document.getElementById('m-obs').value='';
   document.getElementById('m-conta').value='';
   document.getElementById('m-phone').value='';
+  document.getElementById('m-class').value='';
+  document.getElementById('m-server').value='';
 
   const ownerSel = document.getElementById('m-owner');
   // Remover opções especiais residuais
@@ -1550,6 +1562,16 @@ function addChar() {
   if (currentRole !== 'visitor' && !conta) {
     document.getElementById('m-conta').focus();
     toast('Selecione a conta do personagem.', 'error');
+    return;
+  }
+  if (!document.getElementById('m-class').value) {
+    document.getElementById('m-class').focus();
+    toast('Selecione a classe do personagem.', 'error');
+    return;
+  }
+  if (!document.getElementById('m-server').value) {
+    document.getElementById('m-server').focus();
+    toast('Selecione o servidor do personagem.', 'error');
     return;
   }
 
@@ -1624,8 +1646,8 @@ function openEditModal(id) {
   document.getElementById('e-conta').value = c.conta || '';
   // Preencher select de servidor
   const eServer = document.getElementById('e-server');
-  eServer.innerHTML = '';
-  servers.forEach(s => {
+  eServer.innerHTML = '<option value="">Selecione...</option>';
+  [...servers].sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(s => {
     const o = document.createElement('option');
     o.value = s; o.textContent = s;
     if (s === c.server) o.selected = true;
@@ -1644,6 +1666,16 @@ function saveEdit() {
   if (level < 400) {
     document.getElementById('e-level').focus();
     toast('Level mínimo é 400.', 'error');
+    return;
+  }
+  if (!document.getElementById('e-class').value) {
+    document.getElementById('e-class').focus();
+    toast('Selecione a classe do personagem.', 'error');
+    return;
+  }
+  if (!document.getElementById('e-server').value) {
+    document.getElementById('e-server').focus();
+    toast('Selecione o servidor do personagem.', 'error');
     return;
   }
   c.name   = name;
@@ -1798,9 +1830,9 @@ function renderPending() {
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
-      <td>${currentRole === 'adm' && wppUrl
+      <td>${(currentRole === 'adm' || currentRole === 'user') && wppUrl
         ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
-        : currentRole === 'adm' ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
+        : (currentRole === 'adm' || currentRole === 'user') ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
       <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
@@ -1964,7 +1996,7 @@ function filterServerList(query) {
   const dl = document.getElementById('recommend-server-list');
   if (!dl) return;
   const q = query.trim().toLowerCase();
-  const matches = servers.filter(s => !q || s.toLowerCase().includes(q));
+  const matches = servers.filter(s => !q || s.toLowerCase().includes(q)).sort((a, b) => a.localeCompare(b, 'pt-BR'));
   if (!matches.length) { dl.style.display = 'none'; return; }
   dl.innerHTML = '';
   matches.forEach(s => {
