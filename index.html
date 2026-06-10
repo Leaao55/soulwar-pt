@@ -1533,6 +1533,11 @@ function populateServerSelects() {
 
 // ── RENDER CHARS ──────────────────────────────────────────────────────────
 function renderChars() {
+  // Garantir que sentTo reflecte o estado real dos slots de PT
+  chars.forEach(c => {
+    const idx = pts.findIndex(pt => pt.includes(c.id));
+    c.sentTo = idx !== -1 ? idx : null;
+  });
   populateServerSelects();
   renderPending();
   const q  = document.getElementById('search').value.toLowerCase();
@@ -1817,7 +1822,7 @@ function deleteChar(id) {
 // ── SEND TO PT ────────────────────────────────────────────────────────────
 function openSendPT(id) {
   const c=chars.find(x=>x.id===id);
-  if(!c||c.sentTo!==null) return;
+  if(!c||pts.some(pt=>pt.includes(c.id))) return;
   pendingSendId=id; selectedPT=null;
   document.getElementById('pt-char-name').textContent=`Personagem: ${c.name} (${SHORT[c.cls]})`;
   const container=document.getElementById('pt-options');
