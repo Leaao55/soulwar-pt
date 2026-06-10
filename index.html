@@ -389,7 +389,15 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 
 /* ── RANKING ── */
 .ranking-wrap { max-width:500px; margin:0 auto; }
-.ranking-wrap + .ranking-wrap { margin-top:2.5rem; }
+.rank-tabs { display:flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:1.4rem; }
+.rank-tab { flex:1; padding:.6rem 1rem; font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.1em;
+  background:transparent; color:var(--text-muted); border:none; cursor:pointer; transition:all .2s;
+  border-right:1px solid var(--border); text-transform:uppercase; }
+.rank-tab:last-child { border-right:none; }
+.rank-tab.active { background:var(--surface); color:var(--gold2); }
+.rank-tab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
+.rank-panel { display:none; }
+.rank-panel.active { display:block; }
 .ranking-section-header { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
 .ranking-title { font-family:'Cinzel',serif; font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); }
 .ranking-prize { font-size:.75rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:.06em; }
@@ -594,31 +602,35 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 
     <!-- TAB: RANKING -->
     <div class="section" id="tab-ranking">
-      <!-- Semanal -->
       <div class="ranking-wrap">
-        <div class="ranking-section-header">
-          <span class="ranking-title">📅 Ranking Semanal</span>
-          <span class="ranking-prize">🏆 1º lugar ganha 250 RC</span>
-          <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
+        <div class="rank-tabs">
+          <button class="rank-tab active" onclick="switchRankTab('weekly',this)">📅 Semanal</button>
+          <button class="rank-tab" onclick="switchRankTab('alltime',this)">⚔ All-Time</button>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
-            <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
-          </table>
+        <!-- Painel Semanal -->
+        <div class="rank-panel active" id="rank-panel-weekly">
+          <div class="ranking-section-header">
+            <span class="ranking-prize">🏆 1º lugar ganha 250 RC</span>
+            <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+              <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <!-- All-Time -->
-      <div class="ranking-wrap">
-        <div class="ranking-section-header">
-          <span class="ranking-title">⚔ Ranking All-Time</span>
-          <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
-            <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
-          </table>
+        <!-- Painel All-Time -->
+        <div class="rank-panel" id="rank-panel-alltime">
+          <div class="ranking-section-header" style="justify-content:flex-end">
+            <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+              <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -2434,6 +2446,13 @@ function tryFormPT(group, maxPerMember) {
 }
 
 // ── RANKING ───────────────────────────────────────────────────────────────
+function switchRankTab(tab, btn) {
+  document.querySelectorAll('.rank-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.rank-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rank-panel-' + tab).classList.add('active');
+}
+
 function renderRankingTable(tbodyId, data) {
   const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
