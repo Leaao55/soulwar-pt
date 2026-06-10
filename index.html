@@ -380,6 +380,11 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 .rec-result-body { font-size:.88rem; color:var(--text-muted); line-height:1.8; }
 .rec-result-body b { color:var(--text); }
 .rec-result-warn { color:#e07b35; font-size:.82rem; margin-top:.5rem; font-style:italic; }
+.rec-result-tips { margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--border); }
+.rec-result-tips-title { font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+.rec-result-tips-item { font-size:.85rem; color:var(--text-muted); line-height:1.6; margin-bottom:.25rem; }
+.rec-result-tips-item b { color:var(--text); }
 .rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
 
 
@@ -602,6 +607,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="rec-result" id="rec-result">
         <div class="rec-result-title">✦ PT Recomendada</div>
         <div class="rec-result-body" id="rec-result-body"></div>
+        <div class="rec-result-tips" id="rec-result-tips" style="display:none"></div>
         <div class="rec-result-footer">
           <button class="btn-confirm" onclick="applyRecommend()">Aplicar nos slots</button>
           <button class="btn-cancel" onclick="clearRecommend()">Cancelar</button>
@@ -2152,6 +2158,43 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
     `${fallbackWarn}<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStdGlobal)}</b></div>`;
   document.querySelector('.rec-result-footer').style.display = 'flex';
   document.getElementById('rec-result').classList.add('show');
+
+  // ── Dicas ────────────────────────────────────────────────────────────────
+  const tipsEl = document.getElementById('rec-result-tips');
+  const membersInPT   = new Set(bestTeamGlobal.map(c => c.owner));
+  const withoutChar   = selectedMembers.filter(m => !membersInPT.has(m));
+  const countPerMember = {};
+  bestTeamGlobal.forEach(c => { countPerMember[c.owner] = (countPerMember[c.owner] || 0) + 1; });
+  const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
+
+  if (!withoutChar.length && !multiChar.length) {
+    tipsEl.style.display = 'none';
+  } else {
+    const items = [];
+
+    // Dicas combinadas: cruzar membros sem char × membros com 2+ chars
+    if (withoutChar.length && multiChar.length) {
+      withoutChar.forEach(wo => {
+        multiChar.forEach(([mc, n]) => {
+          items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT. <b>${esc(mc)}</b> está com ${n} personagens — considere passar um para <b>${esc(wo)}</b>.`);
+        });
+      });
+    } else {
+      // Só sem-char
+      withoutChar.forEach(wo => {
+        items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT.`);
+      });
+      // Só multi-char
+      multiChar.forEach(([mc, n]) => {
+        items.push(`ℹ <b>${esc(mc)}</b> está com ${n} personagens na PT.`);
+      });
+    }
+
+    tipsEl.innerHTML =
+      `<div class="rec-result-tips-title">💡 Dicas</div>` +
+      items.map(i => `<div class="rec-result-tips-item">${i}</div>`).join('');
+    tipsEl.style.display = 'block';
+  }
 }
 
 // Busca a melhor combinação EK+RP+MS+ED+5º no grupo respeitando maxPerMember por dono
@@ -2208,6 +2251,8 @@ function tryFormPT(group, maxPerMember) {
 function clearRecommend() {
   lastRecommend = null;
   document.getElementById('rec-result').classList.remove('show');
+  const tipsEl = document.getElementById('rec-result-tips');
+  if (tipsEl) { tipsEl.style.display = 'none'; tipsEl.innerHTML = ''; }
 }
 
 function applyRecommend() {
