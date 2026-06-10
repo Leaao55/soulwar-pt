@@ -1239,6 +1239,18 @@ async function load() {
   });
   if (_migrated) { console.log('[SW] Migração de conta concluída, salvando...'); save(); }
 
+  // Migração: renomear servidor "Grimoria" → "Grimoria I"
+  let _grimMigrated = false;
+  chars.forEach(c => {
+    if (c.server === 'Grimoria') { c.server = 'Grimoria I'; _grimMigrated = true; }
+  });
+  if (servers.includes('Grimoria')) {
+    servers = servers.filter(s => s !== 'Grimoria');
+    if (!servers.includes('Grimoria I')) servers.push('Grimoria I');
+    _grimMigrated = true;
+  }
+  if (_grimMigrated) { console.log('[SW] Migração Grimoria → Grimoria I concluída, salvando...'); save(); }
+
   while(pts.length<3) pts.push([null,null,null,null,null]);
   pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
   showSync('', '');
