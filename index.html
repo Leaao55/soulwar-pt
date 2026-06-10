@@ -1181,14 +1181,18 @@ async function save() {
       backup_chars: backups,
       ranking
     };
+    console.log('[SW] save() — ranking a enviar:', JSON.stringify(ranking));
+    console.log('[SW] save() — backup_chars count:', backups.length);
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
 
-    await fetch(API, {
+    const saveResp = await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify(payload)
     });
+    const saveJson = await saveResp.json().catch(() => null);
+    console.log('[SW] save() — resposta do GAS:', JSON.stringify(saveJson));
     showSync('Salvo ✓', 'ok');
     if (currentRole === 'adm') renderUsers();
 
@@ -1238,6 +1242,8 @@ async function load() {
     const r = await fetch(API + '?action=load');
     const j = await r.json();
     console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
+    console.log('[SW] load() — d.ranking raw:', j.data?.ranking);
+    console.log('[SW] load() — d.backup_chars raw (length):', j.data?.backup_chars ? JSON.parse(j.data.backup_chars).length : 'ausente');
     if (j.ok && j.data) {
       const d = j.data;
       if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
@@ -1245,9 +1251,17 @@ async function load() {
       if (d.deletedIds)     deletedIds     = JSON.parse(d.deletedIds).map(Number);
       if (d.deletedUserIds)   deletedUserIds   = JSON.parse(d.deletedUserIds).map(Number);
       if (d.deletedUserNames) deletedUserNames = JSON.parse(d.deletedUserNames);
-      if (d.backup_chars) backups = JSON.parse(d.backup_chars);
-      else if (d.backups) backups = JSON.parse(d.backups);
-      else { const _lb = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups'); if (_lb) backups = JSON.parse(_lb); }
+      if (d.backup_chars) {
+        backups = JSON.parse(d.backup_chars);
+        console.log('[SW] load() — backup_chars do GAS:', backups.length, 'backups');
+      } else if (d.backups) {
+        backups = JSON.parse(d.backups);
+        console.log('[SW] load() — backups (campo legado) do GAS:', backups.length, 'backups');
+      } else {
+        const _lb = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups');
+        if (_lb) backups = JSON.parse(_lb);
+        console.log('[SW] load() — backup_chars do localStorage:', backups.length, 'backups (GAS não retornou o campo)');
+      }
       if (d.pts)         pts      = JSON.parse(d.pts);
       if (d.servers) {
         const _saved = JSON.parse(d.servers);
@@ -1255,8 +1269,14 @@ async function load() {
         DEFAULT_SERVERS.forEach(s => { if (!_merged.includes(s)) _merged.push(s); });
         servers = _merged;
       }
-      if (d.ranking)     ranking  = JSON.parse(d.ranking);
-      else { const _lr = localStorage.getItem('sw_ranking'); if (_lr) ranking = JSON.parse(_lr); }
+      if (d.ranking) {
+        ranking = JSON.parse(d.ranking);
+        console.log('[SW] load() — ranking do GAS:', JSON.stringify(ranking));
+      } else {
+        const _lr = localStorage.getItem('sw_ranking');
+        if (_lr) ranking = JSON.parse(_lr);
+        console.log('[SW] load() — ranking do localStorage:', JSON.stringify(ranking), '(GAS não retornou o campo)');
+      }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
