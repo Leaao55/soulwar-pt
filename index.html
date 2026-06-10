@@ -1247,6 +1247,7 @@ async function load() {
       if (d.deletedUserNames) deletedUserNames = JSON.parse(d.deletedUserNames);
       if (d.backup_chars) backups = JSON.parse(d.backup_chars);
       else if (d.backups) backups = JSON.parse(d.backups);
+      else { const _lb = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups'); if (_lb) backups = JSON.parse(_lb); }
       if (d.pts)         pts      = JSON.parse(d.pts);
       if (d.servers) {
         const _saved = JSON.parse(d.servers);
@@ -1255,6 +1256,7 @@ async function load() {
         servers = _merged;
       }
       if (d.ranking)     ranking  = JSON.parse(d.ranking);
+      else { const _lr = localStorage.getItem('sw_ranking'); if (_lr) ranking = JSON.parse(_lr); }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
