@@ -37,7 +37,7 @@ h1 span{color:var(--text-muted);font-size:.5em;display:block;letter-spacing:.25e
 
 .logout-btn:hover{border-color:var(--text-muted);color:var(--text);}
 
-.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:480px;
+.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:620px;
   border:1px solid var(--border);border-radius:4px;overflow:hidden;}
 .tab{flex:1;padding:.7rem 1rem;font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;
   background:transparent;color:var(--text-muted);border:none;cursor:pointer;transition:all .2s;
@@ -387,6 +387,28 @@ body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !i
 .rec-result-tips-item b { color:var(--text); }
 .rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
 
+/* ── RANKING ── */
+.ranking-header { text-align:center; margin-bottom:1.4rem; }
+.ranking-title { font-family:'Cinzel',serif; font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); }
+.ranking-wrap { max-width:500px; margin:0 auto; }
+.ranking-body td { padding:.75rem 1rem; }
+.rank-pos { font-family:'Cinzel',serif; font-size:.82rem; color:var(--text-muted); width:3.2rem; white-space:nowrap; }
+.rank-cell { display:flex; align-items:baseline; gap:.5rem; }
+.rank-name { font-size:.95rem; font-weight:600; color:var(--text); }
+.rank-badge { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.06em;
+  color:var(--text-muted); white-space:nowrap; }
+.rank-1 .rank-pos { color:#ffd700; }
+.rank-2 .rank-pos { color:#c0c0c0; }
+.rank-3 .rank-pos { color:#cd7f32; }
+.rank-empty { text-align:center; color:var(--text-muted); padding:2.5rem 1rem; font-style:italic; font-size:.9rem; }
+/* ── MODAL FINALIZAR ── */
+.finalize-char-row td { padding:.6rem .9rem; vertical-align:middle; }
+.finalize-char-name { font-weight:600; font-size:.92rem; }
+.finalize-char-sub { font-size:.78rem; color:var(--text-muted); margin-top:.1rem; }
+.finalize-select { background:var(--surface2); border:1px solid var(--border); color:var(--text);
+  font-family:'Crimson Pro',serif; font-size:.88rem; padding:.35rem .6rem; border-radius:3px;
+  outline:none; cursor:pointer; transition:border-color .18s; }
+.finalize-select:focus { border-color:var(--gold-dim); }
 
 select:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -484,6 +506,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div class="tabs">
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
       <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
@@ -559,6 +582,26 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <tbody id="char-body"></tbody>
         </table>
         <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TAB: RANKING -->
+    <div class="section" id="tab-ranking">
+      <div class="ranking-header">
+        <span class="ranking-title">🏆 Ranking de Soulwars</span>
+      </div>
+      <div class="ranking-wrap">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:3.2rem">#</th>
+                <th>Membro</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body" class="ranking-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -754,6 +797,32 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
   </div>
 </div>
 
+
+<!-- MODAL: CONFIRMAR SOULWAR FINALIZADA -->
+<div class="modal-overlay" id="modal-finalize" onclick="if(event.target===this)closeModal('modal-finalize')">
+  <div class="modal">
+    <h2>⚔ Soulwar Finalizada</h2>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+      Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto
+      (útil quando o char foi emprestado).
+    </p>
+    <div class="table-wrap" style="margin-bottom:1.2rem">
+      <table>
+        <thead>
+          <tr>
+            <th>Personagem</th>
+            <th style="text-align:right">Contar para</th>
+          </tr>
+        </thead>
+        <tbody id="finalize-table-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-finalize')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmFinalize()">✓ Confirmar e Finalizar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: MEMBROS ONLINE (Recomendar PT) -->
 <div class="modal-overlay" id="modal-recommend" onclick="if(event.target===this)closeModal('modal-recommend')">
@@ -957,9 +1026,11 @@ let members = ["Leão"];
 let users   = [];
 let userNextId = 1;
 let nextId  = 1;
-let pendingSendId = null;
-let selectedPT    = null;
-let editingCharId = null;
+let ranking = {}; // { memberName: count }
+let pendingSendId    = null;
+let selectedPT       = null;
+let editingCharId    = null;
+let finalizingPTIndex = null;
 
 const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
 
@@ -1110,7 +1181,8 @@ async function save() {
       deletedIds,
       deletedUserIds,
       deletedUserNames,
-      backups: newBackups
+      backups: newBackups,
+      ranking
     };
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
@@ -1137,6 +1209,7 @@ async function save() {
     localStorage.setItem('sw_deletedUserIds',  JSON.stringify(deletedUserIds));
     localStorage.setItem('sw_deletedUserNames',JSON.stringify(deletedUserNames));
     localStorage.setItem('sw_backups',     JSON.stringify(backups));
+    localStorage.setItem('sw_ranking',     JSON.stringify(ranking));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -1184,6 +1257,7 @@ async function load() {
         DEFAULT_SERVERS.forEach(s => { if (!_merged.includes(s)) _merged.push(s); });
         servers = _merged;
       }
+      if (d.ranking)     ranking  = JSON.parse(d.ranking);
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
@@ -1222,6 +1296,8 @@ async function load() {
     const dun  = localStorage.getItem('sw_deletedUserNames');
     if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
     if(p)  pts=JSON.parse(p);
+    const rk = localStorage.getItem('sw_ranking');
+    if(rk) ranking=JSON.parse(rk);
     if(s) { const _sv=JSON.parse(s); const _mg=[..._sv]; DEFAULT_SERVERS.forEach(d=>{ if(!_mg.includes(d)) _mg.push(d); }); servers=_mg; }
     if(mb) members=JSON.parse(mb);
     if(n)  nextId=parseInt(n)||1;
@@ -1261,6 +1337,7 @@ async function load() {
   pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
   showSync('', '');
   renderChars();
+  renderRanking();
   if (currentRole === 'adm') renderUsers();
 }
 
@@ -1274,6 +1351,7 @@ function switchTab(t, btn) {
   document.getElementById('tab-'+t).classList.add('active');
   if(t==='chars') renderChars();
   else if(t==='pt') renderPT();
+  else if(t==='ranking') renderRanking();
   else if(t==='users') renderUsers();
   else if(t==='backup') renderBackups();
 }
@@ -1758,13 +1836,52 @@ function confirmSendPT() {
 function finalizePT(pi) {
   const ptIds = pts[pi].filter(x => x !== null);
   if (!ptIds.length) { toast('PT vazia, nada para finalizar.', 'error'); return; }
-  const names = ptIds.map(cid => { const c = chars.find(x => x.id === cid); return c ? c.name : ''; }).filter(Boolean);
-  if (!confirm(`Confirmar? Os personagens desta PT serão removidos da lista de cadastrados.\n\n${names.join(', ')}`)) return;
+
+  const ptChars = ptIds.map(cid => chars.find(x => x.id === cid)).filter(Boolean);
+  const activeMembers = getActiveMembers().sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+  const tbody = document.getElementById('finalize-table-body');
+  tbody.innerHTML = '';
+  ptChars.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.className = 'finalize-char-row';
+    const options = activeMembers.map(m =>
+      `<option value="${esc(m)}"${m === c.owner ? ' selected' : ''}>${esc(m)}</option>`
+    ).join('');
+    tr.innerHTML = `
+      <td>
+        <div class="finalize-char-name">${esc(c.name)}</div>
+        <div class="finalize-char-sub"><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span> Lv ${c.level||'?'} · ${esc(c.owner)}</div>
+      </td>
+      <td style="text-align:right">
+        <select class="finalize-select" data-char-id="${c.id}">${options}</select>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  finalizingPTIndex = pi;
+  openModal('modal-finalize');
+}
+
+function confirmFinalize() {
+  const pi = finalizingPTIndex;
+  if (pi === null) return;
+
+  document.querySelectorAll('#finalize-table-body select').forEach(sel => {
+    const member = sel.value;
+    if (member) ranking[member] = (ranking[member] || 0) + 1;
+  });
+
+  const ptIds = pts[pi].filter(x => x !== null);
   const idSet = new Set(ptIds);
+  const names = ptIds.map(cid => { const c = chars.find(x => x.id === cid); return c ? c.name : ''; }).filter(Boolean);
   chars = chars.filter(c => !idSet.has(c.id));
   deletedIds.push(...ptIds);
   pts[pi] = [null, null, null, null, null];
-  save(); renderPT(); renderChars();
+  finalizingPTIndex = null;
+
+  closeModal('modal-finalize');
+  save(); renderPT(); renderChars(); renderRanking();
   toast(`${PT_NAMES[pi]} finalizada! ${names.length} personagem(s) removido(s).`, 'success');
 }
 
@@ -2246,6 +2363,40 @@ function tryFormPT(group, maxPerMember) {
   }
 
   return best ? { team: best, std: bestStd } : null;
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────────
+function renderRanking() {
+  const tbody = document.getElementById('ranking-body');
+  if (!tbody) return;
+
+  const activeMembers = getActiveMembers();
+  const allNames = new Set([...activeMembers, ...Object.keys(ranking)]);
+  const sorted = [...allNames]
+    .map(m => ({ name: m, count: ranking[m] || 0 }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'pt-BR'));
+
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="2" class="rank-empty">Nenhum registro ainda.</td></tr>`;
+    return;
+  }
+
+  const medals = ['🥇', '🥈', '🥉'];
+  tbody.innerHTML = '';
+  sorted.forEach((entry, i) => {
+    const rank = i + 1;
+    const tr = document.createElement('tr');
+    tr.className = rank <= 3 ? `rank-${rank}` : '';
+    const label = rank <= 3 ? medals[i] : `#${rank}`;
+    const sw = entry.count === 1 ? '1 soulwar' : `${entry.count} soulwars`;
+    tr.innerHTML = `
+      <td class="rank-pos">${label}</td>
+      <td><div class="rank-cell">
+        <span class="rank-name">${esc(entry.name)}</span>
+        <span class="rank-badge">— ${sw}</span>
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
 }
 
 function clearRecommend() {
