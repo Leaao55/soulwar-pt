@@ -1598,6 +1598,16 @@ function renderChars() {
   });
   populateServerSelects();
   renderPending();
+  if (currentRole === 'visitor') {
+    document.getElementById('char-body').innerHTML = '';
+    document.querySelector('.table-wrap').style.display = 'none';
+    document.getElementById('approved-title').style.display = 'none';
+    document.querySelector('.toolbar').style.display = 'none';
+    return;
+  }
+  document.querySelector('.table-wrap').style.display = '';
+  document.getElementById('approved-title').style.display = '';
+  document.querySelector('.toolbar').style.display = '';
   const q  = document.getElementById('search').value.toLowerCase();
   const fc  = FAC_VAL['filter-class'];
   const fs  = FAC_VAL['filter-server'];
