@@ -2381,12 +2381,14 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
   } else {
     const items = [];
 
-    // Dicas combinadas: cruzar membros sem char × membros com 2+ chars
+    // Dicas combinadas: uma dica por membro sem char, listando todos os multi-chars
     if (withoutChar.length && multiChar.length) {
+      const multiNames = multiChar.map(([mc]) => `<b>${esc(mc)}</b>`).join(' e ');
+      const multiLabel = multiChar.length === 1
+        ? `${multiNames} está com ${multiChar[0][1]} personagens`
+        : `${multiNames} estão com 2+ personagens`;
       withoutChar.forEach(wo => {
-        multiChar.forEach(([mc, n]) => {
-          items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT. <b>${esc(mc)}</b> está com ${n} personagens — considere passar um para <b>${esc(wo)}</b>.`);
-        });
+        items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT. ${multiLabel} — considere passar um para <b>${esc(wo)}</b>.`);
       });
     } else {
       // Só sem-char
