@@ -2367,10 +2367,13 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
 
   // ── Dicas ────────────────────────────────────────────────────────────────
   const tipsEl = document.getElementById('rec-result-tips');
-  const membersInPT   = new Set(bestTeamGlobal.map(c => c.owner));
-  const withoutChar   = selectedMembers.filter(m => !membersInPT.has(m));
+  // "Sem char" = membro sem nenhum char disponível no servidor que foi escolhido
+  const membersOnBestServer = new Set(
+    (serverGroups[bestServerName] || []).map(c => c.owner.trim())
+  );
+  const withoutChar = selectedMembers.map(m => m.trim()).filter(m => !membersOnBestServer.has(m));
   const countPerMember = {};
-  bestTeamGlobal.forEach(c => { countPerMember[c.owner] = (countPerMember[c.owner] || 0) + 1; });
+  bestTeamGlobal.forEach(c => { countPerMember[c.owner.trim()] = (countPerMember[c.owner.trim()] || 0) + 1; });
   const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
 
   if (!withoutChar.length && !multiChar.length) {
@@ -2434,11 +2437,8 @@ function tryFormPT(group, maxPerMember) {
           if ([ek.id, rp.id, ms.id].includes(ed.id) || !canAdd(ed, [ek, rp, ms])) continue;
           const used  = new Set([ek.id, rp.id, ms.id, ed.id]);
           const base  = [ek, rp, ms, ed];
-          // 5º slot: sem restrição de maxPerMember, mas respeita a restrição de conta
-          const fifth = nonEKs.find(c =>
-            !used.has(c.id) &&
-            !(c.conta && base.some(b => b.owner === c.owner && b.conta === c.conta))
-          );
+          // 5º slot: respeita maxPerMember e restrição de conta (via canAdd)
+          const fifth = nonEKs.find(c => !used.has(c.id) && canAdd(c, base));
           if (!fifth) continue;
 
           const team   = [ek, rp, ms, ed, fifth];
