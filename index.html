@@ -1946,6 +1946,7 @@ function finalizePT(pi) {
   const onlineMembers = (typeof selectedMembers !== 'undefined' && selectedMembers && selectedMembers.length) ? selectedMembers : [];
   const allOptions = [...new Set([...ownersInPT, ...onlineMembers])].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
+  console.log('[SW][DEBUG] pendingRepasseMap em finalizePT:', JSON.stringify(pendingRepasseMap));
   const tbody = document.getElementById('finalize-table-body');
   tbody.innerHTML = '';
   ptChars.forEach(c => {
@@ -1956,7 +1957,7 @@ function finalizePT(pi) {
     const options = allOptions.map(m =>
       `<option value="${esc(m)}"${m === selectedOwner ? ' selected' : ''}>${esc(m)}</option>`
     ).join('');
-    const repasseHint = repasseMember
+    const repasseHint = (repasseMember && repasseMember !== c.owner)
       ? `<div class="finalize-repasse-hint" style="color:var(--gold2);font-size:.78rem;margin-top:2px">🔄 Jogado por <b>${esc(repasseMember)}</b></div>`
       : '';
     tr.innerHTML = `
@@ -2674,6 +2675,7 @@ function confirmApplyWithRepasse() {
     const member = sel.value;
     if (charId && member) pendingRepasseMap[charId] = member;
   });
+  console.log('[SW][DEBUG] pendingRepasseMap após aplicar:', JSON.stringify(pendingRepasseMap));
   _doApplySlots();
   save(); clearRecommend(); renderPT();
   closeModal('modal-finalize');
