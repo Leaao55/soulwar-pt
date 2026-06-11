@@ -1951,13 +1951,19 @@ function finalizePT(pi) {
   ptChars.forEach(c => {
     const tr = document.createElement('tr');
     tr.className = 'finalize-char-row';
+    const repasseMember = pendingRepasseMap[c.id] || null;
+    const selectedOwner = repasseMember || c.owner;
     const options = allOptions.map(m =>
-      `<option value="${esc(m)}"${m === c.owner ? ' selected' : ''}>${esc(m)}</option>`
+      `<option value="${esc(m)}"${m === selectedOwner ? ' selected' : ''}>${esc(m)}</option>`
     ).join('');
+    const repasseHint = repasseMember
+      ? `<div class="finalize-repasse-hint" style="color:var(--gold2);font-size:.78rem;margin-top:2px">🔄 Jogado por <b>${esc(repasseMember)}</b></div>`
+      : '';
     tr.innerHTML = `
       <td>
         <div class="finalize-char-name">${esc(c.name)}</div>
         <div class="finalize-char-sub"><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span> Lv ${c.level||'?'} · ${esc(c.owner)}</div>
+        ${repasseHint}
       </td>
       <td style="text-align:right">
         <select class="finalize-select" data-char-id="${c.id}" onchange="checkFinalizeDropdownDuplicates()">${options}</select>
