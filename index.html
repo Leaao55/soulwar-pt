@@ -1070,6 +1070,7 @@ let finalizingPTIndex = null;
 let finalizeModalMode   = 'finalize'; // 'finalize' | 'apply'
 let pendingRepasseMap   = {};
 let lastSelectedMembers = [];
+let selectedMembers     = [];
 let pendingWithoutChar  = [];
 
 const TEST_MODE = false;
@@ -1252,8 +1253,9 @@ async function save() {
     localStorage.setItem('sw_deletedUserIds',  JSON.stringify(deletedUserIds));
     localStorage.setItem('sw_deletedUserNames',JSON.stringify(deletedUserNames));
     localStorage.setItem('sw_backup_chars', JSON.stringify(backups));
-    localStorage.setItem('sw_ranking_weekly',  JSON.stringify(rankingWeekly));
-    localStorage.setItem('sw_ranking_alltime', JSON.stringify(rankingAllTime));
+    localStorage.setItem('sw_ranking_weekly',    JSON.stringify(rankingWeekly));
+    localStorage.setItem('sw_ranking_alltime',   JSON.stringify(rankingAllTime));
+    localStorage.setItem('sw_selected_members',  JSON.stringify(selectedMembers));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -1335,6 +1337,8 @@ async function load() {
         console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
       }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
+      const _sm = localStorage.getItem('sw_selected_members');
+      if (_sm) selectedMembers = JSON.parse(_sm);
       if (d.members) {
         const rawMembers = JSON.parse(d.members);
         const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
@@ -1387,6 +1391,8 @@ async function load() {
     if(dun) deletedUserNames = JSON.parse(dun);
     const bk = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups');
     if(bk) backups=JSON.parse(bk);
+    const sm = localStorage.getItem('sw_selected_members');
+    if(sm) selectedMembers=JSON.parse(sm);
     showSync('Offline — dados locais', 'err');
   }
   // Migração automática: obs "CONTA N" → campo conta
@@ -1931,14 +1937,16 @@ function finalizePT(pi) {
   document.getElementById('finalize-modal-confirm-btn').textContent = '✓ Confirmar e Finalizar';
 
   const ptChars = ptIds.map(cid => chars.find(x => x.id === cid)).filter(Boolean);
-  const activeMembers = getActiveMembers().sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const ownersInPT = [...new Set(ptChars.map(c => c.owner))];
+  const onlineMembers = (typeof selectedMembers !== 'undefined' && selectedMembers && selectedMembers.length) ? selectedMembers : [];
+  const allOptions = [...new Set([...ownersInPT, ...onlineMembers])].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
   const tbody = document.getElementById('finalize-table-body');
   tbody.innerHTML = '';
   ptChars.forEach(c => {
     const tr = document.createElement('tr');
     tr.className = 'finalize-char-row';
-    const options = activeMembers.map(m =>
+    const options = allOptions.map(m =>
       `<option value="${esc(m)}"${m === c.owner ? ' selected' : ''}>${esc(m)}</option>`
     ).join('');
     tr.innerHTML = `
@@ -2262,8 +2270,10 @@ function confirmRecommend() {
     .filter(cb => cb.checked).map(cb => cb.value);
   if (!selected.length) { toast('Selecione pelo menos um membro.', 'error'); return; }
   const preferredServer = (document.getElementById('recommend-server-input')?.value || '').trim();
+  selectedMembers = selected;
   closeModal('modal-recommend');
   buildRecommendation(selected, preferredServer);
+  save();
 }
 
 // Tenta montar a melhor PT para os membros selecionados
