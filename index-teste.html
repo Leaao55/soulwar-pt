@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soulwar PT Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0d14;--surface:#111420;--surface2:#181c2e;
+  --border:#2a2f4a;--gold:#c9922a;--gold2:#e8c06a;--gold-dim:#7a5418;
+  --text:#dde0f0;--text-muted:#6b7099;
+  --ek:#3a7bd5;--ek-bg:#0d1e3a;--ed:#3dba6c;--ed-bg:#0d2619;
+  --ms:#9b59b6;--ms-bg:#1e0d2e;--rp:#e07b35;--rp-bg:#2e1a0d;
+  --em:#e05252;--em-bg:#2e0d0d;
+  --pt1:#c9922a;--pt2:#9b59b6;--pt3:#3dba6c;
+}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:16px;min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,146,42,.07) 0%,transparent 70%),
+  repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(42,47,74,.3) 60px),
+  repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(42,47,74,.15) 60px);}
+
+
+
+/* ── APP ── */
+#app{display:none;}
+header{text-align:center;padding:2.5rem 1rem 1.5rem;position:relative;}
+.header-ornament{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:.75rem;}
+.ornament-line{height:1px;width:80px;background:linear-gradient(90deg,transparent,var(--gold));}
+.ornament-line.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.ornament-diamond{width:8px;height:8px;background:var(--gold);transform:rotate(45deg);}
+h1{font-family:'Cinzel',serif;font-size:clamp(1.5rem,4vw,2.4rem);font-weight:700;letter-spacing:.12em;
+  color:var(--gold2);text-shadow:0 0 40px rgba(201,146,42,.4);line-height:1.15;}
+h1 span{color:var(--text-muted);font-size:.5em;display:block;letter-spacing:.25em;font-weight:400;margin-top:.3rem;}
+
+.logout-btn:hover{border-color:var(--text-muted);color:var(--text);}
+
+.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:620px;
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.tab{flex:1;padding:.7rem 1rem;font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;
+  background:transparent;color:var(--text-muted);border:none;cursor:pointer;transition:all .2s;
+  border-right:1px solid var(--border);text-transform:uppercase;}
+.tab:last-child{border-right:none;}
+.tab.active{background:var(--surface);color:var(--gold2);}
+.tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.03);}
+
+main{max-width:1100px;margin:0 auto;padding:2rem 1rem 4rem;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+.toolbar input,.toolbar select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:'Crimson Pro',serif;font-size:.95rem;padding:.5rem .9rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.toolbar input{width:185px;}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--gold-dim);}
+.toolbar input::placeholder{color:var(--text-muted);}
+/* ── FILTER AUTOCOMPLETE ── */
+.filter-ac{position:relative;}
+.filter-ac-field{position:relative;display:inline-flex;align-items:stretch;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;
+  transition:border-color .2s;}
+.filter-ac-field:focus-within{border-color:var(--gold-dim);}
+.filter-ac-input{background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;
+  padding:.5rem .9rem;position:relative;z-index:2;cursor:pointer;min-width:0;}
+.filter-ac-input::placeholder{color:var(--text-muted);}
+.filter-ac-ghost{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;padding:.5rem .9rem;
+  font-family:'Crimson Pro',serif;font-size:.95rem;color:var(--text-muted);
+  pointer-events:none;white-space:nowrap;overflow:hidden;z-index:1;}
+.filter-ac-list{display:none;position:absolute;top:calc(100% + 3px);left:0;
+  background:var(--surface);border:1px solid var(--gold-dim);border-radius:3px;
+  z-index:500;max-height:200px;overflow-y:auto;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);min-width:100%;}
+.filter-ac-list.open{display:block;}
+.filter-ac-item{padding:.4rem .9rem;font-family:'Crimson Pro',serif;font-size:.9rem;
+  color:var(--text);cursor:pointer;transition:background .12s;white-space:nowrap;}
+.filter-ac-item:hover,.filter-ac-item.ac-hi{background:rgba(201,146,42,.12);color:var(--gold2);}
+.filter-ac-item.ac-reset{color:var(--text-muted);font-style:italic;}
+.btn{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border:1px solid var(--gold-dim);background:transparent;color:var(--gold2);
+  border-radius:3px;cursor:pointer;transition:all .18s;}
+.btn:hover{background:rgba(201,146,42,.1);border-color:var(--gold);}
+.btn-ml{margin-left:auto;}
+.btn-outline{border-color:var(--border);color:var(--text-muted);}
+.btn-outline:hover{border-color:var(--text-muted);color:var(--text);background:transparent;}
+
+/* ── TABLE ── */
+.table-wrap{border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border);}
+th{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);font-weight:600;padding:.9rem 1rem;text-align:left;}
+td{padding:.8rem 1rem;border-bottom:1px solid rgba(42,47,74,.5);font-size:.95rem;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{background:var(--surface);transition:background .12s;}
+tbody tr:nth-child(even){background:rgba(24,28,46,.6);}
+tbody tr:hover td{background:rgba(201,146,42,.04);}
+.char-name{font-weight:600;color:#eef0ff;}
+.owner-name{color:var(--text-muted);font-size:.88rem;}
+.level-val{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2);}
+.server-val{color:var(--text-muted);font-size:.88rem;}
+
+.badge{display:inline-block;font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.08em;
+  padding:.2rem .55rem;border-radius:2px;font-weight:600;text-transform:uppercase;}
+.badge-ek{background:var(--ek-bg);color:var(--ek);border:1px solid rgba(58,123,213,.3);}
+.badge-ed{background:var(--ed-bg);color:var(--ed);border:1px solid rgba(61,186,108,.3);}
+.badge-ms{background:var(--ms-bg);color:var(--ms);border:1px solid rgba(155,89,182,.3);}
+.badge-rp{background:var(--rp-bg);color:var(--rp);border:1px solid rgba(224,123,53,.3);}
+.badge-em{background:var(--em-bg);color:var(--em);border:1px solid rgba(224,82,82,.3);}
+
+.btn-send{width:28px;height:28px;border-radius:50%;border:1px solid var(--gold-dim);
+  background:transparent;color:var(--gold);font-size:1.1rem;line-height:1;cursor:pointer;
+  transition:all .18s;display:inline-flex;align-items:center;justify-content:center;}
+.btn-send:hover{background:rgba(201,146,42,.15);border-color:var(--gold);transform:scale(1.1);}
+.btn-send.sent{background:rgba(61,186,108,.15);border-color:#3dba6c;color:#3dba6c;pointer-events:none;font-size:.85rem;}
+
+.btn-del{width:26px;height:26px;border-radius:50%;border:1px solid rgba(224,82,82,.25);
+  background:transparent;color:rgba(224,82,82,.4);font-size:.85rem;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:4px;}
+.btn-del:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+.btn-edit{width:26px;height:26px;border-radius:50%;border:1px solid rgba(107,112,153,.3);
+  background:transparent;color:rgba(107,112,153,.6);font-size:.75rem;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:all .15s;margin-left:4px;}
+.btn-edit:hover{border-color:#8a91c0;color:#b0b8e8;background:rgba(107,112,153,.12);}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;}
+
+/* ── PT GRID ── */
+.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.pt-card{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--surface);}
+.pt-card-header{padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.pt-card-title{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
+.pt-card-count{font-size:.8rem;color:var(--text-muted);font-family:'Cinzel',serif;}
+.pt1-accent{color:var(--pt1)}.pt2-accent{color:var(--pt2)}.pt3-accent{color:var(--pt3)}
+.pt1-border{border-top:2px solid var(--pt1)}.pt2-border{border-top:2px solid var(--pt2)}.pt3-border{border-top:2px solid var(--pt3)}
+.pt-slot{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.2rem;border-bottom:1px solid rgba(42,47,74,.4);min-height:52px;}
+.pt-slot:last-child{border-bottom:none;}
+.slot-num{font-family:'Cinzel',serif;font-size:.7rem;color:var(--text-muted);width:18px;flex-shrink:0;}
+.slot-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-size:.65rem;font-weight:700;flex-shrink:0;}
+.slot-info{flex:1;min-width:0;}
+.slot-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.slot-sub{font-size:.78rem;color:var(--text-muted);margin-top:1px;}
+.btn-remove{width:22px;height:22px;border-radius:50%;border:1px solid rgba(224,82,82,.3);background:transparent;
+  color:rgba(224,82,82,.5);font-size:.9rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;}
+.btn-remove:hover{border-color:#e05252;color:#e05252;background:rgba(224,82,82,.1);}
+.slot-empty{color:var(--text-muted);font-style:italic;font-size:.85rem;}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;
+  z-index:100;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--gold);
+  border-radius:4px;padding:2rem;width:min(480px,92vw);transform:translateY(16px);transition:transform .2s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal h2{font-family:'Cinzel',serif;font-size:1rem;letter-spacing:.1em;color:var(--gold2);
+  margin-bottom:1.5rem;text-transform:uppercase;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:.4rem;}
+.form-group.full{grid-column:1/-1;}
+label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+.form-group input,.form-group select{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-family:'Crimson Pro',serif;font-size:1rem;padding:.55rem .9rem;border-radius:3px;outline:none;transition:border-color .2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--gold-dim);}
+.modal-footer{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--text-muted);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.2rem;border-radius:3px;cursor:pointer;transition:all .15s;}
+.btn-cancel:hover{border-color:var(--text-muted);color:var(--text);}
+.btn-confirm{background:rgba(201,146,42,.12);border:1px solid var(--gold-dim);color:var(--gold2);
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.4rem;border-radius:3px;cursor:pointer;transition:all .15s;}
+.btn-confirm:hover{background:rgba(201,146,42,.22);border-color:var(--gold);}
+
+/* modal servidor */
+.server-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem;max-height:220px;overflow-y:auto;}
+.server-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:.9rem;}
+.server-item span{color:var(--text);} .member-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;background:var(--surface2);border:1px solid var(--border);border-radius:3px;font-size:.9rem;} .member-item span{color:var(--text);}
+
+/* pt options */
+.pt-options{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;}
+.pt-option{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;border:1px solid var(--border);
+  border-radius:3px;cursor:pointer;transition:all .15s;background:var(--surface2);}
+.pt-option:hover{border-color:var(--gold-dim);}
+.pt-option.selected{border-color:var(--gold);background:rgba(201,146,42,.08);}
+.pt-option-color{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.pt-option-info{flex:1;}
+.pt-option-name{font-family:'Cinzel',serif;font-size:.82rem;color:var(--text);}
+.pt-option-slots{font-size:.8rem;color:var(--text-muted);margin-top:2px;}
+.pt-option-full{opacity:.4;pointer-events:none;}
+
+/* toast */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--border);
+  border-left:3px solid var(--gold);padding:.8rem 1.2rem;border-radius:3px;font-size:.9rem;color:var(--text);
+  transform:translateX(120%);transition:transform .3s;z-index:200;max-width:300px;}
+.toast.show{transform:translateX(0);}
+.toast.success{border-left-color:#3dba6c;}
+.toast.error{border-left-color:#e05252;}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr;}
+  th:nth-child(2),td:nth-child(2){display:none;}
+  th:nth-child(6),td:nth-child(6){display:none;}
+  
+}
+
+
+
+/* ── SYNC STATUS ── */
+.sync-status {
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em;
+  text-transform:uppercase; padding:.3rem .8rem; border-radius:3px;
+  transition: opacity .5s; opacity:0;
+}
+.sync-status.saving { color:var(--gold2); opacity:1; }
+.sync-status.ok     { color:#3dba6c; opacity:1; }
+.sync-status.err    { color:#e05252; opacity:1; }
+
+
+/* ── LOGIN ── */
+#login-screen {
+  position:fixed; inset:0; background:var(--bg); z-index:999;
+  display:flex; align-items:center; justify-content:center;
+  background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,146,42,.09) 0%, transparent 70%);
+}
+.login-box { width:min(400px,90vw); text-align:center; }
+.login-ornament { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
+.orn-line  { height:1px; width:60px; background:linear-gradient(90deg,transparent,var(--gold)); }
+.orn-line.r{ background:linear-gradient(90deg,var(--gold),transparent); }
+.orn-diamond { width:7px; height:7px; background:var(--gold); transform:rotate(45deg); }
+.login-box h1 { font-family:'Cinzel',serif; font-size:1.7rem; font-weight:700; letter-spacing:.12em;
+  color:var(--gold2); text-shadow:0 0 40px rgba(201,146,42,.4); margin-bottom:.3rem; }
+.login-sub { font-size:.78rem; color:var(--text-muted); letter-spacing:.2em;
+  font-family:'Cinzel',serif; text-transform:uppercase; margin-bottom:2rem; }
+.login-modes { display:flex; gap:.75rem; margin-bottom:1.5rem; }
+.login-mode-btn { flex:1; padding:.65rem; border-radius:3px; cursor:pointer;
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted); transition:all .18s; }
+.login-mode-btn.active { border-color:var(--gold-dim); background:rgba(201,146,42,.1); color:var(--gold2); }
+.login-mode-btn:hover:not(.active) { border-color:var(--text-muted); color:var(--text); }
+.login-field { margin-bottom:.75rem; }
+.login-field input { width:100%; background:var(--surface2); border:1px solid var(--border);
+  color:var(--text); font-family:'Crimson Pro',serif; font-size:1.05rem;
+  padding:.75rem 1rem; border-radius:3px; outline:none; transition:border-color .2s;
+  text-align:center; letter-spacing:.1em; }
+.login-field input:focus { border-color:var(--gold-dim); }
+.login-field input::placeholder { letter-spacing:.05em; color:var(--text-muted); }
+.btn-login { width:100%; background:rgba(201,146,42,.1); border:1px solid var(--gold-dim);
+  color:var(--gold2); font-family:'Cinzel',serif; font-size:.8rem; letter-spacing:.12em;
+  text-transform:uppercase; padding:.75rem; border-radius:3px; cursor:pointer;
+  transition:all .18s; margin-top:.25rem; }
+.btn-login:hover { background:rgba(201,146,42,.2); border-color:var(--gold); }
+.login-error { color:#e05252; font-size:.85rem; margin-top:.6rem; min-height:1.2rem; font-style:italic; }
+.login-visitor-info { font-size:.8rem; color:var(--text-muted); margin-top:1.2rem;
+  line-height:1.6; font-style:italic; }
+
+/* ── USER SUB-TABS ── */
+.user-sub-tabs { display:flex; gap:.5rem; margin-bottom:1rem; }
+.user-sub-btn { flex:1; padding:.5rem; border-radius:3px; cursor:pointer;
+  font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid var(--border); background:transparent; color:var(--text-muted); transition:all .18s; }
+.user-sub-btn.active { border-color:var(--gold-dim); background:rgba(201,146,42,.1); color:var(--gold2); }
+.user-sub-btn:hover:not(.active) { border-color:var(--text-muted); color:var(--text); }
+
+/* ── USER ROLE BADGE ── */
+.role-badge.user-role { background:rgba(58,123,213,.15); border:1px solid rgba(58,123,213,.3); color:#5a9bf5; }
+
+/* ── USER MODE: permissões ── */
+body.user-mode .btn[onclick*="openServerModal"] { display:none !important; }
+body.user-mode .col-adm-actions { display:none !important; }
+
+/* ── USERS TAB ── */
+.users-section { margin-bottom:2rem; }
+.badge-rejected { background:rgba(224,82,82,.15); color:#e05252; border:1px solid rgba(224,82,82,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+.badge-approved-user { background:rgba(61,186,108,.15); color:#3dba6c; border:1px solid rgba(61,186,108,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+
+/* ── BADGE DE PAPEL ── */
+.role-badge { position:absolute; top:1.2rem; left:1.5rem;
+  font-family:'Cinzel',serif; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.3rem .8rem; border-radius:3px; }
+.role-badge.adm  { background:rgba(201,146,42,.15); border:1px solid var(--gold-dim); color:var(--gold2); }
+.role-badge.visitor { background:rgba(107,112,153,.15); border:1px solid var(--border); color:var(--text-muted); }
+
+/* ── MODO VISITANTE: desabilitar ações ── */
+body.visitor-mode .btn-send,
+body.visitor-mode .btn-del,
+body.visitor-mode .btn[onclick*="openServerModal"] { display:none !important; }
+body.visitor-mode .btn-remove { display:none !important; }
+body.visitor-mode .pt-toolbar { display:none !important; }
+body.visitor-mode .col-wpp { display:none !important; }
+body.visitor-mode .btn-approve,
+body.visitor-mode .btn-reject,
+body.visitor-mode .btn-delete-user { display:none !important; }
+body.user-mode .btn-delete-user { display:none !important; }
+body.visitor-mode .col-adm-actions { display:none !important; }
+body:not(.visitor-mode):not(.user-mode) .visitor-pending-label { display:none !important; }
+
+.logout-btn { position:absolute; top:1.2rem; right:1.5rem; background:transparent;
+  border:1px solid var(--border); color:var(--text-muted); font-family:'Cinzel',serif;
+  font-size:.65rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.35rem .9rem; border-radius:3px; cursor:pointer; transition:all .15s; }
+.logout-btn:hover { border-color:var(--text-muted); color:var(--text); }
+
+
+/* ── PENDENTES ── */
+.badge-pending { background:rgba(224,123,53,.15); color:#e07b35; border:1px solid rgba(224,123,53,.3);
+  font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; padding:.2rem .55rem;
+  border-radius:2px; font-weight:600; text-transform:uppercase; }
+.row-pending td { opacity:.65; }
+.row-pending .char-name { color:#e07b35 !important; }
+
+.pending-section { margin-bottom:2rem; }
+.pending-title { font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.15em;
+  text-transform:uppercase; color:#e07b35; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem; }
+.pending-title::after { content:''; flex:1; height:1px; background:rgba(224,123,53,.25); }
+.pending-count { background:rgba(224,123,53,.15); border:1px solid rgba(224,123,53,.3);
+  color:#e07b35; font-size:.65rem; padding:.15rem .5rem; border-radius:99px; }
+
+.approved-title {
+  font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.15em;
+  text-transform:uppercase; color:#3dba6c; margin-bottom:.75rem;
+  display:flex; align-items:center; gap:.75rem;
+}
+.approved-title::after { content:''; flex:1; height:1px; background:rgba(61,186,108,.25); }
+.approved-count { background:rgba(61,186,108,.15); border:1px solid rgba(61,186,108,.3);
+  color:#3dba6c; font-size:.65rem; padding:.15rem .5rem; border-radius:99px; }
+
+.btn-approve { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(61,186,108,.35); background:transparent; color:rgba(61,186,108,.6);
+  font-size:.9rem; cursor:pointer; transition:all .15s; }
+.btn-approve:hover { border-color:#3dba6c; color:#3dba6c; background:rgba(61,186,108,.1); }
+.btn-reject { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(224,82,82,.3); background:transparent; color:rgba(224,82,82,.4);
+  font-size:.85rem; cursor:pointer; transition:all .15s; margin-left:3px; }
+.btn-reject:hover { border-color:#e05252; color:#e05252; background:rgba(224,82,82,.1); }
+.btn-delete-user { display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid rgba(160,60,60,.3); background:transparent; color:rgba(160,60,60,.45);
+  font-size:.8rem; cursor:pointer; transition:all .15s; margin-left:3px; }
+.btn-delete-user:hover { border-color:#c0392b; color:#c0392b; background:rgba(192,57,43,.12); }
+
+.btn-wpp { display:inline-flex; align-items:center; gap:.35rem;
+  padding:.2rem .6rem; border-radius:3px; font-size:.78rem;
+  background:rgba(37,211,102,.12); border:1px solid rgba(37,211,102,.3); color:#25d366;
+  text-decoration:none; font-family:'Cinzel',serif; letter-spacing:.05em;
+  transition:all .15s; cursor:pointer; white-space:nowrap; }
+.btn-wpp:hover { background:rgba(37,211,102,.22); border-color:#25d366; }
+.phone-val { font-size:.82rem; color:var(--text-muted); }
+
+
+/* ── RECOMENDAÇÃO PT ── */
+.pt-toolbar { display:flex; align-items:center; gap:.75rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.btn-rec-pt {
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:.55rem 1.4rem; border:1px solid var(--gold-dim);
+  background:rgba(201,146,42,.08); color:var(--gold2);
+  border-radius:3px; cursor:pointer; transition:all .18s;
+}
+.btn-rec-pt:hover { background:rgba(201,146,42,.2); border-color:var(--gold); }
+
+.rec-result { margin-bottom:1.5rem; border:1px solid var(--gold-dim);
+  border-left:3px solid var(--gold); background:rgba(201,146,42,.06);
+  border-radius:3px; padding:1rem 1.2rem; display:none; }
+.rec-result.show { display:block; }
+.rec-result-title { font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gold2); margin-bottom:.6rem; }
+.rec-result-body { font-size:.88rem; color:var(--text-muted); line-height:1.8; }
+.rec-result-body b { color:var(--text); }
+.rec-result-warn { color:#e07b35; font-size:.82rem; margin-top:.5rem; font-style:italic; }
+.rec-result-tips { margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--border); }
+.rec-result-tips-title { font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+.rec-result-tips-item { font-size:.85rem; color:var(--text-muted); line-height:1.6; margin-bottom:.25rem; }
+.rec-result-tips-item b { color:var(--text); }
+.rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
+
+/* ── RANKING ── */
+.ranking-wrap { max-width:500px; margin:0 auto; }
+.rank-tabs { display:flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:1.4rem; }
+.rank-tab { flex:1; padding:.6rem 1rem; font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.1em;
+  background:transparent; color:var(--text-muted); border:none; cursor:pointer; transition:all .2s;
+  border-right:1px solid var(--border); text-transform:uppercase; }
+.rank-tab:last-child { border-right:none; }
+.rank-tab.active { background:var(--surface); color:var(--gold2); }
+.rank-tab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
+.rank-panel { display:none; }
+.rank-panel.active { display:block; }
+.ranking-section-header { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
+.ranking-title { font-family:'Cinzel',serif; font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); }
+.ranking-prize { font-size:.75rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:.06em; }
+.btn-reset-rank { font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:.3rem .8rem; border:1px solid var(--em); background:transparent; color:var(--em);
+  border-radius:3px; cursor:pointer; transition:all .18s; margin-left:auto; }
+.btn-reset-rank:hover { background:rgba(224,82,82,.12); }
+.ranking-body td { padding:.75rem 1rem; }
+.rank-pos { font-family:'Cinzel',serif; font-size:.82rem; color:var(--text-muted); width:3.2rem; white-space:nowrap; }
+.rank-cell { display:flex; align-items:baseline; gap:.5rem; }
+.rank-name { font-size:.95rem; font-weight:600; color:var(--text); }
+.rank-badge { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.06em;
+  color:var(--text-muted); white-space:nowrap; }
+.rank-1 .rank-pos { color:#ffd700; }
+.rank-2 .rank-pos { color:#c0c0c0; }
+.rank-3 .rank-pos { color:#cd7f32; }
+.rank-empty { text-align:center; color:var(--text-muted); padding:2.5rem 1rem; font-style:italic; font-size:.9rem; }
+/* ── MODAL FINALIZAR ── */
+.finalize-char-row td { padding:.6rem .9rem; vertical-align:middle; }
+.finalize-char-name { font-weight:600; font-size:.92rem; }
+.finalize-char-sub { font-size:.78rem; color:var(--text-muted); margin-top:.1rem; }
+.finalize-select { background:var(--surface2); border:1px solid var(--border); color:var(--text);
+  font-family:'Crimson Pro',serif; font-size:.88rem; padding:.35rem .6rem; border-radius:3px;
+  outline:none; cursor:pointer; transition:border-color .18s; }
+.finalize-select:focus { border-color:var(--gold-dim); }
+
+select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── MODAL MEMBROS ONLINE ── */
+.member-check-label { display:flex; align-items:center; gap:.7rem; padding:.45rem .6rem;
+  border-radius:3px; cursor:pointer; font-size:.95rem; transition:background .12s; }
+.member-check-label:hover { background:rgba(201,146,42,.06); }
+.member-check-label input[type=checkbox] { accent-color:var(--gold); width:15px; height:15px; cursor:pointer; }
+
+/* ── FINALIZAR PT ── */
+.btn-finalize { width:100%; padding:.65rem 1rem; border:none;
+  border-top:1px solid rgba(224,82,82,.2); background:transparent;
+  color:rgba(224,82,82,.55); font-family:'Cinzel',serif; font-size:.68rem;
+  letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .18s; }
+.btn-finalize:hover { background:rgba(224,82,82,.08); color:#e05252; }
+
+/* ── BACKUP ── */
+.backup-item { display:flex; align-items:center; justify-content:space-between;
+  padding:.85rem 1.2rem; background:var(--surface); border:1px solid var(--border);
+  border-radius:3px; margin-bottom:.5rem; }
+.backup-item:last-child { margin-bottom:0; }
+.backup-meta { display:flex; flex-direction:column; gap:.2rem; }
+.backup-ts { font-family:'Cinzel',serif; font-size:.82rem; color:var(--gold2); }
+.backup-count { font-size:.8rem; color:var(--text-muted); }
+.backup-wrap { border:1px solid var(--border); border-radius:4px; overflow:hidden;
+  background:var(--surface2); padding:1rem; }
+.backup-pt { font-size:.75rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:.06em; }
+</style>
+</head>
+<body>
+
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-ornament">
+      <div class="orn-line"></div><div class="orn-diamond"></div><div class="orn-line r"></div>
+    </div>
+    <h1>Soulwar</h1>
+    <p class="login-sub">PT Manager · Rubinot</p>
+
+    <div class="login-modes">
+      <button class="login-mode-btn" id="mode-adm" onclick="setMode('adm')">⚔ ADM</button>
+      <button class="login-mode-btn" id="mode-user" onclick="setMode('user')">👤 Usuário</button>
+      <button class="login-mode-btn active" id="mode-visitor" onclick="setMode('visitor')">👁 Visitante</button>
+    </div>
+
+    <div id="adm-fields" style="display:none">
+      <div class="login-field">
+        <input type="password" id="pwd-input" placeholder="Senha do ADM..." onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar como ADM</button>
+    </div>
+
+    <div id="user-fields" style="display:none">
+      <div class="user-sub-tabs">
+        <button class="user-sub-btn active" id="usub-login" onclick="setUserSub('login')">Entrar</button>
+        <button class="user-sub-btn" id="usub-register" onclick="setUserSub('register')">Cadastrar</button>
+      </div>
+      <div id="user-login-area">
+        <div class="login-field">
+          <input type="password" id="user-login-pwd" placeholder="Sua senha..." onkeydown="if(event.key==='Enter')doUserLogin()">
+        </div>
+        <button class="btn-login" onclick="doUserLogin()">Entrar</button>
+      </div>
+      <div id="user-register-area" style="display:none">
+        <div class="login-field">
+          <input type="text" id="user-reg-name" placeholder="Escolha um nome..." onkeydown="if(event.key==='Enter')doUserRegister()">
+        </div>
+        <div class="login-field">
+          <input type="password" id="user-reg-pwd" placeholder="Crie uma senha..." onkeydown="if(event.key==='Enter')doUserRegister()">
+        </div>
+        <button class="btn-login" onclick="doUserRegister()">Cadastrar</button>
+        <p class="login-visitor-info" style="font-size:.95rem;margin-top:.85rem">Após o cadastro, aguarde a aprovação do ADM para acessar o sistema.</p>
+      </div>
+    </div>
+
+    <div id="visitor-fields">
+      <p class="login-visitor-info">Visitantes são bem vindos aqui, cadastre seus personagens que logo entraremos em contato.</p>
+      <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+      <span class="role-badge" id="role-badge"></span>
+    <button class="logout-btn" onclick="doLogout()">Sair</button>
+    <div class="header-ornament">
+      <div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line r"></div>
+    </div>
+    <h1>Soulwar PT Manager <span>Rubinot · Quest Party Builder</span></h1>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
+      <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
+      <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
+      <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
+      <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
+  </div>
+  </header>
+
+  <main>
+    <!-- TAB: PERSONAGENS -->
+    <div class="section active" id="tab-chars">
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="Buscar personagem..." oninput="renderChars()">
+        <div class="filter-ac">
+          <div class="filter-ac-field">
+            <input type="text" id="filter-class" class="filter-ac-input" placeholder="Todas as classes"
+              style="width:158px" autocomplete="off"
+              oninput="facInput('filter-class')"
+              onfocus="facOpen('filter-class')"
+              onclick="facOpen('filter-class')"
+              onblur="setTimeout(()=>facClose('filter-class'),150)"
+              onkeydown="facKey(event,'filter-class')">
+            <div class="filter-ac-ghost" id="filter-class-ghost"></div>
+          </div>
+          <div class="filter-ac-list" id="filter-class-list"></div>
+        </div>
+        <div class="filter-ac">
+          <div class="filter-ac-field">
+            <input type="text" id="filter-server" class="filter-ac-input" placeholder="Todos os servidores"
+              style="width:145px" autocomplete="off"
+              oninput="facInput('filter-server')"
+              onfocus="facOpen('filter-server')"
+              onclick="facOpen('filter-server')"
+              onblur="setTimeout(()=>facClose('filter-server'),150)"
+              onkeydown="facKey(event,'filter-server')">
+            <div class="filter-ac-ghost" id="filter-server-ghost"></div>
+          </div>
+          <div class="filter-ac-list" id="filter-server-list"></div>
+        </div>
+        <div class="filter-ac">
+          <div class="filter-ac-field">
+            <input type="text" id="filter-member" class="filter-ac-input" placeholder="Todos os membros"
+              style="width:133px" autocomplete="off"
+              oninput="facInput('filter-member')"
+              onfocus="facOpen('filter-member')"
+              onclick="facOpen('filter-member')"
+              onblur="setTimeout(()=>facClose('filter-member'),150)"
+              onkeydown="facKey(event,'filter-member')">
+            <div class="filter-ac-ghost" id="filter-member-ghost"></div>
+          </div>
+          <div class="filter-ac-list" id="filter-member-list"></div>
+        </div>
+        <button class="btn btn-outline" onclick="load()" title="Atualizar dados">↻ Atualizar</button>
+        <button class="btn btn-outline" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
+        <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
+      </div>
+      <div class="pending-section" id="pending-section" style="display:none">
+        <div class="pending-title">Aguardando aprovação <span class="pending-count" id="pending-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Visitante</th><th>Personagem</th><th>Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
+            </tr></thead>
+            <tbody id="pending-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="approved-title" id="approved-title">Personagens aprovados <span class="approved-count" id="approved-count">0</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Dono</th><th>Personagem</th><th>Conta</th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
+          </tr></thead>
+          <tbody id="char-body"></tbody>
+        </table>
+        <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
+      </div>
+    </div>
+
+    <!-- TAB: RANKING -->
+    <div class="section" id="tab-ranking">
+      <div class="ranking-wrap">
+        <div class="rank-tabs">
+          <button class="rank-tab active" onclick="switchRankTab('weekly',this)">📅 Semanal</button>
+          <button class="rank-tab" onclick="switchRankTab('alltime',this)">⚔ All-Time</button>
+        </div>
+        <!-- Painel Semanal -->
+        <div class="rank-panel active" id="rank-panel-weekly">
+          <div class="ranking-section-header">
+            <span class="ranking-prize">🏆 1º lugar ganha 250 RC</span>
+            <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+              <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Painel All-Time -->
+        <div class="rank-panel" id="rank-panel-alltime">
+          <div class="ranking-section-header" style="justify-content:flex-end">
+            <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+              <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: USUÁRIOS (ADM only) -->
+    <div class="section" id="tab-users">
+      <div class="users-section" id="users-pending-section" style="display:none">
+        <div class="pending-title">Aguardando aprovação <span class="pending-count" id="users-pending-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Nome</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="users-pending-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="approved-title">Usuários cadastrados <span class="approved-count" id="users-approved-count">0</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Nome</th><th>Status</th><th></th>
+            </tr></thead>
+            <tbody id="users-list-body"></tbody>
+          </table>
+          <div id="users-empty" class="empty" style="display:none">Nenhum usuário cadastrado.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: BACKUP (ADM only) -->
+    <div class="section" id="tab-backup">
+      <div style="margin-bottom:1.5rem">
+        <div class="approved-title" style="color:var(--gold2)">Backups automáticos <span class="approved-count" id="backup-count">0</span></div>
+        <div class="backup-wrap">
+          <div id="backup-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: PT -->
+    <div class="section" id="tab-pt">
+      <div class="pt-toolbar" id="pt-toolbar">
+        <button class="btn-rec-pt" onclick="runRecommend()">✦ Recomendar PT</button>
+      </div>
+      <div class="rec-result" id="rec-result">
+        <div class="rec-result-title">✦ PT Recomendada</div>
+        <div class="rec-result-body" id="rec-result-body"></div>
+        <div class="rec-result-tips" id="rec-result-tips" style="display:none"></div>
+        <div class="rec-result-footer">
+          <button class="btn-confirm" onclick="applyRecommend()">Aplicar nos slots</button>
+          <button class="btn-cancel" onclick="clearRecommend()">Cancelar</button>
+        </div>
+      </div>
+      <div class="pt-grid" id="pt-grid"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: ADD PERSONAGEM -->
+<div class="modal-overlay" id="modal-add" onclick="if(event.target===this)closeModal('modal-add')">
+  <div class="modal">
+    <h2>Novo personagem</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Dono</label>
+        <select id="m-owner"></select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <input type="number" id="m-level" placeholder="500" min="1">
+      </div>
+      <div class="form-group full">
+        <label>Nome do personagem</label>
+        <input type="text" id="m-name" placeholder="Ex: DarkSlayer">
+      </div>
+      <div class="form-group full">
+        <label>Classe / Vocação</label>
+        <select id="m-class">
+          <option value="" disabled selected>Selecione...</option>
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Servidor</label>
+        <select id="m-server"></select>
+      </div>
+      <div class="form-group full">
+        <label>Conta <span id="m-conta-req" style="color:#e05252">*</span></label>
+        <select id="m-conta">
+          <option value="">Selecione...</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <input type="text" id="m-obs" placeholder="Opcional...">
+      </div>
+      <div class="form-group full" id="m-phone-group" style="display:none">
+        <label>WhatsApp para contato <span style="color:#e05252">*</span></label>
+        <input type="tel" id="m-phone" placeholder="Ex: 11999999999 (só números)">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-add')">Cancelar</button>
+      <button class="btn-confirm" onclick="addChar()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR PERSONAGEM -->
+<div class="modal-overlay" id="modal-edit" onclick="if(event.target===this)closeModal('modal-edit')">
+  <div class="modal">
+    <h2>Editar personagem</h2>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nome do personagem</label>
+        <input type="text" id="e-name" placeholder="Ex: DarkSlayer">
+      </div>
+      <div class="form-group full">
+        <label>Classe / Vocação</label>
+        <select id="e-class">
+          <option value="">Selecione...</option>
+          <option>ELITE KNIGHT</option><option>ELDER DRUID</option>
+          <option>MASTER SORCERER</option><option>ROYAL PALADIN</option><option>EXALTED MONK</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <input type="number" id="e-level" placeholder="500" min="1">
+      </div>
+      <div class="form-group">
+        <label>Servidor</label>
+        <select id="e-server"></select>
+      </div>
+      <div class="form-group full">
+        <label>Observações</label>
+        <input type="text" id="e-obs" placeholder="Opcional...">
+      </div>
+      <div class="form-group full">
+        <label>Conta</label>
+        <select id="e-conta">
+          <option value="">—</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-edit')">Cancelar</button>
+      <button class="btn-confirm" onclick="saveEdit()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ENVIAR PARA PT -->
+<div class="modal-overlay" id="modal-pt" onclick="if(event.target===this)closeModal('modal-pt')">
+  <div class="modal">
+    <h2>Enviar para PT</h2>
+    <p id="pt-char-name" style="color:var(--text-muted);font-size:.9rem;margin-bottom:1.2rem;"></p>
+    <div class="pt-options" id="pt-options"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-pt')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmSendPT()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SERVIDORES -->
+<div class="modal-overlay" id="modal-servers" onclick="if(event.target===this)closeModal('modal-servers')">
+  <div class="modal">
+    <h2>Gerenciar servidores</h2>
+    <div class="server-list" id="server-list"></div>
+    <div class="form-group" style="margin-bottom:.5rem">
+      <label>Adicionar novo servidor</label>
+      <div style="display:flex;gap:.6rem">
+        <input type="text" id="new-server-input" placeholder="Nome do servidor..." style="flex:1"
+          onkeydown="if(event.key==='Enter')addServer()">
+        <button class="btn-confirm" onclick="addServer()" style="white-space:nowrap">Adicionar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('modal-servers')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL: CONFIRMAR SOULWAR FINALIZADA -->
+<div class="modal-overlay" id="modal-finalize" onclick="if(event.target===this)closeModal('modal-finalize')">
+  <div class="modal">
+    <h2>⚔ Soulwar Finalizada</h2>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+      Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto
+      (útil quando o char foi emprestado).
+    </p>
+    <div class="table-wrap" style="margin-bottom:1.2rem">
+      <table>
+        <thead>
+          <tr>
+            <th>Personagem</th>
+            <th style="text-align:right">Contar para</th>
+          </tr>
+        </thead>
+        <tbody id="finalize-table-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-finalize')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmFinalize()">✓ Confirmar e Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: MEMBROS ONLINE (Recomendar PT) -->
+<div class="modal-overlay" id="modal-recommend" onclick="if(event.target===this)closeModal('modal-recommend')">
+  <div class="modal">
+    <h2>Quem está online?</h2>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">Selecione os membros presentes para montar a PT.</p>
+    <div style="display:flex;gap:.5rem;margin-bottom:.6rem">
+      <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(true)">Selecionar todos</button>
+      <button class="btn-cancel" style="flex:1;font-size:.68rem" onclick="selectAllMembers(false)">Limpar seleção</button>
+    </div>
+    <input type="text" id="recommend-member-search" placeholder="Filtrar membros..." autocomplete="off"
+      oninput="filterMemberList(this.value)"
+      style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;margin-bottom:.5rem;transition:border-color .2s"
+      onfocus="this.style.borderColor='var(--gold-dim)'" onblur="this.style.borderColor='var(--border)'">
+    <div id="recommend-member-list" style="height:220px;overflow-y:auto;margin-bottom:1rem;border:1px solid var(--border);border-radius:3px;padding:.25rem .4rem"></div>
+    <div style="margin-bottom:1.2rem;position:relative">
+      <label style="display:block;font-size:.75rem;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.35rem">Servidor preferido</label>
+      <input type="text" id="recommend-server-input"
+        placeholder="Qualquer servidor..." autocomplete="off"
+        oninput="filterServerList(this.value)"
+        onfocus="openServerList()" onblur="setTimeout(closeServerList,150)"
+        style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Crimson Pro',serif;font-size:.9rem;padding:.4rem .7rem;border-radius:3px;outline:none;transition:border-color .2s"
+        onkeydown="this.style.borderColor='var(--gold-dim)'" onkeyup="this.style.borderColor='var(--gold-dim)'"
+        onfocusin="this.style.borderColor='var(--gold-dim)'" onfocusout="this.style.borderColor='var(--border)'">
+      <div id="recommend-server-list"
+        onclick="event.stopPropagation();event.preventDefault()"
+        onmousedown="event.stopPropagation();event.preventDefault()"
+        style="display:none;position:absolute;left:0;right:0;top:calc(100% - .3rem);background:var(--surface2);border:1px solid var(--gold-dim);border-top:none;border-radius:0 0 3px 3px;max-height:150px;overflow-y:auto;z-index:200"></div>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-top:.3rem;font-style:italic">Se não houver PT completa no servidor preferido, outros serão tentados automaticamente.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modal-recommend')">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmRecommend()">✦ Recomendar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+const ADM_HASH = "c1d0e46fdeb2b72758a6a5bd5eecf2622ff8b84a8964c8e9687c6c05c9f474b5";
+let currentRole = null; // 'adm' | 'user' | 'visitor'
+let currentUser = null; // {id, name, passHash, status} when role='user'
+
+function setMode(mode) {
+  ['adm','user','visitor'].forEach(m => {
+    document.getElementById('mode-'+m).classList.toggle('active', m===mode);
+  });
+  document.getElementById('adm-fields').style.display     = mode==='adm'     ? 'block' : 'none';
+  document.getElementById('user-fields').style.display    = mode==='user'    ? 'block' : 'none';
+  document.getElementById('visitor-fields').style.display = mode==='visitor' ? 'block' : 'none';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('login-error').style.color = '';
+}
+
+function setUserSub(sub) {
+  document.getElementById('usub-login').classList.toggle('active', sub==='login');
+  document.getElementById('usub-register').classList.toggle('active', sub==='register');
+  document.getElementById('user-login-area').style.display    = sub==='login'    ? 'block' : 'none';
+  document.getElementById('user-register-area').style.display = sub==='register' ? 'block' : 'none';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('login-error').style.color = '';
+}
+
+async function doUserLogin() {
+  await dataReady;
+  const pwd = document.getElementById('user-login-pwd').value;
+  const err = document.getElementById('login-error');
+  err.style.color = '';
+  if (!pwd) { err.textContent = 'Digite sua senha.'; return; }
+  const hash = await sha256(pwd);
+  const user = users.find(u => u.passHash === hash);
+  if (!user) {
+    err.textContent = 'Senha incorreta.';
+    document.getElementById('user-login-pwd').value = '';
+    return;
+  }
+  if (user.status === 'pending')  { err.textContent = 'Cadastro aguardando aprovação do ADM.'; return; }
+  if (user.status === 'rejected') { err.textContent = 'Cadastro recusado pelo ADM.'; return; }
+  enterApp('user', user);
+}
+
+async function doUserRegister() {
+  await dataReady;
+  const name = document.getElementById('user-reg-name').value.trim();
+  const pwd  = document.getElementById('user-reg-pwd').value;
+  const err  = document.getElementById('login-error');
+  err.style.color = '';
+  if (!name) { err.textContent = 'Informe um nome.'; return; }
+  if (!pwd || pwd.length < 4) { err.textContent = 'Senha deve ter pelo menos 4 caracteres.'; return; }
+  if (users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'Este nome já está em uso.'; return;
+  }
+  const hash = await sha256(pwd);
+  if (users.some(u => u.passHash === hash)) {
+    err.textContent = 'Esta senha já está em uso. Escolha outra.'; return;
+  }
+  users.push({ id: userNextId++, name, passHash: hash, status: 'pending' });
+  await save();
+  err.style.color = '#3dba6c';
+  err.textContent = 'Cadastro enviado! Aguarde a aprovação do ADM.';
+  document.getElementById('user-reg-name').value = '';
+  document.getElementById('user-reg-pwd').value = '';
+}
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const val = document.getElementById('pwd-input').value;
+  const h   = await sha256(val);
+  if (h === ADM_HASH) {
+    enterApp('adm');
+  } else {
+    document.getElementById('login-error').textContent = 'Senha incorreta.';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function doLoginVisitor() {
+  enterApp('visitor');
+}
+
+function enterApp(role, user) {
+  currentRole = role;
+  currentUser = user || null;
+  sessionStorage.setItem('sw_role', role);
+  if (user) sessionStorage.setItem('sw_user', JSON.stringify(user));
+  else sessionStorage.removeItem('sw_user');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const badge = document.getElementById('role-badge');
+  const usersTabBtn = document.getElementById('tab-users-btn');
+  document.body.classList.remove('visitor-mode','user-mode');
+
+  if (role === 'adm') {
+    badge.textContent = '⚔ ADM';
+    badge.className = 'role-badge adm';
+    if (usersTabBtn) usersTabBtn.style.display = '';
+    const backupTabBtn = document.getElementById('tab-backup-btn');
+    if (backupTabBtn) backupTabBtn.style.display = '';
+    const thWpp = document.getElementById('th-wpp');
+    if (thWpp) thWpp.style.display = '';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
+  } else if (role === 'user') {
+    badge.textContent = '👤 ' + user.name;
+    badge.className = 'role-badge user-role';
+    document.body.classList.add('user-mode');
+    if (usersTabBtn) usersTabBtn.style.display = 'none';
+    const thWppU = document.getElementById('th-wpp');
+    if (thWppU) thWppU.style.display = '';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
+  } else {
+    badge.textContent = '👁 Visitante';
+    badge.className = 'role-badge visitor';
+    document.body.classList.add('visitor-mode');
+    if (usersTabBtn) usersTabBtn.style.display = 'none';
+    const thWpp = document.getElementById('th-wpp');
+    if (thWpp) thWpp.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('sw_role');
+  sessionStorage.removeItem('sw_user');
+  location.reload();
+}
+
+// Verificar sessão ao carregar
+const savedRole = sessionStorage.getItem('sw_role');
+const savedUser = sessionStorage.getItem('sw_user');
+if (savedRole) {
+  enterApp(savedRole, savedUser ? JSON.parse(savedUser) : null);
+}
+
+
+// ── DADOS ─────────────────────────────────────────────────────────────────
+const BADGE = {"ELITE KNIGHT":"badge-ek","ELDER DRUID":"badge-ed","MASTER SORCERER":"badge-ms","ROYAL PALADIN":"badge-rp","EXALTED MONK":"badge-em"};
+const SHORT = {"ELITE KNIGHT":"EK","ELDER DRUID":"ED","MASTER SORCERER":"MS","ROYAL PALADIN":"RP","EXALTED MONK":"EM"};
+const CLASS_COLOR = {"ELITE KNIGHT":"#3a7bd5","ELDER DRUID":"#3dba6c","MASTER SORCERER":"#9b59b6","ROYAL PALADIN":"#e07b35","EXALTED MONK":"#e05252"};
+const PT_COLORS = ["#c9922a","#9b59b6","#3dba6c"];
+const PT_NAMES  = ["PT 1","PT 2","PT 3"];
+const PT_BORDER = ["pt1-border","pt2-border","pt3-border"];
+const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
+
+let chars   = [];
+let rejectedIds = [];
+let deletedIds  = [];
+let deletedUserIds   = [];
+let deletedUserNames = [];
+let backups     = [];
+let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+const DEFAULT_SERVERS = ["Auroria","Belaria","Bellum","Divinian","Elysian","Etherian","Grimoria I","Grimoria II","Grimoria III","Grimoria IV","Halorian","Lunarian","Mystian","Serenian","Solarian","Spectrum","Tenebrium","Vesperia"];
+let servers = [...DEFAULT_SERVERS];
+let members = ["Leão"];
+let users   = [];
+let userNextId = 1;
+let nextId  = 1;
+let rankingWeekly  = {}; // { memberName: count }
+let rankingAllTime = {}; // { memberName: count }
+let pendingSendId    = null;
+let selectedPT       = null;
+let editingCharId    = null;
+let finalizingPTIndex = null;
+
+const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
+
+function showSync(msg, type) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'sync-status ' + (type||'');
+  el.style.opacity = '1';
+  if (type === 'ok') setTimeout(()=>{ el.style.opacity='0'; }, 2000);
+}
+
+// ── Extrai users embutidos no array members vindo da API ──────────────────
+function extractUsersFromMembers(rawMembers) {
+  const TAG = '__USERS__:';
+  const entry = rawMembers.find(m => typeof m === 'string' && m.startsWith(TAG));
+  let remoteUsers = [], remoteUserNextId = 1;
+  if (entry) {
+    try {
+      const ud = JSON.parse(entry.slice(TAG.length));
+      remoteUsers = (ud.u || []).map(u => ({ ...u, id: Number(u.id) }));
+      remoteUserNextId = ud.n || 1;
+    } catch(e) { console.warn('[SW] Falha ao parsear __USERS__:', e); }
+  }
+  const cleanMembers = rawMembers.filter(m => typeof m !== 'string' || !m.startsWith(TAG));
+  return { remoteUsers, remoteUserNextId, cleanMembers };
+}
+
+// ── Lista unificada de membros ativos: extras manuais + users aprovados ───
+function getActiveMembers() {
+  const delNamesSet = new Set(deletedUserNames);
+  const approvedNames = users.filter(u => u.status === 'approved').map(u => u.name);
+  const filteredExtras = members.filter(m => !delNamesSet.has(m));
+  return [...new Set([...filteredExtras, ...approvedNames])];
+}
+
+// ── Monta array members com users embutidos para envio à API ──────────────
+function buildMembersPayload() {
+  const TAG = '__USERS__:';
+  const approvedNames = new Set(users.filter(u => u.status === 'approved').map(u => u.name));
+  const delNamesSet   = new Set(deletedUserNames);
+  // Persiste apenas extras manuais limpos — sem users aprovados (já em __USERS__) e sem deletados
+  const extras = members.filter(m => !approvedNames.has(m) && !delNamesSet.has(m));
+  return [...extras, TAG + JSON.stringify({ u: users, n: userNextId })];
+}
+
+async function save() {
+  showSync('Salvando...', 'saving');
+  try {
+    // ── 1. Buscar estado remoto para merge ─────────────────────────────────
+    const r = await fetch(API + '?action=load');
+    const j = await r.json();
+    console.log('[SW] save() — estado remoto recebido:', j.ok, Object.keys(j.data || {}));
+
+    if (j.ok && j.data) {
+      // ── Mesclar rejectedIds, deletedIds e deletedUserIds remotos ──────────
+      if (j.data.rejectedIds) {
+        const remoteRej = JSON.parse(j.data.rejectedIds).map(Number);
+        const localRejSet = new Set(rejectedIds);
+        remoteRej.forEach(id => { if (!localRejSet.has(id)) rejectedIds.push(id); });
+      }
+      if (j.data.deletedIds) {
+        const remoteDel = JSON.parse(j.data.deletedIds).map(Number);
+        const localDelSet = new Set(deletedIds);
+        remoteDel.forEach(id => { if (!localDelSet.has(id)) deletedIds.push(id); });
+      }
+      if (j.data.deletedUserIds) {
+        const remoteDel = JSON.parse(j.data.deletedUserIds).map(Number);
+        const localDelSet = new Set(deletedUserIds);
+        remoteDel.forEach(id => { if (!localDelSet.has(id)) deletedUserIds.push(id); });
+      }
+      if (j.data.deletedUserNames) {
+        const remoteDel = JSON.parse(j.data.deletedUserNames);
+        const localDelSet = new Set(deletedUserNames);
+        remoteDel.forEach(n => { if (!localDelSet.has(n)) deletedUserNames.push(n); });
+      }
+
+      // ── Mesclar chars de outras sessões (todos os status) ────────────────
+      if (j.data.chars) {
+        const remoteChars = JSON.parse(j.data.chars);
+        remoteChars.forEach(c => { c.id = Number(c.id); });
+        const localIds = new Set(chars.map(c => Number(c.id)));
+        const rejSet   = new Set(rejectedIds);
+        const delSet   = new Set(deletedIds);
+        remoteChars.forEach(rc => {
+          if (!localIds.has(rc.id) && !rejSet.has(rc.id) && !delSet.has(rc.id)) {
+            chars.push(rc);
+            if (rc.id >= nextId) nextId = rc.id + 1;
+          }
+        });
+      }
+
+      // ── Mesclar users (lidos de dentro do campo members) ─────────────────
+      // members (extras manuais) NÃO são mais sincronizados entre sessões —
+      // a lista ativa deriva de users via getActiveMembers().
+      if (j.data.members) {
+        try {
+          const rawMembers = JSON.parse(j.data.members);
+          const { remoteUsers, remoteUserNextId } = extractUsersFromMembers(rawMembers);
+
+          console.log('[SW] save() — users locais:', users.map(u => `${u.name}(${u.status})`));
+          console.log('[SW] save() — users remotos:', remoteUsers.map(u => `${u.name}(${u.status})`));
+
+          const delUserSet = new Set(deletedUserIds);
+          let maxId = remoteUsers.reduce((m, u) => Math.max(m, Number(u.id)), remoteUserNextId - 1);
+
+          if (currentRole !== 'adm') {
+            // Não-ADM: remoto é autoridade para users.
+            const remoteNames = new Set(remoteUsers.map(u => u.name.toLowerCase()));
+            users.forEach(u => {
+              if (!delUserSet.has(Number(u.id)) && !remoteNames.has(u.name.toLowerCase())) {
+                if (remoteUsers.some(r => Number(r.id) === Number(u.id))) { maxId++; u.id = maxId; }
+                remoteUsers.push(u);
+                if (u.id > maxId) maxId = u.id;
+              }
+            });
+            users = remoteUsers.filter(u => !delUserSet.has(Number(u.id)));
+            userNextId = maxId + 1;
+          } else {
+            // ADM: absorve novos cadastros remotos de users; ignora deletados.
+            const localNames = new Set(users.map(u => u.name.toLowerCase()));
+            maxId = users.reduce((m, u) => Math.max(m, Number(u.id)), userNextId - 1);
+            remoteUsers.forEach(ru => {
+              if (!delUserSet.has(Number(ru.id)) && !localNames.has(ru.name.toLowerCase())) {
+                if (users.some(u => Number(u.id) === Number(ru.id))) { maxId++; ru.id = maxId; }
+                users.push(ru);
+                if (ru.id > maxId) maxId = ru.id;
+              }
+            });
+            userNextId = maxId + 1;
+          }
+        } catch(mergeErr) {
+          console.error('[SW] save() — erro no merge de users:', mergeErr);
+        }
+      }
+    }
+
+    // ── 2. Enviar para a API (users embutidos em members) ──────────────────
+    const payload = {
+      chars, pts, servers,
+      members: buildMembersPayload(),
+      nextId: String(nextId),
+      rejectedIds,
+      deletedIds,
+      deletedUserIds,
+      deletedUserNames,
+      backup_chars: backups,
+      ranking_weekly:  rankingWeekly,
+      ranking_alltime: rankingAllTime
+    };
+    console.log('[SW] save() — ranking_weekly a enviar:', JSON.stringify(rankingWeekly));
+    console.log('[SW] save() — ranking_alltime a enviar:', JSON.stringify(rankingAllTime));
+    console.log('[SW] save() — backup_chars count:', backups.length);
+    console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
+    console.log('[SW] save() — users:', JSON.stringify(users));
+
+    const saveResp = await fetch(API, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify(payload)
+    });
+    const saveJson = await saveResp.json().catch(() => null);
+    console.log('[SW] save() — resposta do GAS:', JSON.stringify(saveJson));
+    showSync('Salvo ✓', 'ok');
+    if (currentRole === 'adm') renderUsers();
+
+    // ── 3. Backup local ────────────────────────────────────────────────────
+    localStorage.setItem('sw_chars',       JSON.stringify(chars));
+    localStorage.setItem('sw_pts',         JSON.stringify(pts));
+    localStorage.setItem('sw_servers',     JSON.stringify(servers));
+    localStorage.setItem('sw_members',     JSON.stringify(members));
+    localStorage.setItem('sw_nextId',      String(nextId));
+    localStorage.setItem('sw_users',       JSON.stringify(users));
+    localStorage.setItem('sw_userNextId',  String(userNextId));
+    localStorage.setItem('sw_rejectedIds',    JSON.stringify(rejectedIds));
+    localStorage.setItem('sw_deletedIds',      JSON.stringify(deletedIds));
+    localStorage.setItem('sw_deletedUserIds',  JSON.stringify(deletedUserIds));
+    localStorage.setItem('sw_deletedUserNames',JSON.stringify(deletedUserNames));
+    localStorage.setItem('sw_backup_chars', JSON.stringify(backups));
+    localStorage.setItem('sw_ranking_weekly',  JSON.stringify(rankingWeekly));
+    localStorage.setItem('sw_ranking_alltime', JSON.stringify(rankingAllTime));
+  } catch(e) {
+    console.error('[SW] save() erro:', e);
+    showSync('Erro ao salvar', 'err');
+  }
+}
+
+
+// ── CORRIGIR IDs DUPLICADOS ───────────────────────────────────────────────
+function fixDuplicateIds() {
+  const seen = new Set();
+  let maxId = 0;
+  chars.forEach(c => {
+    c.id = Number(c.id);
+    if (c.id > maxId) maxId = c.id;
+  });
+  chars.forEach(c => {
+    if (seen.has(c.id)) {
+      maxId++;
+      console.warn('ID duplicado corrigido:', c.name, c.id, '->', maxId);
+      c.id = maxId;
+    }
+    seen.add(c.id);
+  });
+  nextId = maxId + 1;
+}
+
+async function load() {
+  showSync('Carregando...', 'saving');
+  try {
+    const r = await fetch(API + '?action=load');
+    const j = await r.json();
+    console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
+    console.log('[SW] load() — d.ranking_weekly raw:', j.data?.ranking_weekly);
+    console.log('[SW] load() — d.ranking_alltime raw:', j.data?.ranking_alltime);
+    console.log('[SW] load() — d.backup_chars raw (length):', j.data?.backup_chars ? JSON.parse(j.data.backup_chars).length : 'ausente');
+    if (j.ok && j.data) {
+      const d = j.data;
+      if (d.chars)       { chars = JSON.parse(d.chars); chars.forEach(c => { c.id = Number(c.id); }); fixDuplicateIds(); }
+      if (d.rejectedIds)    rejectedIds    = JSON.parse(d.rejectedIds).map(Number);
+      if (d.deletedIds)     deletedIds     = JSON.parse(d.deletedIds).map(Number);
+      if (d.deletedUserIds)   deletedUserIds   = JSON.parse(d.deletedUserIds).map(Number);
+      if (d.deletedUserNames) deletedUserNames = JSON.parse(d.deletedUserNames);
+      if (d.backup_chars) {
+        backups = JSON.parse(d.backup_chars);
+        console.log('[SW] load() — backup_chars do GAS:', backups.length, 'backups');
+      } else if (d.backups) {
+        backups = JSON.parse(d.backups);
+        console.log('[SW] load() — backups (campo legado) do GAS:', backups.length, 'backups');
+      } else {
+        const _lb = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups');
+        if (_lb) backups = JSON.parse(_lb);
+        console.log('[SW] load() — backup_chars do localStorage:', backups.length, 'backups (GAS não retornou o campo)');
+      }
+      if (d.pts)         pts      = JSON.parse(d.pts);
+      if (d.servers) {
+        const _saved = JSON.parse(d.servers);
+        const _merged = [..._saved];
+        DEFAULT_SERVERS.forEach(s => { if (!_merged.includes(s)) _merged.push(s); });
+        servers = _merged;
+      }
+      if (d.ranking_weekly) {
+        rankingWeekly = JSON.parse(d.ranking_weekly);
+        console.log('[SW] load() — ranking_weekly do GAS:', JSON.stringify(rankingWeekly));
+      } else {
+        const _lw = localStorage.getItem('sw_ranking_weekly');
+        if (_lw) rankingWeekly = JSON.parse(_lw);
+        console.log('[SW] load() — ranking_weekly do localStorage:', JSON.stringify(rankingWeekly));
+      }
+      if (d.ranking_alltime) {
+        rankingAllTime = JSON.parse(d.ranking_alltime);
+        console.log('[SW] load() — ranking_alltime do GAS:', JSON.stringify(rankingAllTime));
+      } else if (d.ranking) {
+        // Migração: campo legado → all-time
+        rankingAllTime = JSON.parse(d.ranking);
+        console.log('[SW] load() — ranking_alltime migrado do campo legado:', JSON.stringify(rankingAllTime));
+      } else {
+        const _la = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
+        if (_la) rankingAllTime = JSON.parse(_la);
+        console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
+      }
+      if (d.nextId)      nextId   = parseInt(d.nextId)||1;
+      if (d.members) {
+        const rawMembers = JSON.parse(d.members);
+        const { remoteUsers, remoteUserNextId, cleanMembers } = extractUsersFromMembers(rawMembers);
+        // Manter em members apenas "Leão" (ADM, não é um user registrado).
+        // Qualquer outro nome é gerenciado pelo array users ou é dado obsoleto.
+        // Nomes sem user correspondente (ex: "teste") são auto-tombstonados em deletedUserNames.
+        const ADM_EXTRAS   = new Set(['Leão']);
+        const allUserNames = new Set(remoteUsers.map(u => u.name));
+        const delNamesSet  = new Set(deletedUserNames);
+        members = cleanMembers.filter(m => {
+          if (delNamesSet.has(m))  return false;           // deletado permanentemente
+          if (ADM_EXTRAS.has(m))  return true;            // extra fixo do ADM
+          if (allUserNames.has(m)) return false;           // gerenciado pelo array users
+          // Nome desconhecido sem user: dado obsoleto — tombstonar e remover
+          deletedUserNames.push(m);
+          return false;
+        });
+        users      = remoteUsers;
+        userNextId = remoteUserNextId;
+      }
+    }
+  } catch(e) {
+    console.warn('[SW] load() falhou, usando localStorage:', e);
+    // fallback localStorage
+    const c  = localStorage.getItem('sw_chars');
+    const p  = localStorage.getItem('sw_pts');
+    const s  = localStorage.getItem('sw_servers');
+    const mb = localStorage.getItem('sw_members');
+    const n  = localStorage.getItem('sw_nextId');
+    const u  = localStorage.getItem('sw_users');
+    const un = localStorage.getItem('sw_userNextId');
+    const ri  = localStorage.getItem('sw_rejectedIds');
+    const di  = localStorage.getItem('sw_deletedIds');
+    const dui  = localStorage.getItem('sw_deletedUserIds');
+    const dun  = localStorage.getItem('sw_deletedUserNames');
+    if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
+    if(p)  pts=JSON.parse(p);
+    const rkW = localStorage.getItem('sw_ranking_weekly');
+    if(rkW) rankingWeekly=JSON.parse(rkW);
+    const rkA = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
+    if(rkA) rankingAllTime=JSON.parse(rkA);
+    if(s) { const _sv=JSON.parse(s); const _mg=[..._sv]; DEFAULT_SERVERS.forEach(d=>{ if(!_mg.includes(d)) _mg.push(d); }); servers=_mg; }
+    if(mb) members=JSON.parse(mb);
+    if(n)  nextId=parseInt(n)||1;
+    if(u)  { users=JSON.parse(u); users.forEach(x => { x.id = Number(x.id); }); }
+    if(un) userNextId=parseInt(un)||1;
+    if(ri)  rejectedIds    = JSON.parse(ri).map(Number);
+    if(di)  deletedIds     = JSON.parse(di).map(Number);
+    if(dui) deletedUserIds   = JSON.parse(dui).map(Number);
+    if(dun) deletedUserNames = JSON.parse(dun);
+    const bk = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups');
+    if(bk) backups=JSON.parse(bk);
+    showSync('Offline — dados locais', 'err');
+  }
+  // Migração automática: obs "CONTA N" → campo conta
+  let _migrated = false;
+  chars.forEach(c => {
+    if (!c.conta && c.obs) {
+      const _m = c.obs.trim().match(/^conta\s+([1-5])$/i);
+      if (_m) { c.conta = _m[1]; c.obs = ''; _migrated = true; }
+    }
+  });
+  if (_migrated) { console.log('[SW] Migração de conta concluída, salvando...'); save(); }
+
+  // Migração: renomear servidor "Grimoria" → "Grimoria I"
+  let _grimMigrated = false;
+  chars.forEach(c => {
+    if (c.server === 'Grimoria') { c.server = 'Grimoria I'; _grimMigrated = true; }
+  });
+  if (servers.includes('Grimoria')) {
+    servers = servers.filter(s => s !== 'Grimoria');
+    if (!servers.includes('Grimoria I')) servers.push('Grimoria I');
+    _grimMigrated = true;
+  }
+  if (_grimMigrated) { console.log('[SW] Migração Grimoria → Grimoria I concluída, salvando...'); save(); }
+
+  while(pts.length<3) pts.push([null,null,null,null,null]);
+  pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
+  showSync('', '');
+  renderChars();
+  renderRanking();
+  if (currentRole === 'adm') renderUsers();
+}
+
+const dataReady = load();
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='chars') renderChars();
+  else if(t==='pt') renderPT();
+  else if(t==='ranking') renderRanking();
+  else if(t==='users') renderUsers();
+  else if(t==='backup') renderBackups();
+}
+
+// ── FILTER AUTOCOMPLETE ───────────────────────────────────────────────────
+const FAC_OPTS = {
+  'filter-class':  ['ELITE KNIGHT','ELDER DRUID','MASTER SORCERER','ROYAL PALADIN','EXALTED MONK'],
+  'filter-server': [],
+  'filter-member': []
+};
+const FAC_LABEL = {
+  'filter-class':  'Todas as classes',
+  'filter-server': 'Todos os servidores',
+  'filter-member': 'Todos os membros'
+};
+const FAC_VAL = { 'filter-class':'', 'filter-server':'', 'filter-member':'' };
+const FAC_HI  = { 'filter-class':-1, 'filter-server':-1, 'filter-member':-1 };
+
+function facFiltered(id) {
+  const q = (document.getElementById(id).value || '').toLowerCase();
+  return FAC_OPTS[id].filter(o => o.toLowerCase().includes(q));
+}
+function facRender(id) {
+  const list = document.getElementById(id + '-list');
+  const opts = facFiltered(id);
+  FAC_HI[id] = -1;
+  list.innerHTML = '';
+  const reset = document.createElement('div');
+  reset.className = 'filter-ac-item ac-reset';
+  reset.textContent = FAC_LABEL[id];
+  reset.addEventListener('mousedown', e => { e.preventDefault(); facSelect(id, ''); });
+  list.appendChild(reset);
+  opts.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'filter-ac-item' + (o === FAC_VAL[id] ? ' ac-hi' : '');
+    div.textContent = o;
+    div.addEventListener('mousedown', e => { e.preventDefault(); facSelect(id, o); });
+    list.appendChild(div);
+  });
+}
+function facOpen(id) {
+  const list = document.getElementById(id + '-list');
+  if (!list.classList.contains('open')) {
+    document.getElementById(id).value = '';
+    facGhost(id, '');
+  }
+  facRender(id);
+  list.classList.add('open');
+}
+function facClose(id) {
+  document.getElementById(id + '-list').classList.remove('open');
+  document.getElementById(id).value = FAC_VAL[id];
+  facGhost(id, '');
+}
+function facInput(id) {
+  facRender(id);
+  document.getElementById(id + '-list').classList.add('open');
+  const q = document.getElementById(id).value;
+  if (q.length >= 3) {
+    const match = FAC_OPTS[id].find(o => o.toLowerCase().startsWith(q.toLowerCase()));
+    facGhost(id, match && match.length > q.length ? match : '');
+  } else {
+    facGhost(id, '');
+  }
+}
+function facGhost(id, suggestion) {
+  const ghost = document.getElementById(id + '-ghost');
+  const q = document.getElementById(id).value;
+  ghost.innerHTML = '';
+  if (suggestion && suggestion.length > q.length) {
+    const t = document.createElement('span');
+    t.style.color = 'transparent';
+    t.textContent = q;
+    const s = document.createElement('span');
+    s.textContent = suggestion.slice(q.length);
+    ghost.appendChild(t);
+    ghost.appendChild(s);
+  }
+}
+function facSelect(id, val) {
+  FAC_VAL[id] = val;
+  document.getElementById(id).value = val;
+  facGhost(id, '');
+  document.getElementById(id + '-list').classList.remove('open');
+  renderChars();
+}
+function facKey(e, id) {
+  const list = document.getElementById(id + '-list');
+  if (!list.classList.contains('open')) { facOpen(id); return; }
+  const items = [...list.querySelectorAll('.filter-ac-item:not(.ac-reset)')];
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    FAC_HI[id] = Math.min(FAC_HI[id] + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('ac-hi', i === FAC_HI[id]));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    FAC_HI[id] = Math.max(FAC_HI[id] - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('ac-hi', i === FAC_HI[id]));
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (FAC_HI[id] >= 0 && items[FAC_HI[id]]) {
+      facSelect(id, items[FAC_HI[id]].textContent);
+    } else {
+      const ghost = document.getElementById(id + '-ghost');
+      if (ghost.children[1]?.textContent) {
+        const full = document.getElementById(id).value + ghost.children[1].textContent;
+        const match = FAC_OPTS[id].find(o => o.toLowerCase() === full.toLowerCase());
+        if (match !== undefined) facSelect(id, match);
+      }
+    }
+  } else if (e.key === 'Tab') {
+    const ghost = document.getElementById(id + '-ghost');
+    if (ghost.children[1]?.textContent) {
+      e.preventDefault();
+      const full = document.getElementById(id).value + ghost.children[1].textContent;
+      const match = FAC_OPTS[id].find(o => o.toLowerCase() === full.toLowerCase());
+      if (match !== undefined) facSelect(id, match);
+    }
+  } else if (e.key === 'Escape') {
+    facClose(id);
+  }
+}
+
+// ── SERVER FILTER / SELECT ────────────────────────────────────────────────
+function populateServerSelects() {
+  // Atualiza opções dos filtros autocomplete
+  FAC_OPTS['filter-server'] = [...servers].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  FAC_OPTS['filter-member'] = getActiveMembers();
+  // Invalida seleção se o valor não existe mais
+  if (FAC_VAL['filter-server'] && !servers.includes(FAC_VAL['filter-server'])) {
+    FAC_VAL['filter-server'] = '';
+    document.getElementById('filter-server').value = '';
+  }
+  const activeMembers = getActiveMembers();
+  if (FAC_VAL['filter-member'] && !activeMembers.includes(FAC_VAL['filter-member'])) {
+    FAC_VAL['filter-member'] = '';
+    document.getElementById('filter-member').value = '';
+  }
+  // select de dono (membros) — mantido como <select> normal
+  const mo = document.getElementById('m-owner');
+  const curOwner = mo.value;
+  mo.innerHTML = '';
+  activeMembers.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    if (m === curOwner) o.selected = true;
+    mo.appendChild(o);
+  });
+  // select de servidor no form de add/edit
+  const ms = document.getElementById('m-server');
+  const cur2 = ms.value;
+  ms.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+  [...servers].sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    if (s === cur2) o.selected = true;
+    ms.appendChild(o);
+  });
+}
+
+// ── RENDER CHARS ──────────────────────────────────────────────────────────
+function renderChars() {
+  // Garantir que sentTo reflecte o estado real dos slots de PT
+  chars.forEach(c => {
+    const idx = pts.findIndex(pt => pt.includes(c.id));
+    c.sentTo = idx !== -1 ? idx : null;
+  });
+  populateServerSelects();
+  renderPending();
+  const q  = document.getElementById('search').value.toLowerCase();
+  const fc  = FAC_VAL['filter-class'];
+  const fs  = FAC_VAL['filter-server'];
+  const fm2 = FAC_VAL['filter-member'];
+  chars.forEach(c => { if (!c.status) c.status = 'approved'; });
+  const approvedCount = document.getElementById('approved-count');
+  if (approvedCount) approvedCount.textContent = chars.filter(c => c.status !== 'pending').length;
+  const list = chars.filter(c=>
+    c.status !== 'pending' &&
+    (!q||c.name.toLowerCase().includes(q)||c.owner.toLowerCase().includes(q))&&
+    (!fc||c.cls===fc)&&(!fs||c.server===fs)&&(!fm2||c.owner===fm2));
+  const tbody = document.getElementById('char-body');
+  const empty = document.getElementById('chars-empty');
+  tbody.innerHTML='';
+  empty.style.display = list.length?'none':'block';
+  list.forEach((c,i)=>{
+    const sent = c.sentTo!==null && c.sentTo!==undefined;
+    const canEdit = currentRole === 'adm' || (currentRole === 'user' && currentUser && c.owner === currentUser.name);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
+      <td class="owner-name">${esc(c.owner)}</td>
+      <td class="char-name">${esc(c.name)}</td>
+      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
+      <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
+      <td class="level-val">${c.level||'—'}</td>
+      <td class="server-val">${esc(c.server||'')}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
+        ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
+        <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  // Sincronizar visibilidade da coluna WhatsApp após render
+  const thWpp = document.getElementById('th-wpp');
+  const canSeeWpp = currentRole === 'adm' || currentRole === 'user';
+  if (thWpp) thWpp.style.display = canSeeWpp ? '' : 'none';
+  document.querySelectorAll('.td-wpp').forEach(el => el.style.display = canSeeWpp ? '' : 'none');
+}
+
+// ── RENDER PT ─────────────────────────────────────────────────────────────
+function renderPT() {
+  const grid=document.getElementById('pt-grid');
+  grid.innerHTML='';
+  pts.forEach((pt,pi)=>{
+    const card=document.createElement('div');
+    card.className=`pt-card ${PT_BORDER[pi]}`;
+    let slots='';
+    for(let s=0;s<5;s++){
+      const cid=pt[s];
+      const c=cid!=null?chars.find(x=>x.id===cid):null;
+      if(c){
+        const cc=CLASS_COLOR[c.cls];
+        slots+=`<div class="pt-slot">
+          <span class="slot-num">${s+1}</span>
+          <div class="slot-avatar" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${SHORT[c.cls]}</div>
+          <div class="slot-info">
+            <div class="slot-name">${esc(c.name)}</div>
+            <div class="slot-sub">${esc(c.owner)} · Lv ${c.level||'?'} · ${esc(c.server||'')}</div>
+          </div>
+          <button class="btn-remove" onclick="removeFromPT(${pi},${c.id})" title="Remover">✕</button>
+        </div>`;
+      } else {
+        slots+=`<div class="pt-slot">
+          <span class="slot-num">${s+1}</span>
+          <div class="slot-avatar" style="background:var(--surface2);border:1px dashed var(--border)"></div>
+          <span class="slot-empty">Slot vazio</span>
+        </div>`;
+      }
+    }
+    const filled=pt.filter(x=>x!=null).length;
+    const admFooter = currentRole === 'adm'
+      ? `<button class="btn-finalize" onclick="finalizePT(${pi})">⚔ Soulwar Finalizada</button>`
+      : '';
+    card.innerHTML=`
+      <div class="pt-card-header">
+        <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
+        <span class="pt-card-count">${filled}/5</span>
+      </div>${slots}${admFooter}`;
+    grid.appendChild(card);
+  });
+}
+
+// ── ADD CHAR ──────────────────────────────────────────────────────────────
+function openAddModal() {
+  populateServerSelects();
+  document.getElementById('m-name').value='';
+  document.getElementById('m-level').value='';
+  document.getElementById('m-obs').value='';
+  document.getElementById('m-conta').value='';
+  document.getElementById('m-phone').value='';
+  document.getElementById('m-class').value='';
+  document.getElementById('m-server').value='';
+
+  const ownerSel = document.getElementById('m-owner');
+  // Remover opções especiais residuais
+  ['Visitante'].forEach(v => {
+    const o = [...ownerSel.options].find(x => x.value === v);
+    if (o) ownerSel.remove(o.index);
+  });
+
+  if (currentRole === 'visitor') {
+    let visOpt = [...ownerSel.options].find(o => o.value === 'Visitante');
+    if (!visOpt) { visOpt = new Option('Visitante','Visitante'); ownerSel.add(visOpt,0); }
+    ownerSel.value = 'Visitante';
+    ownerSel.disabled = true;
+  } else if (currentRole === 'user') {
+    // Garantir que o nome do usuário está como opção
+    let userOpt = [...ownerSel.options].find(o => o.value === currentUser.name);
+    if (!userOpt) { userOpt = new Option(currentUser.name, currentUser.name); ownerSel.add(userOpt,0); }
+    ownerSel.value = currentUser.name;
+    ownerSel.disabled = true;
+  } else {
+    ownerSel.disabled = false;
+  }
+
+  const phoneGroup = document.getElementById('m-phone-group');
+  if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
+  const contaReq = document.getElementById('m-conta-req');
+  if (contaReq) {
+    contaReq.textContent = currentRole === 'visitor' ? '(opcional)' : '*';
+    contaReq.style.color = currentRole === 'visitor' ? 'var(--text-muted)' : '#e05252';
+  }
+  openModal('modal-add');
+  setTimeout(()=>document.getElementById('m-name').focus(),120);
+}
+function addChar() {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) { document.getElementById('m-name').focus(); return; }
+  const level = parseInt(document.getElementById('m-level').value) || 0;
+  if (level < 400) {
+    document.getElementById('m-level').focus();
+    toast('Level mínimo para cadastro é 400.', 'error');
+    return;
+  }
+  const conta = document.getElementById('m-conta').value;
+  if (currentRole !== 'visitor' && !conta) {
+    document.getElementById('m-conta').focus();
+    toast('Selecione a conta do personagem.', 'error');
+    return;
+  }
+  if (!document.getElementById('m-class').value) {
+    document.getElementById('m-class').focus();
+    toast('Selecione a classe do personagem.', 'error');
+    return;
+  }
+  if (!document.getElementById('m-server').value) {
+    document.getElementById('m-server').focus();
+    toast('Selecione o servidor do personagem.', 'error');
+    return;
+  }
+
+  // Usuário: aprovado direto com o próprio nome
+  if (currentRole === 'user') {
+    chars.push({
+      id:nextId++,
+      owner: currentUser.name,
+      name, cls: document.getElementById('m-class').value,
+      level: level,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      conta: conta || null,
+      phone: '',
+      status: 'approved',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast(`${name} adicionado!`, 'success');
+    return;
+  }
+
+  // Visitante precisa informar telefone
+  if (currentRole === 'visitor') {
+    const phone = document.getElementById('m-phone').value.trim();
+    if (!phone) {
+      document.getElementById('m-phone').focus();
+      toast('Informe seu WhatsApp para contato.', 'error');
+      return;
+    }
+    chars.push({
+      id:nextId++,
+      owner: document.getElementById('m-owner').value,
+      name, cls: document.getElementById('m-class').value,
+      level: level,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      conta: conta || null,
+      phone: phone,
+      status: 'pending',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast('Personagem enviado para aprovação!', 'success');
+    return;
+  }
+
+  // ADM: aprovado direto
+  chars.push({
+    id:nextId++,
+    owner: document.getElementById('m-owner').value,
+    name, cls: document.getElementById('m-class').value,
+    level: level,
+    server: document.getElementById('m-server').value,
+    obs: document.getElementById('m-obs').value.trim(),
+    conta: conta || null,
+    phone: '',
+    status: 'approved',
+    sentTo: null
+  });
+  save(); closeModal('modal-add'); renderChars();
+  toast(`${name} adicionado!`, 'success');
+}
+function openEditModal(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  editingCharId = id;
+  document.getElementById('e-name').value  = c.name;
+  document.getElementById('e-class').value = c.cls;
+  document.getElementById('e-level').value = c.level || '';
+  document.getElementById('e-obs').value   = c.obs || '';
+  document.getElementById('e-conta').value = c.conta || '';
+  // Preencher select de servidor
+  const eServer = document.getElementById('e-server');
+  eServer.innerHTML = '<option value="">Selecione...</option>';
+  [...servers].sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s; o.textContent = s;
+    if (s === c.server) o.selected = true;
+    eServer.appendChild(o);
+  });
+  openModal('modal-edit');
+  setTimeout(() => document.getElementById('e-name').focus(), 120);
+}
+
+function saveEdit() {
+  const c = chars.find(x => x.id === editingCharId);
+  if (!c) return;
+  const name = document.getElementById('e-name').value.trim();
+  if (!name) { document.getElementById('e-name').focus(); return; }
+  const level = parseInt(document.getElementById('e-level').value) || 0;
+  if (level < 400) {
+    document.getElementById('e-level').focus();
+    toast('Level mínimo é 400.', 'error');
+    return;
+  }
+  if (!document.getElementById('e-class').value) {
+    document.getElementById('e-class').focus();
+    toast('Selecione a classe do personagem.', 'error');
+    return;
+  }
+  if (!document.getElementById('e-server').value) {
+    document.getElementById('e-server').focus();
+    toast('Selecione o servidor do personagem.', 'error');
+    return;
+  }
+  c.name   = name;
+  c.cls    = document.getElementById('e-class').value;
+  c.level  = level;
+  c.server = document.getElementById('e-server').value;
+  c.obs    = document.getElementById('e-obs').value.trim();
+  c.conta  = document.getElementById('e-conta').value || null;
+  save(); closeModal('modal-edit'); renderChars();
+  toast(`${name} atualizado!`, 'success');
+}
+
+function deleteChar(id) {
+  const c=chars.find(x=>x.id===id);
+  if(!c) return;
+  if(!confirm(`Remover "${c.name}"?`)) return;
+  pts.forEach((pt,pi)=>{const idx=pt.indexOf(id);if(idx>-1)pts[pi][idx]=null;});
+  chars=chars.filter(x=>x.id!==id);
+  deletedIds.push(Number(id));
+  save(); renderChars();
+  toast(`${c.name} removido.`);
+}
+
+// ── SEND TO PT ────────────────────────────────────────────────────────────
+function openSendPT(id) {
+  const c=chars.find(x=>x.id===id);
+  if(!c||pts.some(pt=>pt.includes(c.id))) return;
+  pendingSendId=id; selectedPT=null;
+  document.getElementById('pt-char-name').textContent=`Personagem: ${c.name} (${SHORT[c.cls]})`;
+  const container=document.getElementById('pt-options');
+  container.innerHTML='';
+  pts.forEach((pt,pi)=>{
+    const count=pt.filter(x=>x!=null).length;
+    const full=count>=5;
+    const div=document.createElement('div');
+    div.className=`pt-option${full?' pt-option-full':''}`;
+    div.innerHTML=`
+      <div class="pt-option-color" style="background:${PT_COLORS[pi]}"></div>
+      <div class="pt-option-info">
+        <div class="pt-option-name">${PT_NAMES[pi]}</div>
+        <div class="pt-option-slots">${count}/5 personagens${full?' — Cheia':''}</div>
+      </div>
+      <span style="color:var(--text-muted);font-size:1rem">${full?'✗':'›'}</span>`;
+    if(!full) div.onclick=()=>{
+      document.querySelectorAll('.pt-option').forEach(el=>el.classList.remove('selected'));
+      div.classList.add('selected'); selectedPT=pi;
+    };
+    container.appendChild(div);
+  });
+  openModal('modal-pt');
+}
+function confirmSendPT() {
+  if(selectedPT===null){toast('Selecione uma PT!','error');return;}
+  const c=chars.find(x=>x.id===pendingSendId);
+  if(!c) return;
+  const slot=pts[selectedPT].findIndex(x=>x===null);
+  if(slot===-1){toast('PT cheia!','error');return;}
+  pts[selectedPT][slot]=c.id; c.sentTo=selectedPT;
+  save(); closeModal('modal-pt'); renderChars();
+  toast(`${c.name} → ${PT_NAMES[selectedPT]}!`,'success');
+}
+function finalizePT(pi) {
+  const ptIds = pts[pi].filter(x => x !== null);
+  if (!ptIds.length) { toast('PT vazia, nada para finalizar.', 'error'); return; }
+
+  const ptChars = ptIds.map(cid => chars.find(x => x.id === cid)).filter(Boolean);
+  const activeMembers = getActiveMembers().sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+  const tbody = document.getElementById('finalize-table-body');
+  tbody.innerHTML = '';
+  ptChars.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.className = 'finalize-char-row';
+    const options = activeMembers.map(m =>
+      `<option value="${esc(m)}"${m === c.owner ? ' selected' : ''}>${esc(m)}</option>`
+    ).join('');
+    tr.innerHTML = `
+      <td>
+        <div class="finalize-char-name">${esc(c.name)}</div>
+        <div class="finalize-char-sub"><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span> Lv ${c.level||'?'} · ${esc(c.owner)}</div>
+      </td>
+      <td style="text-align:right">
+        <select class="finalize-select" data-char-id="${c.id}">${options}</select>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  finalizingPTIndex = pi;
+  openModal('modal-finalize');
+}
+
+function confirmFinalize() {
+  const pi = finalizingPTIndex;
+  if (pi === null) return;
+
+  document.querySelectorAll('#finalize-table-body select').forEach(sel => {
+    const member = sel.value;
+    if (member) {
+      rankingWeekly[member]  = (rankingWeekly[member]  || 0) + 1;
+      rankingAllTime[member] = (rankingAllTime[member] || 0) + 1;
+    }
+  });
+
+  // Snapshot completo de chars antes de deletar
+  const _now = new Date();
+  const _ts = _now.toLocaleDateString('pt-BR') + ' ' + _now.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  backups = [{ ts: _ts, pt: PT_NAMES[pi], chars: JSON.parse(JSON.stringify(chars)) }, ...backups].slice(0, 5);
+
+  const ptIds = pts[pi].filter(x => x !== null);
+  const idSet = new Set(ptIds);
+  const names = ptIds.map(cid => { const c = chars.find(x => x.id === cid); return c ? c.name : ''; }).filter(Boolean);
+  chars = chars.filter(c => !idSet.has(c.id));
+  deletedIds.push(...ptIds);
+  pts[pi] = [null, null, null, null, null];
+  finalizingPTIndex = null;
+
+  closeModal('modal-finalize');
+  save(); renderPT(); renderChars(); renderRanking();
+  toast(`${PT_NAMES[pi]} finalizada! ${names.length} personagem(s) removido(s).`, 'success');
+}
+
+function removeFromPT(pi,cid) {
+  const idx=pts[pi].indexOf(cid);
+  if(idx>-1) pts[pi][idx]=null;
+  const c=chars.find(x=>x.id===cid);
+  if(c) c.sentTo=null;
+  save(); renderPT();
+}
+
+// ── SERVIDORES ────────────────────────────────────────────────────────────
+function openServerModal() {
+  renderServerList();
+  openModal('modal-servers');
+  setTimeout(()=>document.getElementById('new-server-input').focus(),120);
+}
+function renderServerList() {
+  const list=document.getElementById('server-list');
+  list.innerHTML='';
+  if(!servers.length){
+    list.innerHTML='<div style="color:var(--text-muted);font-style:italic;font-size:.9rem">Nenhum servidor cadastrado.</div>';
+    return;
+  }
+  servers.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='server-item';
+    div.innerHTML=`<span>${esc(s)}</span>
+      <button class="btn-del" onclick="removeServer(${i})" title="Remover servidor">✕</button>`;
+    list.appendChild(div);
+  });
+}
+function addServer() {
+  const inp=document.getElementById('new-server-input');
+  const name=inp.value.trim();
+  if(!name) return;
+  if(servers.includes(name)){toast('Servidor já existe.','error');return;}
+  servers.push(name);
+  inp.value='';
+  save(); renderServerList(); populateServerSelects();
+  toast(`${name} adicionado!`,'success');
+}
+function removeServer(i) {
+  const name=servers[i];
+  if(chars.some(c=>c.server===name)){
+    toast('Servidor em uso por algum personagem.','error'); return;
+  }
+  servers.splice(i,1);
+  save(); renderServerList(); populateServerSelects();
+  toast(`${name} removido.`);
+}
+
+
+
+
+// ── PENDENTES ─────────────────────────────────────────────────────────────
+function renderPending() {
+  const pending = chars.filter(c => c.status === 'pending');
+  const section = document.getElementById('pending-section');
+  const tbody   = document.getElementById('pending-body');
+  const count   = document.getElementById('pending-count');
+
+  // Visitante e ADM veem pendentes, mas visitante não tem botões de ação
+  if (pending.length === 0) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  count.textContent = pending.length;
+  tbody.innerHTML = '';
+
+  pending.forEach(c => {
+    const phone = c.phone ? c.phone.replace(/\D/g,'') : '';
+    const wppUrl = phone ? `https://wa.me/55${phone}` : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
+      <td class="char-name">${esc(c.name)}</td>
+      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
+      <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
+      <td class="level-val">${c.level||'—'}</td>
+      <td class="server-val">${esc(c.server||'')}</td>
+      <td>${(currentRole === 'adm' || currentRole === 'user') && wppUrl
+        ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
+        : (currentRole === 'adm' || currentRole === 'user') ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
+      </td>
+      <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
+      <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
+        <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
+        <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
+        <span class="visitor-pending-label" style="font-size:.75rem;color:var(--text-muted);font-style:italic">Aguardando ADM</span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function approveChar(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  c.status = 'approved';
+  save(); renderChars();
+  toast(`${c.name} aprovado!`, 'success');
+}
+
+function rejectChar(id) {
+  const c = chars.find(x => x.id === id);
+  if (!c) return;
+  if (!confirm(`Recusar "${c.name}" de ${c.owner}?`)) return;
+  rejectedIds.push(Number(id));
+  chars = chars.filter(x => x.id !== id);
+  save(); renderChars();
+  toast(`Personagem recusado.`);
+}
+
+
+// ── USUÁRIOS (ADM) ────────────────────────────────────────────────────────
+function renderUsers() {
+  const pending  = users.filter(u => u.status === 'pending');
+  const rest     = users.filter(u => u.status !== 'pending');
+
+  const pendingSec   = document.getElementById('users-pending-section');
+  const pendingCount = document.getElementById('users-pending-count');
+  const pendingBody  = document.getElementById('users-pending-body');
+
+  if (pending.length) {
+    pendingSec.style.display = 'block';
+    pendingCount.textContent = pending.length;
+    pendingBody.innerHTML = '';
+    pending.forEach(u => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="char-name">${esc(u.name)}</td>
+        <td><span class="badge-pending">Pendente</span></td>
+        <td style="text-align:right;white-space:nowrap">
+          <button class="btn-approve" data-uid="${u.id}" title="Aprovar">✓</button>
+          <button class="btn-reject"  data-uid="${u.id}" title="Recusar">✕</button>
+          <button class="btn-delete-user" data-uid="${u.id}" title="Deletar permanentemente">🗑️</button>
+        </td>`;
+      pendingBody.appendChild(tr);
+    });
+  } else {
+    pendingSec.style.display = 'none';
+  }
+
+  const approvedCount = document.getElementById('users-approved-count');
+  const listBody      = document.getElementById('users-list-body');
+  const usersEmpty    = document.getElementById('users-empty');
+
+  approvedCount.textContent = users.filter(u => u.status === 'approved').length;
+  listBody.innerHTML = '';
+
+  if (!rest.length) { usersEmpty.style.display = 'block'; return; }
+  usersEmpty.style.display = 'none';
+
+  rest.forEach((u, i) => {
+    const approved = u.status === 'approved';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
+      <td class="char-name">${esc(u.name)}</td>
+      <td>${approved
+        ? '<span class="badge-approved-user">Aprovado</span>'
+        : '<span class="badge-rejected">Recusado</span>'}</td>
+      <td style="text-align:right;white-space:nowrap">
+        ${approved
+          ? `<button class="btn-reject"  data-uid="${u.id}" title="Revogar acesso">✕</button>`
+          : `<button class="btn-approve" data-uid="${u.id}" title="Reativar">✓</button>`}
+        <button class="btn-delete-user" data-uid="${u.id}" title="Deletar permanentemente">🗑️</button>
+      </td>`;
+    listBody.appendChild(tr);
+  });
+}
+
+function approveUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'approved';
+  // Sem members.push — getActiveMembers() inclui users aprovados automaticamente
+  save(); renderUsers(); populateServerSelects();
+  toast(`${u.name} aprovado!`, 'success');
+}
+
+function rejectUser(id) {
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (u.status === 'approved' && !confirm(`Revogar acesso de "${u.name}"?`)) return;
+  if (u.status === 'pending'  && !confirm(`Recusar cadastro de "${u.name}"?`)) return;
+  u.status = 'rejected';
+  save(); renderUsers();
+  toast(`Usuário recusado.`);
+}
+
+function deleteUser(id) {
+  if (currentRole !== 'adm') return;
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm(`Deletar permanentemente "${u.name}"? Esta ação não pode ser desfeita.`)) return;
+  deletedUserIds.push(Number(id));
+  deletedUserNames.push(u.name);
+  members = members.filter(m => m !== u.name);
+  users = users.filter(x => x.id !== id);
+  save(); renderUsers(); populateServerSelects();
+  toast(`${u.name} removido permanentemente.`);
+}
+
+// ── RECOMENDAÇÃO PT ───────────────────────────────────────────────────────
+let lastRecommend = null; // guarda o resultado pra aplicar depois
+
+function runRecommend() {
+  const list = document.getElementById('recommend-member-list');
+  list.innerHTML = '';
+  const activeMembers = getActiveMembers();
+  if (!activeMembers.length) { toast('Nenhum membro cadastrado.', 'error'); return; }
+  activeMembers.forEach(m => {
+    const label = document.createElement('label');
+    label.className = 'member-check-label';
+    label.innerHTML = `<input type="checkbox" value="${esc(m)}"> ${esc(m)}`;
+    list.appendChild(label);
+  });
+  // Resetar busca de membros
+  const search = document.getElementById('recommend-member-search');
+  if (search) { search.value = ''; filterMemberList(''); }
+  // Resetar campo de servidor
+  const srvInput = document.getElementById('recommend-server-input');
+  if (srvInput) srvInput.value = '';
+  closeServerList();
+  openModal('modal-recommend');
+}
+
+function filterMemberList(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('#recommend-member-list .member-check-label').forEach(label => {
+    const name = label.textContent.trim().toLowerCase();
+    label.style.display = (!q || name.includes(q)) ? '' : 'none';
+  });
+}
+
+function openServerList() {
+  filterServerList(document.getElementById('recommend-server-input')?.value || '');
+}
+function closeServerList() {
+  const dl = document.getElementById('recommend-server-list');
+  if (dl) dl.style.display = 'none';
+}
+function filterServerList(query) {
+  const dl = document.getElementById('recommend-server-list');
+  if (!dl) return;
+  const q = query.trim().toLowerCase();
+  const matches = servers.filter(s => !q || s.toLowerCase().includes(q)).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  if (!matches.length) { dl.style.display = 'none'; return; }
+  dl.innerHTML = '';
+  matches.forEach(s => {
+    const div = document.createElement('div');
+    div.textContent = s;
+    div.style.cssText = 'padding:.4rem .75rem;cursor:pointer;font-family:\'Crimson Pro\',serif;font-size:.9rem;color:var(--text);transition:background .1s';
+    div.onmouseenter = () => div.style.background = 'rgba(201,146,42,.1)';
+    div.onmouseleave = () => div.style.background = '';
+    div.addEventListener('mousedown', (e) => {
+      e.preventDefault();   // impede blur no input e cancela o click subsequente
+      e.stopPropagation();  // não borbulha até o overlay do modal
+      document.getElementById('recommend-server-input').value = s;
+      closeServerList();
+    });
+    dl.appendChild(div);
+  });
+  dl.style.display = 'block';
+}
+
+function selectAllMembers(val) {
+  document.querySelectorAll('#recommend-member-list input[type=checkbox]').forEach(cb => cb.checked = val);
+}
+
+function confirmRecommend() {
+  const selected = [...document.querySelectorAll('#recommend-member-list input[type=checkbox]')]
+    .filter(cb => cb.checked).map(cb => cb.value);
+  if (!selected.length) { toast('Selecione pelo menos um membro.', 'error'); return; }
+  const preferredServer = (document.getElementById('recommend-server-input')?.value || '').trim();
+  closeModal('modal-recommend');
+  buildRecommendation(selected, preferredServer);
+}
+
+// Tenta montar a melhor PT para os membros selecionados
+function buildRecommendation(selectedMembers, preferredServer = '') {
+  const memberSet = new Set(selectedMembers);
+
+  const available = chars.filter(c =>
+    (c.status === 'approved' || !c.status) && memberSet.has(c.owner)
+  );
+
+  const serverGroups = {};
+  available.forEach(c => {
+    const srv = c.server || '(sem servidor)';
+    if (!serverGroups[srv]) serverGroups[srv] = [];
+    serverGroups[srv].push(c);
+  });
+
+  // --- debug logs ---
+  const membersWithChars = new Set(available.map(c => c.owner));
+  const membersWithout   = selectedMembers.filter(m => !membersWithChars.has(m));
+  console.log(`[SW] buildRecommendation — membros selecionados: [${selectedMembers.join(', ')}]`);
+  if (membersWithout.length)
+    console.log(`[SW] Membros sem personagem (ignorados): [${membersWithout.join(', ')}]`);
+  console.log(`[SW] Total de personagens disponíveis: ${available.length}`);
+  Object.entries(serverGroups).forEach(([srv, group]) => {
+    const fmt = cls => group.filter(c => c.cls === cls)
+      .map(c => `${c.name}(${c.owner})`).join(', ') || '—';
+    const fifth = group.filter(c => c.cls !== 'ELITE KNIGHT')
+      .map(c => `${c.name}(${c.owner})`).join(', ') || '—';
+    console.log(
+      `[SW] ${srv} — EK: [${fmt('ELITE KNIGHT')}] | RP: [${fmt('ROYAL PALADIN')}]` +
+      ` | MS: [${fmt('MASTER SORCERER')}] | ED: [${fmt('ELDER DRUID')}]` +
+      ` | não-EK candidatos: [${fifth}] | total: ${group.length}`
+    );
+  });
+  // --- fim dos debug logs ---
+
+  // Busca a melhor PT dentro de uma lista de servidores, com relaxamento automático.
+  // Tenta 1 char/membro → 2 → sem limite (para quando poucos membros têm personagens).
+  const searchIn = (srvList) => {
+    for (const maxPerMember of [1, 2, Infinity]) {
+      let best = null, bestStd = Infinity, bestSrv = '';
+      for (const srv of srvList) {
+        if (!serverGroups[srv]) {
+          console.log(`[SW] searchIn(maxPerMember=${maxPerMember}) — ${srv}: sem personagens neste servidor`);
+          continue;
+        }
+        const r = tryFormPT(serverGroups[srv], maxPerMember);
+        console.log(`[SW] searchIn(maxPerMember=${maxPerMember === Infinity ? '∞' : maxPerMember}) — ${srv}: ${r ? `PT encontrada (std=${r.std.toFixed(1)})` : 'sem PT válida'}`);
+        if (r && r.std < bestStd) { bestStd = r.std; best = r.team; bestSrv = srv; }
+      }
+      if (best) return { team: best, std: bestStd, server: bestSrv };
+    }
+    return null;
+  };
+
+  const allServers = Object.keys(serverGroups);
+  // Tentar servidor preferido primeiro; se falhar, tentar os demais
+  let found = preferredServer ? searchIn([preferredServer]) : null;
+  const usedFallback = preferredServer && !found;
+  if (!found) {
+    const rest = preferredServer ? allServers.filter(s => s !== preferredServer) : allServers;
+    found = searchIn(rest);
+  }
+
+  const bestTeamGlobal  = found?.team   ?? null;
+  const bestStdGlobal   = found?.std    ?? Infinity;
+  const bestServerName  = found?.server ?? '';
+
+  if (!bestTeamGlobal) {
+    const allServers = [...new Set(available.map(c => c.server || '(sem servidor)'))];
+    const detail = allServers.length ? allServers.map(srv => {
+      const g = available.filter(c => (c.server || '(sem servidor)') === srv);
+      const ek = g.filter(c => c.cls === 'ELITE KNIGHT').length;
+      const rp = g.filter(c => c.cls === 'ROYAL PALADIN').length;
+      const ms = g.filter(c => c.cls === 'MASTER SORCERER').length;
+      const ed = g.filter(c => c.cls === 'ELDER DRUID').length;
+      const miss = [];
+      if (ek < 1) miss.push('1 EK'); if (rp < 1) miss.push('1 RP');
+      if (ms < 1) miss.push('1 MS'); if (ed < 1) miss.push('1 ED');
+      if (!miss.length) {
+        // Todos os 4 obrigatórios existem — o problema é o 5º slot
+        const nonEkTotal = g.filter(c => c.cls !== 'ELITE KNIGHT').length;
+        // Se todos os não-EK disponíveis são exatamente os 3 slots obrigatórios (RP+MS+ED),
+        // não sobra nenhum para o 5º. Se há mais, o limite maxPerMember foi o gargalo.
+        if (nonEkTotal <= (rp + ms + ed)) {
+          miss.push('5º player não-EK (todos os não-EK já usados nos slots RP/MS/ED)');
+        } else {
+          miss.push('5º player não-EK (restrição de chars por membro)');
+        }
+      }
+      return `<b>${esc(srv)}</b>: falta ${miss.join(', ')} [EK:${ek} RP:${rp} MS:${ms} ED:${ed}]`;
+    }).join('<br>') : 'Nenhum personagem disponível para os membros selecionados.';
+    document.getElementById('rec-result-body').innerHTML =
+      `<div style="color:#e05252">⚠ Não foi possível montar PT com os membros selecionados.<br><br>${detail}</div>`;
+    document.getElementById('rec-result').classList.add('show');
+    document.querySelector('.rec-result-footer').style.display = 'none';
+    lastRecommend = null;
+    return;
+  }
+
+  lastRecommend = bestTeamGlobal;
+  const avg   = Math.round(bestTeamGlobal.map(c => c.level || 0).reduce((a, b) => a + b, 0) / 5);
+  const lines = bestTeamGlobal.map(c =>
+    `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level || '?'} — ${esc(c.owner)}</div>`
+  ).join('');
+  const fallbackWarn = usedFallback
+    ? `<div style="color:#e07b35;font-size:.8rem;margin-bottom:.7rem">⚠ ${esc(preferredServer)} não tinha PT completa — recomendando com personagens de <b>${esc(bestServerName)}</b>.</div>`
+    : '';
+  document.getElementById('rec-result-body').innerHTML =
+    `${fallbackWarn}<div style="font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem">SERVIDOR: ${esc(bestServerName)}</div>${lines}<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(bestStdGlobal)}</b></div>`;
+  document.querySelector('.rec-result-footer').style.display = 'flex';
+  document.getElementById('rec-result').classList.add('show');
+
+  // ── Dicas ────────────────────────────────────────────────────────────────
+  const tipsEl = document.getElementById('rec-result-tips');
+  const membersInPT   = new Set(bestTeamGlobal.map(c => c.owner));
+  const withoutChar   = selectedMembers.filter(m => !membersInPT.has(m));
+  const countPerMember = {};
+  bestTeamGlobal.forEach(c => { countPerMember[c.owner] = (countPerMember[c.owner] || 0) + 1; });
+  const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
+
+  if (!withoutChar.length && !multiChar.length) {
+    tipsEl.style.display = 'none';
+  } else {
+    const items = [];
+
+    // Dicas combinadas: cruzar membros sem char × membros com 2+ chars
+    if (withoutChar.length && multiChar.length) {
+      withoutChar.forEach(wo => {
+        multiChar.forEach(([mc, n]) => {
+          items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT. <b>${esc(mc)}</b> está com ${n} personagens — considere passar um para <b>${esc(wo)}</b>.`);
+        });
+      });
+    } else {
+      // Só sem-char
+      withoutChar.forEach(wo => {
+        items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT.`);
+      });
+      // Só multi-char
+      multiChar.forEach(([mc, n]) => {
+        items.push(`ℹ <b>${esc(mc)}</b> está com ${n} personagens na PT.`);
+      });
+    }
+
+    tipsEl.innerHTML =
+      `<div class="rec-result-tips-title">💡 Dicas</div>` +
+      items.map(i => `<div class="rec-result-tips-item">${i}</div>`).join('');
+    tipsEl.style.display = 'block';
+  }
+}
+
+// Busca a melhor combinação EK+RP+MS+ED+5º no grupo respeitando maxPerMember por dono
+function tryFormPT(group, maxPerMember) {
+  const sortLv = arr => [...arr].sort((a, b) => (b.level || 0) - (a.level || 0));
+
+  const EKs    = sortLv(group.filter(c => c.cls === 'ELITE KNIGHT')).slice(0, 7);
+  const RPs    = sortLv(group.filter(c => c.cls === 'ROYAL PALADIN')).slice(0, 7);
+  const MSs    = sortLv(group.filter(c => c.cls === 'MASTER SORCERER')).slice(0, 7);
+  const EDs    = sortLv(group.filter(c => c.cls === 'ELDER DRUID')).slice(0, 7);
+  const nonEKs = sortLv(group.filter(c => c.cls !== 'ELITE KNIGHT'));
+
+  if (!EKs.length || !RPs.length || !MSs.length || !EDs.length) return null;
+
+  // Verifica maxPerMember e restrição de conta (mesmo dono + mesma conta = bloqueado)
+  const canAdd = (char, team) => {
+    const ownerChars = team.filter(c => c.owner === char.owner);
+    if (ownerChars.length >= maxPerMember) return false;
+    if (char.conta && ownerChars.some(c => c.conta === char.conta)) return false;
+    return true;
+  };
+
+  let best = null, bestStd = Infinity;
+
+  for (const ek of EKs) {
+    for (const rp of RPs) {
+      if (rp.id === ek.id || !canAdd(rp, [ek])) continue;
+      for (const ms of MSs) {
+        if ([ek.id, rp.id].includes(ms.id) || !canAdd(ms, [ek, rp])) continue;
+        for (const ed of EDs) {
+          if ([ek.id, rp.id, ms.id].includes(ed.id) || !canAdd(ed, [ek, rp, ms])) continue;
+          const used  = new Set([ek.id, rp.id, ms.id, ed.id]);
+          const base  = [ek, rp, ms, ed];
+          // 5º slot: sem restrição de maxPerMember, mas respeita a restrição de conta
+          const fifth = nonEKs.find(c =>
+            !used.has(c.id) &&
+            !(c.conta && base.some(b => b.owner === c.owner && b.conta === c.conta))
+          );
+          if (!fifth) continue;
+
+          const team   = [ek, rp, ms, ed, fifth];
+          const levels = team.map(c => c.level || 0);
+          const avg    = levels.reduce((a, b) => a + b, 0) / 5;
+          const std    = Math.sqrt(levels.map(x => (x - avg) ** 2).reduce((a, b) => a + b, 0) / 5);
+          if (std < bestStd) { bestStd = std; best = team; }
+        }
+      }
+    }
+  }
+
+  return best ? { team: best, std: bestStd } : null;
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────────
+function switchRankTab(tab, btn) {
+  document.querySelectorAll('.rank-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.rank-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rank-panel-' + tab).classList.add('active');
+}
+
+function renderRankingTable(tbodyId, data) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  const medals = ['🥇', '🥈', '🥉'];
+  const activeMembers = getActiveMembers();
+  const allNames = new Set([...activeMembers, ...Object.keys(data)]);
+  const sorted = [...allNames]
+    .map(m => ({ name: m, count: data[m] || 0 }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'pt-BR'));
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="2" class="rank-empty">Nenhum registro ainda.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = '';
+  sorted.forEach((entry, i) => {
+    const rank = i + 1;
+    const tr = document.createElement('tr');
+    tr.className = rank <= 3 ? `rank-${rank}` : '';
+    const label = rank <= 3 ? medals[i] : `#${rank}`;
+    const sw = entry.count === 1 ? '1 soulwar' : `${entry.count} soulwars`;
+    tr.innerHTML = `
+      <td class="rank-pos">${label}</td>
+      <td><div class="rank-cell">
+        <span class="rank-name">${esc(entry.name)}</span>
+        <span class="rank-badge">— ${sw}</span>
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderRanking() {
+  renderRankingTable('ranking-weekly-body',  rankingWeekly);
+  renderRankingTable('ranking-alltime-body', rankingAllTime);
+  const isAdm = currentRole === 'adm';
+  const btnW = document.getElementById('btn-reset-weekly');
+  const btnA = document.getElementById('btn-reset-alltime');
+  if (btnW) btnW.style.display = isAdm ? '' : 'none';
+  if (btnA) btnA.style.display = isAdm ? '' : 'none';
+}
+
+function resetWeeklyRanking() {
+  if (currentRole !== 'adm') return;
+  if (!confirm('Resetar o Ranking Semanal? Todos os pontos da semana serão zerados.')) return;
+  rankingWeekly = {};
+  save(); renderRanking();
+  toast('Ranking Semanal resetado.', 'success');
+}
+
+function resetAllTimeRanking() {
+  if (currentRole !== 'adm') return;
+  if (!confirm('Resetar o Ranking All-Time? Esta ação não pode ser desfeita.')) return;
+  rankingAllTime = {};
+  save(); renderRanking();
+  toast('Ranking All-Time resetado.', 'success');
+}
+
+function clearRecommend() {
+  lastRecommend = null;
+  document.getElementById('rec-result').classList.remove('show');
+  const tipsEl = document.getElementById('rec-result-tips');
+  if (tipsEl) { tipsEl.style.display = 'none'; tipsEl.innerHTML = ''; }
+}
+
+function applyRecommend() {
+  if (!lastRecommend) return;
+
+  // Verificar se alguma PT tem slots ocupados
+  const anyOccupied = pts.some(pt => pt.some(x => x !== null));
+
+  if (anyOccupied) {
+    if (!confirm('Já existem personagens nos slots da PT. Deseja substituir tudo pela recomendação?')) return;
+  }
+
+  // Limpar todas as PTs e remover sentTo dos chars afetados
+  pts.forEach((pt, pi) => {
+    pt.forEach(cid => {
+      if (cid !== null) {
+        const c = chars.find(x => x.id === cid);
+        if (c) c.sentTo = null;
+      }
+      pts[pi] = [null, null, null, null, null];
+    });
+  });
+
+  // Alocar os 5 recomendados na PT 1
+  lastRecommend.forEach((c, i) => {
+    pts[0][i] = c.id;
+    c.sentTo = 0;
+  });
+
+  save();
+  clearRecommend();
+  renderPT();
+  toast('PT recomendada aplicada nos slots!', 'success');
+}
+
+
+// ── BACKUP ────────────────────────────────────────────────────────────────
+function renderBackups() {
+  const list  = document.getElementById('backup-list');
+  const count = document.getElementById('backup-count');
+  if (count) count.textContent = backups.length;
+  if (!backups.length) {
+    list.innerHTML = '<div class="empty">Nenhum backup disponível. Os backups são criados ao confirmar "Soulwar Finalizada".</div>';
+    return;
+  }
+  list.innerHTML = '';
+  backups.forEach((b, i) => {
+    const div = document.createElement('div');
+    div.className = 'backup-item';
+    const ptLabel = b.pt ? `<span class="backup-pt">⚔ ${esc(b.pt)}</span>` : '';
+    const restoreBtn = currentRole === 'adm'
+      ? `<button class="btn-confirm" onclick="restoreBackup(${i})">↩ Restaurar</button>`
+      : '';
+    div.innerHTML = `
+      <div class="backup-meta">
+        <span class="backup-ts">📅 ${esc(b.ts)}</span>
+        ${ptLabel}
+        <span class="backup-count">${b.chars.length} personagem${b.chars.length !== 1 ? 's' : ''}</span>
+      </div>
+      ${restoreBtn}`;
+    list.appendChild(div);
+  });
+}
+
+function restoreBackup(idx) {
+  if (currentRole !== 'adm') return;
+  const b = backups[idx];
+  if (!b) return;
+  if (!confirm(`Restaurar personagens do backup de ${b.ts}?\n\nOs personagens atuais serão substituídos pelos ${b.chars.length} personagem(s) deste backup.`)) return;
+  chars = JSON.parse(JSON.stringify(b.chars));
+  chars.forEach(c => { c.id = Number(c.id); });
+  fixDuplicateIds();
+  // Limpar PTs cujos chars não existem mais no backup
+  const charIds = new Set(chars.map(c => c.id));
+  pts.forEach((pt, pi) => {
+    pts[pi] = pt.map(cid => (cid !== null && charIds.has(cid)) ? cid : null);
+  });
+  // Sincronizar sentTo com estado real das PTs
+  chars.forEach(c => {
+    c.sentTo = null;
+    pts.forEach((pt, pi) => { if (pt.includes(c.id)) c.sentTo = pi; });
+  });
+  save();
+  renderChars();
+  toast(`Backup de ${b.ts} restaurado!`, 'success');
+}
+
+// ── EVENT DELEGATION para botões de delete/approve/reject ─────────────────
+document.addEventListener('click', function(e) {
+  // Edit char
+  const editBtn = e.target.closest('.btn-edit[data-eid]');
+  if (editBtn) { e.stopPropagation(); openEditModal(parseInt(editBtn.dataset.eid)); return; }
+  // Delete char
+  const delBtn = e.target.closest('.btn-del[data-id]');
+  if (delBtn) { e.stopPropagation(); deleteChar(parseInt(delBtn.dataset.id)); return; }
+  // Approve char
+  const appBtn = e.target.closest('.btn-approve[data-id]');
+  if (appBtn) { e.stopPropagation(); approveChar(parseInt(appBtn.dataset.id)); return; }
+  // Reject char
+  const rejBtn = e.target.closest('.btn-reject[data-id]');
+  if (rejBtn) { e.stopPropagation(); rejectChar(parseInt(rejBtn.dataset.id)); return; }
+  // Approve user
+  const appUser = e.target.closest('.btn-approve[data-uid]');
+  if (appUser) { e.stopPropagation(); approveUser(parseInt(appUser.dataset.uid)); return; }
+  // Reject user
+  const rejUser = e.target.closest('.btn-reject[data-uid]');
+  if (rejUser) { e.stopPropagation(); rejectUser(parseInt(rejUser.dataset.uid)); return; }
+  // Delete user permanently
+  const delUser = e.target.closest('.btn-delete-user[data-uid]');
+  if (delUser) { e.stopPropagation(); deleteUser(parseInt(delUser.dataset.uid)); return; }
+});
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay').forEach(el=>el.classList.remove('open'));
+});
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let toastTimer;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show '+(type||'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+</script>
+</body>
+</html>
