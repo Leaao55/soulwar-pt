@@ -2422,13 +2422,20 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
 
 // Busca a melhor combinação EK+RP+MS+ED+5º no grupo respeitando maxPerMember por dono
 function tryFormPT(group, maxPerMember) {
-  const sortLv = arr => [...arr].sort((a, b) => (b.level || 0) - (a.level || 0));
+  const ownerCharCount = {};
+  group.forEach(c => { ownerCharCount[c.owner] = (ownerCharCount[c.owner] || 0) + 1; });
 
-  const EKs    = sortLv(group.filter(c => c.cls === 'ELITE KNIGHT')).slice(0, 7);
-  const RPs    = sortLv(group.filter(c => c.cls === 'ROYAL PALADIN')).slice(0, 7);
-  const MSs    = sortLv(group.filter(c => c.cls === 'MASTER SORCERER')).slice(0, 7);
-  const EDs    = sortLv(group.filter(c => c.cls === 'ELDER DRUID')).slice(0, 7);
-  const nonEKs = sortLv(group.filter(c => c.cls !== 'ELITE KNIGHT'));
+  const sortPriority = arr => [...arr].sort((a, b) => {
+    const diff = (ownerCharCount[a.owner] || 0) - (ownerCharCount[b.owner] || 0);
+    if (diff !== 0) return diff;
+    return (b.level || 0) - (a.level || 0);
+  });
+
+  const EKs    = sortPriority(group.filter(c => c.cls === 'ELITE KNIGHT')).slice(0, 7);
+  const RPs    = sortPriority(group.filter(c => c.cls === 'ROYAL PALADIN')).slice(0, 7);
+  const MSs    = sortPriority(group.filter(c => c.cls === 'MASTER SORCERER')).slice(0, 7);
+  const EDs    = sortPriority(group.filter(c => c.cls === 'ELDER DRUID')).slice(0, 7);
+  const nonEKs = sortPriority(group.filter(c => c.cls !== 'ELITE KNIGHT'));
 
   if (!EKs.length || !RPs.length || !MSs.length || !EDs.length) return null;
 
