@@ -453,6 +453,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>
 </head>
 <body>
+<div id="test-mode-banner" style="display:none;position:fixed;top:0;left:0;z-index:9999;background:#6b1a1a;color:#fff;font-size:.72rem;font-family:monospace;padding:.3rem .7rem;border-bottom-right-radius:6px;pointer-events:none">🧪 MODO TESTE — alterações não são salvas no Sheets</div>
+<script>if(typeof TEST_MODE!=='undefined'&&TEST_MODE)document.getElementById('test-mode-banner').style.display='';</script>
 
 <!-- ══ APP ════════════════════════════════════════════════════════════════ -->
 
@@ -609,9 +611,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         </div>
         <!-- Painel Semanal -->
         <div class="rank-panel active" id="rank-panel-weekly">
-          <div class="ranking-section-header">
-            <span class="ranking-prize">🏆 1º lugar ganha 250 RC</span>
-            <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
+          <div class="ranking-section-header" style="justify-content:center">
+            <span class="ranking-prize" style="display:block;text-align:center;width:100%">🏆 1º lugar ganha 250 RC</span>
           </div>
           <div class="table-wrap">
             <table>
@@ -619,17 +620,20 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
               <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
             </table>
           </div>
+          <div style="text-align:right;margin-top:.75rem">
+            <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
+          </div>
         </div>
         <!-- Painel All-Time -->
         <div class="rank-panel" id="rank-panel-alltime">
-          <div class="ranking-section-header" style="justify-content:flex-end">
-            <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
-          </div>
           <div class="table-wrap">
             <table>
               <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
               <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
             </table>
+          </div>
+          <div style="text-align:right;margin-top:.75rem">
+            <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
           </div>
         </div>
       </div>
@@ -828,11 +832,11 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 </div>
 
 
-<!-- MODAL: CONFIRMAR SOULWAR FINALIZADA -->
+<!-- MODAL: CONFIRMAR SOULWAR FINALIZADA / CONFIRMAR PT -->
 <div class="modal-overlay" id="modal-finalize" onclick="if(event.target===this)closeModal('modal-finalize')">
   <div class="modal">
-    <h2>⚔ Soulwar Finalizada</h2>
-    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+    <h2 id="finalize-modal-title">⚔ Soulwar Finalizada</h2>
+    <p id="finalize-modal-desc" style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
       Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto
       (útil quando o char foi emprestado).
     </p>
@@ -849,7 +853,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-finalize')">Cancelar</button>
-      <button class="btn-confirm" onclick="confirmFinalize()">✓ Confirmar e Finalizar</button>
+      <button class="btn-confirm" id="finalize-modal-confirm-btn" onclick="onFinalizeModalConfirm()">✓ Confirmar e Finalizar</button>
     </div>
   </div>
 </div>
@@ -1062,7 +1066,12 @@ let pendingSendId    = null;
 let selectedPT       = null;
 let editingCharId    = null;
 let finalizingPTIndex = null;
+let finalizeModalMode   = 'finalize'; // 'finalize' | 'apply'
+let pendingRepasseMap   = {};
+let lastSelectedMembers = [];
+let pendingWithoutChar  = [];
 
+const TEST_MODE = false;
 const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
 
 function showSync(msg, type) {
@@ -1109,6 +1118,7 @@ function buildMembersPayload() {
 }
 
 async function save() {
+  if (TEST_MODE) { showSync('TEST MODE — não salvo', 'error'); return; }
   showSync('Salvando...', 'saving');
   try {
     // ── 1. Buscar estado remoto para merge ─────────────────────────────────
@@ -1909,6 +1919,11 @@ function finalizePT(pi) {
   const ptIds = pts[pi].filter(x => x !== null);
   if (!ptIds.length) { toast('PT vazia, nada para finalizar.', 'error'); return; }
 
+  finalizeModalMode = 'finalize';
+  document.getElementById('finalize-modal-title').textContent = '⚔ Soulwar Finalizada';
+  document.getElementById('finalize-modal-desc').textContent = 'Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto (útil quando o char foi emprestado).';
+  document.getElementById('finalize-modal-confirm-btn').textContent = '✓ Confirmar e Finalizar';
+
   const ptChars = ptIds.map(cid => chars.find(x => x.id === cid)).filter(Boolean);
   const activeMembers = getActiveMembers().sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
@@ -1926,13 +1941,14 @@ function finalizePT(pi) {
         <div class="finalize-char-sub"><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span> Lv ${c.level||'?'} · ${esc(c.owner)}</div>
       </td>
       <td style="text-align:right">
-        <select class="finalize-select" data-char-id="${c.id}">${options}</select>
+        <select class="finalize-select" data-char-id="${c.id}" onchange="checkFinalizeDropdownDuplicates()">${options}</select>
       </td>`;
     tbody.appendChild(tr);
   });
 
   finalizingPTIndex = pi;
   openModal('modal-finalize');
+  checkFinalizeDropdownDuplicates();
 }
 
 function confirmFinalize() {
@@ -2246,6 +2262,7 @@ function confirmRecommend() {
 
 // Tenta montar a melhor PT para os membros selecionados
 function buildRecommendation(selectedMembers, preferredServer = '') {
+  lastSelectedMembers = selectedMembers;
   const memberSet = new Set(selectedMembers);
 
   const available = chars.filter(c =>
@@ -2358,10 +2375,11 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
 
   // ── Dicas ────────────────────────────────────────────────────────────────
   const tipsEl = document.getElementById('rec-result-tips');
-  const membersInPT   = new Set(bestTeamGlobal.map(c => c.owner));
-  const withoutChar   = selectedMembers.filter(m => !membersInPT.has(m));
+  // Normalizar para comparação (preserva nome original para exibição)
+  const membersInPT = new Set(bestTeamGlobal.map(c => c.owner.trim().toLowerCase()));
+  const withoutChar = selectedMembers.filter(m => !membersInPT.has(m.trim().toLowerCase()));
   const countPerMember = {};
-  bestTeamGlobal.forEach(c => { countPerMember[c.owner] = (countPerMember[c.owner] || 0) + 1; });
+  bestTeamGlobal.forEach(c => { countPerMember[c.owner.trim()] = (countPerMember[c.owner.trim()] || 0) + 1; });
   const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
 
   if (!withoutChar.length && !multiChar.length) {
@@ -2369,12 +2387,14 @@ function buildRecommendation(selectedMembers, preferredServer = '') {
   } else {
     const items = [];
 
-    // Dicas combinadas: cruzar membros sem char × membros com 2+ chars
+    // Dicas combinadas: uma dica por membro sem char, listando todos os multi-chars
     if (withoutChar.length && multiChar.length) {
+      const multiNames = multiChar.map(([mc]) => `<b>${esc(mc)}</b>`).join(' e ');
+      const multiLabel = multiChar.length === 1
+        ? `${multiNames} está com ${multiChar[0][1]} personagens`
+        : `${multiNames} estão com 2+ personagens`;
       withoutChar.forEach(wo => {
-        multiChar.forEach(([mc, n]) => {
-          items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT. <b>${esc(mc)}</b> está com ${n} personagens — considere passar um para <b>${esc(wo)}</b>.`);
-        });
+        items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT. ${multiLabel} — considere passar um para <b>${esc(wo)}</b>.`);
       });
     } else {
       // Só sem-char
@@ -2425,11 +2445,8 @@ function tryFormPT(group, maxPerMember) {
           if ([ek.id, rp.id, ms.id].includes(ed.id) || !canAdd(ed, [ek, rp, ms])) continue;
           const used  = new Set([ek.id, rp.id, ms.id, ed.id]);
           const base  = [ek, rp, ms, ed];
-          // 5º slot: sem restrição de maxPerMember, mas respeita a restrição de conta
-          const fifth = nonEKs.find(c =>
-            !used.has(c.id) &&
-            !(c.conta && base.some(b => b.owner === c.owner && b.conta === c.conta))
-          );
+          // 5º slot: respeita maxPerMember e restrição de conta (via canAdd)
+          const fifth = nonEKs.find(c => !used.has(c.id) && canAdd(c, base));
           if (!fifth) continue;
 
           const team   = [ek, rp, ms, ed, fifth];
@@ -2521,34 +2538,121 @@ function applyRecommend() {
 
   // Verificar se alguma PT tem slots ocupados
   const anyOccupied = pts.some(pt => pt.some(x => x !== null));
-
   if (anyOccupied) {
     if (!confirm('Já existem personagens nos slots da PT. Deseja substituir tudo pela recomendação?')) return;
   }
 
-  // Limpar todas as PTs e remover sentTo dos chars afetados
-  pts.forEach((pt, pi) => {
-    pt.forEach(cid => {
-      if (cid !== null) {
-        const c = chars.find(x => x.id === cid);
-        if (c) c.sentTo = null;
-      }
-      pts[pi] = [null, null, null, null, null];
-    });
-  });
+  // Verificar necessidade de repasse
+  const countPerMember = {};
+  lastRecommend.forEach(c => { countPerMember[c.owner] = (countPerMember[c.owner] || 0) + 1; });
+  const withoutChar = lastSelectedMembers.filter(m => !countPerMember[m]);
+  pendingWithoutChar = withoutChar;
+  const multiChar   = Object.entries(countPerMember).filter(([, n]) => n > 1);
 
-  // Alocar os 5 recomendados na PT 1
-  lastRecommend.forEach((c, i) => {
-    pts[0][i] = c.id;
-    c.sentTo = 0;
-  });
+  if (withoutChar.length > 0 && multiChar.length > 0) {
+    openApplyModal();
+    return;
+  }
 
+  // Aplicar direto (sem repasse necessário)
+  _doApplySlots();
   save();
   clearRecommend();
   renderPT();
   toast('PT recomendada aplicada nos slots!', 'success');
 }
 
+function _doApplySlots() {
+  pts.forEach((pt, pi) => {
+    pt.forEach(cid => {
+      if (cid !== null) { const c = chars.find(x => x.id === cid); if (c) c.sentTo = null; }
+      pts[pi] = [null, null, null, null, null];
+    });
+  });
+  lastRecommend.forEach((c, i) => { pts[0][i] = c.id; c.sentTo = 0; });
+}
+
+
+function openApplyModal() {
+  if (!lastRecommend) return;
+  finalizeModalMode = 'apply';
+  document.getElementById('finalize-modal-title').textContent = '⚔ Confirmar PT';
+  document.getElementById('finalize-modal-desc').textContent = 'Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto (útil quando o char foi emprestado).';
+  document.getElementById('finalize-modal-confirm-btn').textContent = '✓ Aplicar nos slots';
+
+  const activeMembers = [...lastSelectedMembers].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const tbody = document.getElementById('finalize-table-body');
+  tbody.innerHTML = '';
+  const needySet = new Set(pendingWithoutChar.map(n => n.toLowerCase()));
+  lastRecommend.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.className = 'finalize-char-row';
+    const options = activeMembers.map(m => {
+      const isNeedy = needySet.has(m.toLowerCase());
+      const style = isNeedy ? ' style="color:#e8c06a;font-weight:bold"' : '';
+      const label = isNeedy ? `★ ${esc(m)}` : esc(m);
+      return `<option value="${esc(m)}"${m === c.owner ? ' selected' : ''}${style}>${label}</option>`;
+    }).join('');
+    tr.innerHTML = `
+      <td>
+        <div class="finalize-char-name">${esc(c.name)}</div>
+        <div class="finalize-char-sub"><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span> Lv ${c.level||'?'} · ${esc(c.owner)}</div>
+      </td>
+      <td style="text-align:right">
+        <select class="finalize-select" data-char-id="${c.id}" onchange="checkFinalizeDropdownDuplicates()">${options}</select>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  openModal('modal-finalize');
+  checkFinalizeDropdownDuplicates();
+}
+
+function checkFinalizeDropdownDuplicates() {
+  const selects = Array.from(document.querySelectorAll('#finalize-table-body .finalize-select'));
+  const counts = {};
+  selects.forEach(s => { counts[s.value] = (counts[s.value] || 0) + 1; });
+  selects.forEach(s => {
+    if (counts[s.value] > 1) {
+      s.style.borderColor = '#e05252';
+      s.style.borderWidth = '1px';
+      s.style.borderStyle = 'solid';
+    } else {
+      s.style.borderColor = '';
+      s.style.borderWidth = '';
+      s.style.borderStyle = '';
+    }
+  });
+}
+
+function confirmApplyWithRepasse() {
+  const selects = document.querySelectorAll('#finalize-table-body select');
+  const values = Array.from(selects).map(s => s.value).filter(Boolean);
+  const unique = new Set(values);
+  if (unique.size < values.length) {
+    toast('Cada membro só pode receber um personagem. Corrija os duplicados.', 'error');
+    return;
+  }
+  pendingRepasseMap = {};
+  selects.forEach(sel => {
+    const charId = parseInt(sel.dataset.charId);
+    const member = sel.value;
+    if (charId && member) pendingRepasseMap[charId] = member;
+  });
+  _doApplySlots();
+  closeModal('modal-finalize');
+  save(); clearRecommend(); renderPT();
+  toast('PT aplicada nos slots!', 'success');
+}
+
+function confirmFinalizeWithConfirm() {
+  if (!confirm('Tem certeza que deseja finalizar a Soulwar?')) return;
+  confirmFinalize();
+}
+
+function onFinalizeModalConfirm() {
+  if (finalizeModalMode === 'apply') confirmApplyWithRepasse();
+  else confirmFinalizeWithConfirm();
+}
 
 // ── BACKUP ────────────────────────────────────────────────────────────────
 function renderBackups() {
