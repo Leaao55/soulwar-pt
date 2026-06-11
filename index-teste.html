@@ -828,11 +828,11 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 </div>
 
 
-<!-- MODAL: CONFIRMAR SOULWAR FINALIZADA -->
+<!-- MODAL: CONFIRMAR SOULWAR FINALIZADA / CONFIRMAR PT -->
 <div class="modal-overlay" id="modal-finalize" onclick="if(event.target===this)closeModal('modal-finalize')">
   <div class="modal">
-    <h2>⚔ Soulwar Finalizada</h2>
-    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
+    <h2 id="finalize-modal-title">⚔ Soulwar Finalizada</h2>
+    <p id="finalize-modal-desc" style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem">
       Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto
       (útil quando o char foi emprestado).
     </p>
@@ -849,7 +849,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-finalize')">Cancelar</button>
-      <button class="btn-confirm" onclick="confirmFinalize()">✓ Confirmar e Finalizar</button>
+      <button class="btn-confirm" id="finalize-modal-confirm-btn" onclick="onFinalizeModalConfirm()">✓ Confirmar e Finalizar</button>
     </div>
   </div>
 </div>
@@ -1062,6 +1062,9 @@ let pendingSendId    = null;
 let selectedPT       = null;
 let editingCharId    = null;
 let finalizingPTIndex = null;
+let finalizeModalMode   = 'finalize'; // 'finalize' | 'apply'
+let pendingRepasseMap   = {};
+let lastSelectedMembers = [];
 
 const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
 
@@ -1909,6 +1912,11 @@ function finalizePT(pi) {
   const ptIds = pts[pi].filter(x => x !== null);
   if (!ptIds.length) { toast('PT vazia, nada para finalizar.', 'error'); return; }
 
+  finalizeModalMode = 'finalize';
+  document.getElementById('finalize-modal-title').textContent = '⚔ Soulwar Finalizada';
+  document.getElementById('finalize-modal-desc').textContent = 'Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto (útil quando o char foi emprestado).';
+  document.getElementById('finalize-modal-confirm-btn').textContent = '✓ Confirmar e Finalizar';
+
   const ptChars = ptIds.map(cid => chars.find(x => x.id === cid)).filter(Boolean);
   const activeMembers = getActiveMembers().sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
@@ -2246,6 +2254,7 @@ function confirmRecommend() {
 
 // Tenta montar a melhor PT para os membros selecionados
 function buildRecommendation(selectedMembers, preferredServer = '') {
+  lastSelectedMembers = selectedMembers;
   const memberSet = new Set(selectedMembers);
 
   const available = chars.filter(c =>
@@ -2521,34 +2530,91 @@ function applyRecommend() {
 
   // Verificar se alguma PT tem slots ocupados
   const anyOccupied = pts.some(pt => pt.some(x => x !== null));
-
   if (anyOccupied) {
     if (!confirm('Já existem personagens nos slots da PT. Deseja substituir tudo pela recomendação?')) return;
   }
 
-  // Limpar todas as PTs e remover sentTo dos chars afetados
-  pts.forEach((pt, pi) => {
-    pt.forEach(cid => {
-      if (cid !== null) {
-        const c = chars.find(x => x.id === cid);
-        if (c) c.sentTo = null;
-      }
-      pts[pi] = [null, null, null, null, null];
-    });
-  });
+  // Verificar necessidade de repasse
+  const countPerMember = {};
+  lastRecommend.forEach(c => { countPerMember[c.owner] = (countPerMember[c.owner] || 0) + 1; });
+  const withoutChar = lastSelectedMembers.filter(m => !countPerMember[m]);
+  const multiChar   = Object.entries(countPerMember).filter(([, n]) => n > 1);
 
-  // Alocar os 5 recomendados na PT 1
-  lastRecommend.forEach((c, i) => {
-    pts[0][i] = c.id;
-    c.sentTo = 0;
-  });
+  if (withoutChar.length > 0 && multiChar.length > 0) {
+    openApplyModal();
+    return;
+  }
 
+  // Aplicar direto (sem repasse necessário)
+  _doApplySlots();
   save();
   clearRecommend();
   renderPT();
   toast('PT recomendada aplicada nos slots!', 'success');
 }
 
+function _doApplySlots() {
+  pts.forEach((pt, pi) => {
+    pt.forEach(cid => {
+      if (cid !== null) { const c = chars.find(x => x.id === cid); if (c) c.sentTo = null; }
+      pts[pi] = [null, null, null, null, null];
+    });
+  });
+  lastRecommend.forEach((c, i) => { pts[0][i] = c.id; c.sentTo = 0; });
+}
+
+
+function openApplyModal() {
+  if (!lastRecommend) return;
+  finalizeModalMode = 'apply';
+  document.getElementById('finalize-modal-title').textContent = '⚔ Confirmar PT';
+  document.getElementById('finalize-modal-desc').textContent = 'Confirme os personagens da PT. Para cada um, selecione o membro que receberá o ponto (útil quando o char foi emprestado).';
+  document.getElementById('finalize-modal-confirm-btn').textContent = '✓ Aplicar nos slots';
+
+  const activeMembers = getActiveMembers().sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const tbody = document.getElementById('finalize-table-body');
+  tbody.innerHTML = '';
+  lastRecommend.forEach(c => {
+    const tr = document.createElement('tr');
+    tr.className = 'finalize-char-row';
+    const options = activeMembers.map(m =>
+      `<option value="${esc(m)}"${m === c.owner ? ' selected' : ''}>${esc(m)}</option>`
+    ).join('');
+    tr.innerHTML = `
+      <td>
+        <div class="finalize-char-name">${esc(c.name)}</div>
+        <div class="finalize-char-sub"><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span> Lv ${c.level||'?'} · ${esc(c.owner)}</div>
+      </td>
+      <td style="text-align:right">
+        <select class="finalize-select" data-char-id="${c.id}">${options}</select>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  openModal('modal-finalize');
+}
+
+function confirmApplyWithRepasse() {
+  pendingRepasseMap = {};
+  document.querySelectorAll('#finalize-table-body select').forEach(sel => {
+    const charId = parseInt(sel.dataset.charId);
+    const member = sel.value;
+    if (charId && member) pendingRepasseMap[charId] = member;
+  });
+  _doApplySlots();
+  closeModal('modal-finalize');
+  save(); clearRecommend(); renderPT();
+  toast('PT aplicada nos slots!', 'success');
+}
+
+function confirmFinalizeWithConfirm() {
+  if (!confirm('Tem certeza que deseja finalizar a Soulwar?')) return;
+  confirmFinalize();
+}
+
+function onFinalizeModalConfirm() {
+  if (finalizeModalMode === 'apply') confirmApplyWithRepasse();
+  else confirmFinalizeWithConfirm();
+}
 
 // ── BACKUP ────────────────────────────────────────────────────────────────
 function renderBackups() {
