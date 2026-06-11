@@ -1971,6 +1971,7 @@ function confirmFinalize() {
 
   document.querySelectorAll('#finalize-table-body select').forEach(sel => {
     const member = sel.value;
+    console.log(`[SW][DEBUG] confirmFinalize select — charId=${sel.dataset.charId} value="${member}"`);
     if (member) {
       rankingWeekly[member]  = (rankingWeekly[member]  || 0) + 1;
       rankingAllTime[member] = (rankingAllTime[member] || 0) + 1;
