@@ -2644,9 +2644,15 @@ function confirmApplyWithRepasse() {
     const member = sel.value;
     if (charId && member) pendingRepasseMap[charId] = member;
   });
+  document.querySelectorAll('#finalize-table-body .finalize-select').forEach(sel => {
+    const charId = parseInt(sel.dataset.charId);
+    const newOwner = sel.value;
+    const c = chars.find(x => x.id === charId);
+    if (c && newOwner) c.owner = newOwner;
+  });
   _doApplySlots();
-  closeModal('modal-finalize');
   save(); clearRecommend(); renderPT();
+  closeModal('modal-finalize');
   toast('PT aplicada nos slots!', 'success');
 }
 
