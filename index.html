@@ -792,6 +792,10 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <option value="5">5</option>
         </select>
       </div>
+      <div class="form-group full" id="e-owner-group" style="display:none">
+        <label>Dono</label>
+        <select id="e-owner"></select>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-edit')">Cancelar</button>
@@ -1848,6 +1852,15 @@ function openEditModal(id) {
     if (s === c.server) o.selected = true;
     eServer.appendChild(o);
   });
+  const eOwner = document.getElementById('e-owner');
+  eOwner.innerHTML = '';
+  getActiveMembers().forEach(m => {
+    const o = document.createElement('option');
+    o.value = m; o.textContent = m;
+    if (m === c.owner) o.selected = true;
+    eOwner.appendChild(o);
+  });
+  document.getElementById('e-owner-group').style.display = currentRole === 'adm' ? '' : 'none';
   openModal('modal-edit');
   setTimeout(() => document.getElementById('e-name').focus(), 120);
 }
@@ -1879,6 +1892,7 @@ function saveEdit() {
   c.server = document.getElementById('e-server').value;
   c.obs    = document.getElementById('e-obs').value.trim();
   c.conta  = document.getElementById('e-conta').value || null;
+  if (currentRole === 'adm') c.owner = document.getElementById('e-owner').value || c.owner;
   save(); closeModal('modal-edit'); renderChars();
   toast(`${name} atualizado!`, 'success');
 }
