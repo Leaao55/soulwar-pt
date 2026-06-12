@@ -1860,7 +1860,7 @@ function openEditModal(id) {
     if (m === c.owner) o.selected = true;
     eOwner.appendChild(o);
   });
-  document.getElementById('e-owner-group').style.display = currentRole === 'adm' ? '' : 'none';
+  document.getElementById('e-owner-group').style.display = currentRole === 'adm' ? 'flex' : 'none';
   openModal('modal-edit');
   setTimeout(() => document.getElementById('e-name').focus(), 120);
 }
