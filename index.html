@@ -2601,12 +2601,16 @@ function runAnalise(selected) {
 
     const leftover = pool.filter(c => !usedIds.has(c.id));
     if (leftover.length) {
-      const partial = buildPartialPT(leftover);
+      const seen = new Set();
+      const onePerMember = leftover.filter(c => { const k = c.owner.trim().toLowerCase(); return seen.has(k) ? false : seen.add(k); });
+      const partial = buildPartialPT(onePerMember);
       if (partial.team.length) formedPTs.push(partial);
     }
 
+    const membersWithChar = new Set(pool.map(c => c.owner.trim().toLowerCase()));
+    const noCharMembers = selected.filter(m => !membersWithChar.has(m.trim().toLowerCase()));
     const completeCount = formedPTs.filter(p => p.complete).length;
-    return { srv, pool, formedPTs, completeCount };
+    return { srv, pool, formedPTs, completeCount, noCharMembers };
   }).filter(Boolean).sort((a, b) =>
     b.completeCount - a.completeCount || a.srv.localeCompare(b.srv, 'pt-BR')
   );
@@ -2617,13 +2621,6 @@ function runAnalise(selected) {
   }
 
   grid.innerHTML = serverData.map(d => {
-    const membersInAnyPT = new Set(d.formedPTs.flatMap(pt => pt.team.map(c => c.owner.trim().toLowerCase())));
-    const countPerMember = {};
-    d.formedPTs.forEach(pt => pt.team.forEach(c => {
-      countPerMember[c.owner.trim()] = (countPerMember[c.owner.trim()] || 0) + 1;
-    }));
-    const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
-
     const ptCards = d.formedPTs.map((pt, i) => {
       const color = PT_COLORS[i] || '#888';
       const ptName = PT_NAMES[i] || `PT ${i + 1}`;
@@ -2636,24 +2633,15 @@ function runAnalise(selected) {
       const missingHtml = pt.missing && pt.missing.length
         ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.35rem;font-style:italic">⚠ Faltam: ${pt.missing.join(', ')}</div>`
         : '';
+      const buyWarnings = !pt.complete
+        ? d.noCharMembers.map(m => `<div style="color:#e07b35;font-size:.82rem;margin-top:.2rem">⚠ <b>${esc(m)}</b> deve comprar um personagem neste servidor.</div>`).join('')
+        : '';
       return `<div style="margin-bottom:.6rem;padding:.7rem 1rem;border:1px solid var(--border);border-left:3px solid ${color};border-radius:3px;background:rgba(255,255,255,.01)">
         <div style="font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:${color};margin-bottom:.35rem">${ptName}${incompleteTag}</div>
         <div style="font-size:.87rem;color:var(--text-muted);line-height:1.8">${lines}</div>
-        ${missingHtml}
+        ${missingHtml}${buyWarnings}
       </div>`;
     }).join('');
-
-    const tipItems = [];
-    selected.forEach(m => {
-      if (!membersInAnyPT.has(m.trim().toLowerCase()))
-        tipItems.push(`⚠ <b>${esc(m)}</b> deve comprar um personagem neste servidor.`);
-    });
-    const tipsHtml = tipItems.length
-      ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">
-          <div class="rec-result-tips-title">💡 Dicas</div>
-          ${tipItems.map(it => `<div class="rec-result-tips-item">${it}</div>`).join('')}
-        </div>`
-      : '';
 
     const headerLabel = d.completeCount > 0
       ? `<span style="color:#3dba6c;font-size:.75rem">✅ ${d.completeCount} PT${d.completeCount > 1 ? 's' : ''} completa${d.completeCount > 1 ? 's' : ''}</span>`
@@ -2664,7 +2652,7 @@ function runAnalise(selected) {
         <span style="font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;color:var(--gold2)">${esc(d.srv)}</span>
         ${headerLabel}
       </div>
-      ${ptCards}${tipsHtml}
+      ${ptCards}
     </div>`;
   }).join('');
 }
