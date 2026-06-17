@@ -2628,7 +2628,26 @@ function runAnalise(selected) {
     return;
   }
 
-  grid.innerHTML = serverData.map(d => {
+  const summaryLines = serverData.map(d => {
+    const firstInc = d.formedPTs.find(p => !p.complete);
+    if (!firstInc) return '';
+    const vocs = (firstInc.missing || []).map(m => m === '5º' ? 'Shooter' : m).join(', ');
+    const membersInPT = new Set(firstInc.team.map(c => c.owner.trim().toLowerCase()));
+    const buyers = selected.filter(m => !membersInPT.has(m.trim().toLowerCase()));
+    const buyerStr = buyers.length ? ` · ${buyers.join(', ')} ${buyers.length === 1 ? 'deve comprar' : 'devem comprar'}` : '';
+    const faltaStr = vocs ? `Falta: ${vocs}` : '';
+    return `<div style="font-size:.82rem;color:var(--text-muted);line-height:1.7"><b style="color:var(--text)">${esc(d.srv)}</b> — ${faltaStr}${buyerStr}</div>`;
+  }).filter(Boolean).join('');
+
+  const summaryHtml = summaryLines
+    ? `<div style="margin-bottom:1.25rem;padding:.85rem 1rem;border:1px solid var(--border);border-radius:3px;background:rgba(255,255,255,.01)">
+        <div style="font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.55rem">📋 Resumo</div>
+        ${summaryLines}
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin-bottom:1.25rem">`
+    : '';
+
+  grid.innerHTML = summaryHtml + serverData.map(d => {
     const ptCards = d.formedPTs.map((pt, i) => ({ pt, i })).filter(({ pt }) => !pt.complete).map(({ pt, i }) => {
       const color = PT_COLORS[i] || '#888';
       const ptName = PT_NAMES[i] || `PT ${i + 1}`;
