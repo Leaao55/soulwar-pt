@@ -526,6 +526,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
+      <button class="tab" onclick="switchTab('analise',this)">📊 Análise</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
       <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
@@ -692,6 +693,11 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         </div>
       </div>
       <div class="pt-grid" id="pt-grid"></div>
+    </div>
+
+    <!-- TAB: ANÁLISE -->
+    <div class="section" id="tab-analise">
+      <div id="analise-grid"></div>
     </div>
   </main>
 </div>
@@ -1457,6 +1463,7 @@ async function load() {
   showSync('', '');
   renderChars();
   renderRanking();
+  renderAnalise();
   if (currentRole === 'adm') renderUsers();
 }
 
@@ -1473,6 +1480,7 @@ function switchTab(t, btn) {
   else if(t==='ranking') renderRanking();
   else if(t==='users') renderUsers();
   else if(t==='backup') renderBackups();
+  else if(t==='analise') renderAnalise();
 }
 
 // ── FILTER AUTOCOMPLETE ───────────────────────────────────────────────────
@@ -2537,6 +2545,83 @@ function tryFormPT(group, maxPerMember) {
   }
 
   return best ? { team: best, std: bestStd } : null;
+}
+
+// ── ANÁLISE POR SERVIDOR ──────────────────────────────────────────────────
+function renderAnalise() {
+  const grid = document.getElementById('analise-grid');
+  if (!grid) return;
+
+  const REQ_ROLES = ['ELITE KNIGHT', 'ROYAL PALADIN', 'MASTER SORCERER', 'ELDER DRUID'];
+  const NON_EK    = ['ROYAL PALADIN', 'MASTER SORCERER', 'ELDER DRUID', 'EXALTED MONK'];
+
+  // Calcula quantas PTs completas um grupo de chars suporta e o que falta para a próxima.
+  function analyseServer(group) {
+    const pool = group.filter(c => c.status !== 'pending');
+    const counts = {};
+    REQ_ROLES.concat(['EXALTED MONK']).forEach(r => { counts[r] = 0; });
+    pool.forEach(c => { if (counts[c.cls] !== undefined) counts[c.cls]++; });
+
+    // PTs completas: mínimo de cada papel obrigatório + 5º não-EK disponível
+    const nonEkTotal = NON_EK.reduce((s, r) => s + (counts[r] || 0), 0);
+    const ptsByRole  = Math.min(...REQ_ROLES.map(r => counts[r] || 0));
+    // 5º slot consome um não-EK adicional além dos já usados em RP/MS/ED
+    const nonEkUsed  = (counts['ROYAL PALADIN'] || 0) + (counts['MASTER SORCERER'] || 0) + (counts['ELDER DRUID'] || 0);
+    const fifthAvail = Math.max(0, nonEkTotal - nonEkUsed);
+    const complete   = Math.min(ptsByRole, fifthAvail > 0 ? ptsByRole : 0);
+
+    // O que falta para a próxima PT além das completas
+    const missing = [];
+    REQ_ROLES.forEach(r => {
+      const need = complete + 1;
+      if ((counts[r] || 0) < need) missing.push(`${need - (counts[r] || 0)} ${SHORT[r]}`);
+    });
+    const nextNonEkNeeded = (complete + 1) * 1; // 1 não-EK extra por PT
+    const nextNonEkAvail  = Math.max(0, nonEkTotal - Math.min(nonEkUsed, complete * 3));
+    if (!missing.length && nextNonEkAvail < nextNonEkNeeded) missing.push('1 não-EK');
+
+    return { counts, complete, missing, total: pool.length };
+  }
+
+  // Pontuação de "falta" para ordenação (0 = já tem PT completa, 5 = nada)
+  function missingScore(info) {
+    if (info.total === 0) return 99;
+    return info.missing.length;
+  }
+
+  const serverData = servers.map(srv => {
+    const group = chars.filter(c => c.server === srv);
+    const info  = analyseServer(group);
+    return { srv, ...info };
+  }).sort((a, b) => missingScore(a) - missingScore(b) || a.srv.localeCompare(b.srv, 'pt-BR'));
+
+  if (!serverData.length) {
+    grid.innerHTML = '<div class="empty">Nenhum servidor cadastrado.</div>';
+    return;
+  }
+
+  grid.innerHTML = serverData.map(d => {
+    const ptLabel = d.complete > 0
+      ? `<span style="color:#3dba6c;font-family:'Cinzel',serif;font-size:.75rem">✓ ${d.complete} PT${d.complete > 1 ? 's' : ''} completa${d.complete > 1 ? 's' : ''}</span>`
+      : `<span style="color:var(--text-muted);font-size:.8rem;font-style:italic">Nenhuma PT completa</span>`;
+
+    const missingHtml = d.missing.length
+      ? `<div style="color:#e07b35;font-size:.8rem;margin-top:.3rem">⚠ Falta: ${d.missing.join(', ')}</div>`
+      : `<div style="color:#3dba6c;font-size:.8rem;margin-top:.3rem">✓ Próxima PT já possível</div>`;
+
+    const vocLine = ['ELITE KNIGHT','ROYAL PALADIN','MASTER SORCERER','ELDER DRUID','EXALTED MONK'].map(r =>
+      `<span style="margin-right:.6rem;font-size:.8rem;color:${(d.counts[r]||0)>0?'var(--text)':'var(--text-muted)'}">${SHORT[r]} ×${d.counts[r]||0}</span>`
+    ).join('');
+
+    return `<div style="padding:.9rem 1.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);margin-bottom:.75rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+        <span style="font-family:'Cinzel',serif;font-size:.85rem;font-weight:600;color:var(--gold2)">${esc(d.srv)}</span>
+        ${ptLabel}
+      </div>
+      <div style="margin-bottom:.35rem">${vocLine}</div>
+      ${d.total === 0 ? '<div style="color:var(--text-muted);font-size:.8rem;font-style:italic">Sem personagens neste servidor.</div>' : missingHtml}
+    </div>`;
+  }).join('');
 }
 
 // ── RECOMENDAÇÃO 3 PTs ────────────────────────────────────────────────────
