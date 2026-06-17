@@ -2576,87 +2576,75 @@ function onRecommendConfirm() {
 }
 
 function runAnalise(selected) {
-  const memberSet = new Set(selected);
-  const available = chars.filter(c => (c.status === 'approved' || !c.status) && memberSet.has(c.owner));
-
-  function analyseServer(pool) {
-    const counts = { 'ELITE KNIGHT':0, 'ROYAL PALADIN':0, 'MASTER SORCERER':0, 'ELDER DRUID':0, 'EXALTED MONK':0 };
-    pool.forEach(c => { if (counts[c.cls] !== undefined) counts[c.cls]++; });
-    const nonEK = counts['ROYAL PALADIN'] + counts['MASTER SORCERER'] + counts['ELDER DRUID'] + counts['EXALTED MONK'];
-    const complete = Math.min(counts['ELITE KNIGHT'], counts['ROYAL PALADIN'], counts['MASTER SORCERER'], counts['ELDER DRUID'], Math.floor(nonEK / 4));
-    const next = complete + 1;
-    const missing = [];
-    if (counts['ELITE KNIGHT'] < next) missing.push(`${next - counts['ELITE KNIGHT']} EK`);
-    if (counts['ROYAL PALADIN'] < next) missing.push(`${next - counts['ROYAL PALADIN']} RP`);
-    if (counts['MASTER SORCERER'] < next) missing.push(`${next - counts['MASTER SORCERER']} MS`);
-    if (counts['ELDER DRUID'] < next) missing.push(`${next - counts['ELDER DRUID']} ED`);
-    if (!missing.length) {
-      const extraAvail = nonEK - 3 * next;
-      if (extraAvail < next) missing.push(`${next - extraAvail} não-EK`);
-    }
-    return { complete, missing, total: pool.length };
-  }
+  recommendThreePTs(selected, '');
+  document.getElementById('rec-result')?.classList.remove('show');
 
   const grid = document.getElementById('analise-grid');
-
-  const serverData = servers.map(srv => {
-    const pool = available.filter(c => c.server === srv);
-    return { srv, pool, ...analyseServer(pool) };
-  }).sort((a, b) => {
-    if (a.total === 0 && b.total > 0) return 1;
-    if (a.total > 0 && b.total === 0) return -1;
-    if (a.total === 0 && b.total === 0) return a.srv.localeCompare(b.srv, 'pt-BR');
-    return a.missing.length - b.missing.length || a.srv.localeCompare(b.srv, 'pt-BR');
-  });
-
-  if (!serverData.some(d => d.total > 0)) {
+  if (!lastRecommendPTs.length) {
     grid.innerHTML = '<div class="empty">Nenhum personagem disponível para os membros selecionados.</div>';
     return;
   }
 
-  grid.innerHTML = serverData.map(d => {
-    const membersWithChar = new Set(d.pool.map(c => c.owner.trim().toLowerCase()));
-    const noCharWarnings = selected
-      .filter(m => !membersWithChar.has(m.trim().toLowerCase()))
-      .map(m => `<div style="color:#e07b35;font-size:.82rem">⚠ <b>${esc(m)}</b> não tem personagem neste servidor — considere comprar um.</div>`)
-      .join('');
+  const membersInAnyPT = new Set(
+    lastRecommendPTs.flatMap(r => r.team.map(c => c.owner.trim().toLowerCase()))
+  );
 
-    if (d.total === 0) {
-      return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--border);border-radius:3px;background:rgba(255,255,255,.015);opacity:.55">
-        <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem">${esc(d.srv)}</div>
-        ${noCharWarnings}
+  grid.innerHTML = lastRecommendPTs.map((r, ptIndex) => {
+    const color = PT_COLORS[ptIndex];
+    const name  = PT_NAMES[ptIndex];
+    const incompleteTag = !r.complete
+      ? ` <span style="color:#e07b35;font-size:.7rem;font-family:'Crimson Pro',serif;font-weight:400;text-transform:none;letter-spacing:0">(incompleta)</span>`
+      : '';
+    const serverTag = `<span style="color:var(--text-muted);font-size:.7rem;font-family:'Crimson Pro',serif;letter-spacing:0;text-transform:none"> — ${esc(r.server)}</span>`;
+    const lines = r.team.length
+      ? r.team.map(c => `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`).join('')
+      : `<div style="color:var(--text-muted);font-style:italic">Nenhum personagem disponível.</div>`;
+    const avg = r.team.length
+      ? Math.round(r.team.map(c => c.level || 0).reduce((a, b) => a + b, 0) / r.team.length)
+      : 0;
+    const stats = r.team.length
+      ? `<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(r.std)}</b></div>`
+      : '';
+    const missingHtml = r.missing.length
+      ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.4rem;font-style:italic">⚠ Faltam: ${r.missing.join(', ')}</div>`
+      : '';
+    const membersInPT = new Set(r.team.map(c => c.owner.trim().toLowerCase()));
+    const withoutChar = lastSelectedMembers.filter(m => !membersInPT.has(m.trim().toLowerCase()));
+    const countPerMember = {};
+    r.team.forEach(c => { countPerMember[c.owner.trim()] = (countPerMember[c.owner.trim()] || 0) + 1; });
+    const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
+    let tipsHtml = '';
+    if (withoutChar.length || multiChar.length) {
+      const items = [];
+      if (withoutChar.length && multiChar.length) {
+        const multiNames = multiChar.map(([mc]) => `<b>${esc(mc)}</b>`).join(' e ');
+        const multiLabel = multiChar.length === 1
+          ? `${multiNames} está com ${multiChar[0][1]} personagens`
+          : `${multiNames} estão com 2+ personagens`;
+        withoutChar.forEach(wo => {
+          if (!membersInAnyPT.has(wo.trim().toLowerCase()))
+            items.push(`⚠ <b>${esc(wo)}</b> deve comprar um personagem neste servidor.`);
+          else
+            items.push(`⚠ <b>${esc(wo)}</b> não tem personagem. ${multiLabel} — considere passar um.`);
+        });
+      } else {
+        withoutChar.forEach(wo => {
+          if (!membersInAnyPT.has(wo.trim().toLowerCase()))
+            items.push(`⚠ <b>${esc(wo)}</b> deve comprar um personagem neste servidor.`);
+          else
+            items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT.`);
+        });
+        multiChar.forEach(([mc, n]) => items.push(`ℹ <b>${esc(mc)}</b> está com ${n} personagens.`));
+      }
+      tipsHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border)">
+        <div class="rec-result-tips-title">💡 Dicas</div>
+        ${items.map(it => `<div class="rec-result-tips-item">${it}</div>`).join('')}
       </div>`;
     }
-
-    const charLines = d.pool.map(c =>
-      `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]||esc(c.cls)} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
-    ).join('');
-    const countByOwner = {};
-    d.pool.forEach(c => { countByOwner[c.owner] = (countByOwner[c.owner] || 0) + 1; });
-    const ownerLines = Object.entries(countByOwner)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'))
-      .map(([owner, n]) => `<div>👤 <b>${esc(owner)}</b> — ${n} char${n > 1 ? 's' : ''}</div>`)
-      .join('');
-    const completeLine = d.complete > 0
-      ? `<div style="color:#3dba6c;font-size:.82rem;margin-top:.4rem">✅ ${d.complete} PT${d.complete > 1 ? 's' : ''} completa${d.complete > 1 ? 's' : ''}</div>`
-      : '';
-    const missingHtml = d.missing.length
-      ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.25rem;font-style:italic">${d.complete > 0 ? 'Para a próxima PT, falta: ' : 'Falta: '}${d.missing.join(', ')}</div>`
-      : '';
-    const noCharBlock = noCharWarnings
-      ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">${noCharWarnings}</div>`
-      : '';
-
-    return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
-      <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:.5rem">${esc(d.srv)}</div>
-      <div style="display:flex;gap:2rem">
-        <div style="flex:2;font-size:.88rem;color:var(--text-muted);line-height:1.8">${charLines}</div>
-        <div style="flex:1;font-size:.82rem;color:var(--text-muted);line-height:1.8">
-          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;font-family:'Cinzel',serif;letter-spacing:.05em">👤 Chars por membro</div>
-          ${ownerLines}
-        </div>
-      </div>
-      ${completeLine}${missingHtml}${noCharBlock}
+    return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid ${color};border-radius:3px;background:rgba(255,255,255,.015)">
+      <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:${color};margin-bottom:.5rem">${name}${incompleteTag}${serverTag}</div>
+      <div style="font-size:.88rem;color:var(--text-muted);line-height:1.8">${lines}</div>
+      ${stats}${missingHtml}${tipsHtml}
     </div>`;
   }).join('');
 }
