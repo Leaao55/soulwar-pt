@@ -2647,7 +2647,7 @@ function recommendThreePTs(selected, preferredServer) {
 
   // Melhor PT completa no pool; onlyServer restringe a um servidor (sem fallback parcial).
   // Critério: 1º menor withoutChar (sem repasse vence), 2º menor desvio padrão.
-  const bestCompletePT = (pool, onlyServer = null, debugLabel = null) => {
+  const bestCompletePT = (pool, onlyServer = null) => {
     const groups = groupByServer(pool);
     const servers = onlyServer ? (groups[onlyServer] ? [onlyServer] : []) : Object.keys(groups);
     let best = null;
@@ -2656,7 +2656,6 @@ function recommendThreePTs(selected, preferredServer) {
         const r = tryFormPT(groups[srv], max);
         if (r) {
           const wc = withoutCount(r.team);
-          if (debugLabel) console.log(`[SW][DEBUG] ${debugLabel} candidato: servidor=${srv} completa=${wc === 0} std=${Math.round(r.std)}`);
           const bestWc = best ? withoutCount(best.team) : Infinity;
           if (!best || wc < bestWc || (wc === bestWc && r.std < best.std))
             best = { team: r.team, std: r.std, server: srv, complete: true, missing: [] };
@@ -2679,8 +2678,8 @@ function recommendThreePTs(selected, preferredServer) {
   };
 
   // Tenta PT completa; se falhar e onlyServer=null, retorna parcial.
-  const buildPT = (pool, onlyServer = null, debugLabel = null) => {
-    const complete = bestCompletePT(pool, onlyServer, debugLabel);
+  const buildPT = (pool, onlyServer = null) => {
+    const complete = bestCompletePT(pool, onlyServer);
     if (complete) return complete;
     if (onlyServer) return null;
     return bestPartialPT(pool);
@@ -2699,7 +2698,7 @@ function recommendThreePTs(selected, preferredServer) {
 
   // PT 2: todos os servidores, pool = available menos chars da PT 1.
   const rem1 = available.filter(c => !usedIds.has(c.id));
-  const pt2 = rem1.length ? (buildPT(rem1, null, 'PT2') || EMPTY_PT) : EMPTY_PT;
+  const pt2 = rem1.length ? (buildPT(rem1) || EMPTY_PT) : EMPTY_PT;
   pt2.team.forEach(c => usedIds.add(c.id));
 
   // PT 3: todos os servidores, pool = available menos chars da PT 1 e PT 2.
