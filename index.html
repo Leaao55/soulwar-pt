@@ -2579,84 +2579,95 @@ function runAnalise(selected) {
   const memberSet = new Set(selected);
   const available = chars.filter(c => (c.status === 'approved' || !c.status) && memberSet.has(c.owner));
 
-  function analyseServer(pool) {
-    const counts = { 'ELITE KNIGHT':0, 'ROYAL PALADIN':0, 'MASTER SORCERER':0, 'ELDER DRUID':0, 'EXALTED MONK':0 };
-    pool.forEach(c => { if (counts[c.cls] !== undefined) counts[c.cls]++; });
-    const nonEK = counts['ROYAL PALADIN'] + counts['MASTER SORCERER'] + counts['ELDER DRUID'] + counts['EXALTED MONK'];
-    const complete = Math.min(counts['ELITE KNIGHT'], counts['ROYAL PALADIN'], counts['MASTER SORCERER'], counts['ELDER DRUID'], Math.floor(nonEK / 4));
-    const next = complete + 1;
-    const missing = [];
-    if (counts['ELITE KNIGHT'] < next) missing.push(`${next - counts['ELITE KNIGHT']} EK`);
-    if (counts['ROYAL PALADIN'] < next) missing.push(`${next - counts['ROYAL PALADIN']} RP`);
-    if (counts['MASTER SORCERER'] < next) missing.push(`${next - counts['MASTER SORCERER']} MS`);
-    if (counts['ELDER DRUID'] < next) missing.push(`${next - counts['ELDER DRUID']} ED`);
-    if (!missing.length) {
-      const extraAvail = nonEK - 3 * next;
-      if (extraAvail < next) missing.push(`${next - extraAvail} não-EK`);
-    }
-    return { complete, missing, total: pool.length };
-  }
-
   const grid = document.getElementById('analise-grid');
 
   const serverData = servers.map(srv => {
     const pool = available.filter(c => c.server === srv);
-    return { srv, pool, ...analyseServer(pool) };
-  }).sort((a, b) => {
-    if (a.total === 0 && b.total > 0) return 1;
-    if (a.total > 0 && b.total === 0) return -1;
-    if (a.total === 0 && b.total === 0) return a.srv.localeCompare(b.srv, 'pt-BR');
-    return a.missing.length - b.missing.length || a.srv.localeCompare(b.srv, 'pt-BR');
-  });
+    if (!pool.length) return null;
 
-  if (!serverData.some(d => d.total > 0)) {
+    const usedIds = new Set();
+    const formedPTs = [];
+
+    for (let i = 0; i < 3; i++) {
+      const remaining = pool.filter(c => !usedIds.has(c.id));
+      if (!remaining.length) break;
+      let pt = null;
+      for (const max of [1, 2, Infinity]) {
+        const r = tryFormPT(remaining, max);
+        if (r) { pt = { team: r.team, std: r.std, complete: true, missing: [] }; break; }
+      }
+      if (!pt) break;
+      pt.team.forEach(c => usedIds.add(c.id));
+      formedPTs.push(pt);
+    }
+
+    const leftover = pool.filter(c => !usedIds.has(c.id));
+    if (leftover.length) {
+      const partial = buildPartialPT(leftover);
+      if (partial.team.length) formedPTs.push(partial);
+    }
+
+    const completeCount = formedPTs.filter(p => p.complete).length;
+    return { srv, pool, formedPTs, completeCount };
+  }).filter(Boolean).sort((a, b) =>
+    b.completeCount - a.completeCount || a.srv.localeCompare(b.srv, 'pt-BR')
+  );
+
+  if (!serverData.length) {
     grid.innerHTML = '<div class="empty">Nenhum personagem disponível para os membros selecionados.</div>';
     return;
   }
 
   grid.innerHTML = serverData.map(d => {
-    const membersWithChar = new Set(d.pool.map(c => c.owner.trim().toLowerCase()));
-    const noCharWarnings = selected
-      .filter(m => !membersWithChar.has(m.trim().toLowerCase()))
-      .map(m => `<div style="color:#e07b35;font-size:.82rem">⚠ <b>${esc(m)}</b> não tem personagem neste servidor — considere comprar um.</div>`)
-      .join('');
+    const membersInAnyPT = new Set(d.formedPTs.flatMap(pt => pt.team.map(c => c.owner.trim().toLowerCase())));
+    const countPerMember = {};
+    d.formedPTs.forEach(pt => pt.team.forEach(c => {
+      countPerMember[c.owner.trim()] = (countPerMember[c.owner.trim()] || 0) + 1;
+    }));
+    const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
 
-    if (d.total === 0) {
-      return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--border);border-radius:3px;background:rgba(255,255,255,.015);opacity:.55">
-        <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem">${esc(d.srv)}</div>
-        ${noCharWarnings}
+    const ptCards = d.formedPTs.map((pt, i) => {
+      const color = PT_COLORS[i] || '#888';
+      const ptName = PT_NAMES[i] || `PT ${i + 1}`;
+      const incompleteTag = !pt.complete
+        ? ` <span style="color:#e07b35;font-size:.7rem;font-family:'Crimson Pro',serif;font-weight:400;text-transform:none;letter-spacing:0">(incompleta)</span>`
+        : '';
+      const lines = pt.team.map(c =>
+        `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
+      ).join('');
+      const missingHtml = pt.missing && pt.missing.length
+        ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.35rem;font-style:italic">⚠ Faltam: ${pt.missing.join(', ')}</div>`
+        : '';
+      return `<div style="margin-bottom:.6rem;padding:.7rem 1rem;border:1px solid var(--border);border-left:3px solid ${color};border-radius:3px;background:rgba(255,255,255,.01)">
+        <div style="font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:${color};margin-bottom:.35rem">${ptName}${incompleteTag}</div>
+        <div style="font-size:.87rem;color:var(--text-muted);line-height:1.8">${lines}</div>
+        ${missingHtml}
       </div>`;
-    }
+    }).join('');
 
-    const charLines = d.pool.map(c =>
-      `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]||esc(c.cls)} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
-    ).join('');
-    const countByOwner = {};
-    d.pool.forEach(c => { countByOwner[c.owner] = (countByOwner[c.owner] || 0) + 1; });
-    const ownerLines = Object.entries(countByOwner)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'))
-      .map(([owner, n]) => `<div>👤 <b>${esc(owner)}</b> — ${n} char${n > 1 ? 's' : ''}</div>`)
-      .join('');
-    const completeLine = d.complete > 0
-      ? `<div style="color:#3dba6c;font-size:.82rem;margin-top:.4rem">✅ ${d.complete} PT${d.complete > 1 ? 's' : ''} completa${d.complete > 1 ? 's' : ''}</div>`
-      : '';
-    const missingHtml = d.missing.length
-      ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.25rem;font-style:italic">${d.complete > 0 ? 'Para a próxima PT, falta: ' : 'Falta: '}${d.missing.join(', ')}</div>`
-      : '';
-    const noCharBlock = noCharWarnings
-      ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">${noCharWarnings}</div>`
+    const tipItems = [];
+    selected.forEach(m => {
+      if (!membersInAnyPT.has(m.trim().toLowerCase()))
+        tipItems.push(`⚠ <b>${esc(m)}</b> deve comprar um personagem neste servidor.`);
+    });
+    multiChar.forEach(([mc, n]) => tipItems.push(`ℹ <b>${esc(mc)}</b> está com ${n} personagens — considere passar um.`));
+    const tipsHtml = tipItems.length
+      ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">
+          <div class="rec-result-tips-title">💡 Dicas</div>
+          ${tipItems.map(it => `<div class="rec-result-tips-item">${it}</div>`).join('')}
+        </div>`
       : '';
 
-    return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
-      <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:.5rem">${esc(d.srv)}</div>
-      <div style="display:flex;gap:2rem">
-        <div style="flex:2;font-size:.88rem;color:var(--text-muted);line-height:1.8">${charLines}</div>
-        <div style="flex:1;font-size:.82rem;color:var(--text-muted);line-height:1.8">
-          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;font-family:'Cinzel',serif;letter-spacing:.05em">👤 Chars por membro</div>
-          ${ownerLines}
-        </div>
+    const headerLabel = d.completeCount > 0
+      ? `<span style="color:#3dba6c;font-size:.75rem">✅ ${d.completeCount} PT${d.completeCount > 1 ? 's' : ''} completa${d.completeCount > 1 ? 's' : ''}</span>`
+      : `<span style="color:var(--text-muted);font-size:.75rem;font-style:italic">Nenhuma PT completa</span>`;
+
+    return `<div style="margin-bottom:1.25rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+        <span style="font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;color:var(--gold2)">${esc(d.srv)}</span>
+        ${headerLabel}
       </div>
-      ${completeLine}${missingHtml}${noCharBlock}
+      ${ptCards}${tipsHtml}
     </div>`;
   }).join('');
 }
