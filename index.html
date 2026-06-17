@@ -2592,10 +2592,8 @@ function runAnalise(selected) {
       const remaining = pool.filter(c => !usedIds.has(c.id));
       if (!remaining.length) break;
       let pt = null;
-      for (const max of [1, 2]) {
-        const r = tryFormPT(remaining, max);
-        if (r) { pt = { team: r.team, std: r.std, complete: true, missing: [] }; break; }
-      }
+      const r = tryFormPT(remaining, 1);
+      if (r) pt = { team: r.team, std: r.std, complete: true, missing: [] };
       if (!pt) break;
       pt.team.forEach(c => usedIds.add(c.id));
       formedPTs.push(pt);
