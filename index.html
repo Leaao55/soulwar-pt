@@ -2684,14 +2684,17 @@ function recommendThreePTs(selected, preferredServer) {
   let pt1 = preferredServer ? buildPT(available, preferredServer) : null;
   if (!pt1) { if (preferredServer) usedFallback = true; pt1 = buildPT(available) || EMPTY_PT; }
 
-  // PT 2: todos os servidores com pool restante após PT 1.
+  // Pool restante: filtra sempre de `available` excluindo apenas os chars específicos usados,
+  // nunca o owner inteiro — um jogador pode ter chars em PTs diferentes.
   const usedIds = new Set(pt1.team.map(c => c.id));
+
+  // PT 2: todos os servidores, pool = available menos chars da PT 1.
   const rem1 = available.filter(c => !usedIds.has(c.id));
   const pt2 = rem1.length ? (buildPT(rem1) || EMPTY_PT) : EMPTY_PT;
   pt2.team.forEach(c => usedIds.add(c.id));
 
-  // PT 3: todos os servidores com pool restante após PT 1 e PT 2.
-  const rem2 = rem1.filter(c => !usedIds.has(c.id));
+  // PT 3: todos os servidores, pool = available menos chars da PT 1 e PT 2.
+  const rem2 = available.filter(c => !usedIds.has(c.id));
   const pt3 = rem2.length ? (buildPT(rem2) || EMPTY_PT) : EMPTY_PT;
 
   // Ordena: PTs sem repasse (todos os membros têm char) primeiro.
