@@ -2610,12 +2610,15 @@ function runAnalise(selected) {
     const membersWithChar = new Set(pool.map(c => c.owner.trim().toLowerCase()));
     const noCharMembers = selected.filter(m => !membersWithChar.has(m.trim().toLowerCase()));
     const completeCount = formedPTs.filter(p => p.complete).length;
-    return { srv, pool, formedPTs, completeCount, noCharMembers };
+    const pt1 = formedPTs[0];
+    const pt1MembersIn = pt1 ? new Set(pt1.team.map(c => c.owner.trim().toLowerCase())) : new Set();
+    const pt1MissingMembers = selected.filter(m => !pt1MembersIn.has(m.trim().toLowerCase())).length;
+    const pt1MissingVocs = pt1?.missing?.length ?? 99;
+    return { srv, pool, formedPTs, completeCount, noCharMembers, pt1MissingMembers, pt1MissingVocs };
   }).filter(Boolean).sort((a, b) => {
     if (b.completeCount !== a.completeCount) return b.completeCount - a.completeCount;
-    const aMissing = a.formedPTs[0]?.missing?.length ?? 99;
-    const bMissing = b.formedPTs[0]?.missing?.length ?? 99;
-    if (aMissing !== bMissing) return aMissing - bMissing;
+    if (a.pt1MissingMembers !== b.pt1MissingMembers) return a.pt1MissingMembers - b.pt1MissingMembers;
+    if (a.pt1MissingVocs !== b.pt1MissingVocs) return a.pt1MissingVocs - b.pt1MissingVocs;
     return a.srv.localeCompare(b.srv, 'pt-BR');
   });
 
