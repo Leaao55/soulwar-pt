@@ -2650,7 +2650,6 @@ function runAnalise(selected) {
       if (!membersInAnyPT.has(m.trim().toLowerCase()))
         tipItems.push(`⚠ <b>${esc(m)}</b> deve comprar um personagem neste servidor.`);
     });
-    multiChar.forEach(([mc, n]) => tipItems.push(`ℹ <b>${esc(mc)}</b> está com ${n} personagens — considere passar um.`));
     const tipsHtml = tipItems.length
       ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">
           <div class="rec-result-tips-title">💡 Dicas</div>
