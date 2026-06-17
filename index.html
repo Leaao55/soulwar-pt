@@ -2694,11 +2694,14 @@ function recommendThreePTs(selected, preferredServer) {
   const rem2 = rem1.filter(c => !usedIds.has(c.id));
   const pt3 = rem2.length ? (buildPT(rem2) || EMPTY_PT) : EMPTY_PT;
 
-  const ptResults = [pt1, pt2, pt3];
+  // Ordena: PTs sem repasse (todos os membros têm char) primeiro.
+  const withoutCharCount = (r) =>
+    lastSelectedMembers.filter(m => !r.team.some(c => c.owner.trim().toLowerCase() === m.trim().toLowerCase())).length;
+  const ptResults = [pt1, pt2, pt3].sort((a, b) => withoutCharCount(a) - withoutCharCount(b));
   lastRecommendPTs = ptResults;
 
   const fallbackNote = usedFallback && preferredServer
-    ? `<div style="color:#e07b35;font-size:.8rem;margin-bottom:.9rem">⚠ ${esc(preferredServer)} não tinha PT completa — PT 1 recomendada com personagens de <b>${esc(pt1.server)}</b>.</div>`
+    ? `<div style="color:#e07b35;font-size:.8rem;margin-bottom:.9rem">⚠ ${esc(preferredServer)} não tinha PT completa — PT 1 recomendada com personagens de <b>${esc(ptResults[0].server)}</b>.</div>`
     : '';
   body.innerHTML = fallbackNote + ptResults.map((r, i) => renderPTCard(r, i, r.server)).join('');
   document.getElementById('rec-result').classList.add('show');
