@@ -2589,37 +2589,54 @@ function runAnalise(selected) {
       const extraAvail = nonEK - 3 * next;
       if (extraAvail < next) missing.push(`${next - extraAvail} não-EK`);
     }
-    return { counts, complete, missing, total: pool.length };
+    return { complete, missing, total: pool.length };
   }
 
-  const serverData = servers
-    .map(srv => ({ srv, ...analyseServer(available.filter(c => c.server === srv)) }))
-    .filter(d => d.total > 0)
-    .sort((a, b) => (a.missing.length || (a.complete === 0 ? 99 : 0)) - (b.missing.length || (b.complete === 0 ? 99 : 0)) || a.srv.localeCompare(b.srv, 'pt-BR'));
-
   const grid = document.getElementById('analise-grid');
-  if (!serverData.length) {
+
+  const serverData = servers.map(srv => {
+    const pool = available.filter(c => c.server === srv);
+    return { srv, pool, ...analyseServer(pool) };
+  }).sort((a, b) => {
+    if (a.total === 0 && b.total > 0) return 1;
+    if (a.total > 0 && b.total === 0) return -1;
+    if (a.total === 0 && b.total === 0) return a.srv.localeCompare(b.srv, 'pt-BR');
+    return a.missing.length - b.missing.length || a.srv.localeCompare(b.srv, 'pt-BR');
+  });
+
+  if (!serverData.some(d => d.total > 0)) {
     grid.innerHTML = '<div class="empty">Nenhum personagem disponível para os membros selecionados.</div>';
     return;
   }
 
   grid.innerHTML = serverData.map(d => {
-    const ptLabel = d.complete > 0
-      ? `<span style="color:#3dba6c;font-family:'Cinzel',serif;font-size:.75rem">✓ ${d.complete} PT${d.complete > 1 ? 's' : ''} completa${d.complete > 1 ? 's' : ''}</span>`
-      : `<span style="color:var(--text-muted);font-size:.8rem;font-style:italic">Nenhuma PT completa</span>`;
-    const missingHtml = d.missing.length
-      ? `<div style="color:#e07b35;font-size:.8rem;margin-top:.3rem">⚠ Falta: ${d.missing.join(', ')}</div>`
-      : `<div style="color:#3dba6c;font-size:.8rem;margin-top:.3rem">✓ Próxima PT já possível</div>`;
-    const vocLine = ['ELITE KNIGHT','ROYAL PALADIN','MASTER SORCERER','ELDER DRUID','EXALTED MONK'].map(r =>
-      `<span style="margin-right:.6rem;font-size:.8rem;color:${(d.counts[r]||0)>0?'var(--text)':'var(--text-muted)'}">${SHORT[r]} ×${d.counts[r]||0}</span>`
+    const membersWithChar = new Set(d.pool.map(c => c.owner.trim().toLowerCase()));
+    const noCharWarnings = selected
+      .filter(m => !membersWithChar.has(m.trim().toLowerCase()))
+      .map(m => `<div style="color:#e07b35;font-size:.82rem">⚠ <b>${esc(m)}</b> não tem personagem neste servidor — considere comprar um.</div>`)
+      .join('');
+
+    if (d.total === 0) {
+      return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--border);border-radius:3px;background:rgba(255,255,255,.015);opacity:.55">
+        <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.5rem">${esc(d.srv)}</div>
+        ${noCharWarnings}
+      </div>`;
+    }
+
+    const charLines = d.pool.map(c =>
+      `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]||esc(c.cls)} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
     ).join('');
-    return `<div style="padding:.9rem 1.2rem;border:1px solid var(--border);border-radius:4px;background:var(--surface);margin-bottom:.75rem">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
-        <span style="font-family:'Cinzel',serif;font-size:.85rem;font-weight:600;color:var(--gold2)">${esc(d.srv)}</span>
-        ${ptLabel}
-      </div>
-      <div style="margin-bottom:.35rem">${vocLine}</div>
-      ${missingHtml}
+    const missingHtml = d.missing.length
+      ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.4rem;font-style:italic">⚠ Faltam: ${d.missing.join(', ')}</div>`
+      : `<div style="color:#3dba6c;font-size:.82rem;margin-top:.4rem;font-style:italic">✓ PT completa possível</div>`;
+    const noCharBlock = noCharWarnings
+      ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">${noCharWarnings}</div>`
+      : '';
+
+    return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
+      <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:.5rem">${esc(d.srv)}</div>
+      <div style="font-size:.88rem;color:var(--text-muted);line-height:1.8">${charLines}</div>
+      ${missingHtml}${noCharBlock}
     </div>`;
   }).join('');
 }
