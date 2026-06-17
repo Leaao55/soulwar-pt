@@ -2619,91 +2619,88 @@ function recommendThreePTs(selected, preferredServer) {
   const available = chars.filter(c =>
     (c.status === 'approved' || !c.status) && memberSet.has(c.owner)
   );
-  const serverGroups = {};
-  available.forEach(c => {
-    const srv = c.server || '(sem servidor)';
-    if (!serverGroups[srv]) serverGroups[srv] = [];
-    serverGroups[srv].push(c);
-  });
-
-  const buildThreeFrom = (pool) => {
-    const results = [];
-    let remaining = [...pool];
-    for (let i = 0; i < 3; i++) {
-      if (!remaining.length) break;
-      let ptResult = null;
-      for (const max of [1, 2, Infinity]) {
-        ptResult = tryFormPT(remaining, max);
-        if (ptResult) break;
-      }
-      if (ptResult) {
-        const usedIds = new Set(ptResult.team.map(c => c.id));
-        remaining = remaining.filter(c => !usedIds.has(c.id));
-        results.push({ team: ptResult.team, std: ptResult.std, complete: true, missing: [] });
-      } else {
-        results.push(buildPartialPT(remaining));
-        remaining = [];
-      }
-    }
-    while (results.length < 3) {
-      results.push({ team: [], std: 0, complete: false, missing: ['EK', 'RP', 'MS', 'ED', '5º'] });
-    }
-    return results;
-  };
-
-  let chosenServer = '';
-  let ptResults = null;
-  let usedFallback = false;
-
-  if (preferredServer && serverGroups[preferredServer]) {
-    const prefResults = buildThreeFrom(serverGroups[preferredServer]);
-    if (prefResults[0].complete) {
-      ptResults = prefResults;
-      chosenServer = preferredServer;
-    } else {
-      usedFallback = true;
-    }
-  } else if (preferredServer) {
-    usedFallback = true;
-  }
-
-  if (!ptResults) {
-    let bestScore = -1;
-    for (const [srv, pool] of Object.entries(serverGroups)) {
-      if (srv === preferredServer) continue;
-      const res = buildThreeFrom(pool);
-      if (!res[0].complete) continue;
-      const score = res.filter(r => r.complete).length;
-      if (score > bestScore) { bestScore = score; ptResults = res; chosenServer = srv; }
-    }
-  }
 
   const body = document.getElementById('rec-result-body');
   const tipsEl = document.getElementById('rec-result-tips');
   if (tipsEl) tipsEl.style.display = 'none';
 
-  if (!ptResults) {
-    const detail = available.length
-      ? Object.keys(serverGroups).map(srv => {
-          const g = serverGroups[srv];
-          const cc = {};
-          g.forEach(c => { cc[c.cls] = (cc[c.cls] || 0) + 1; });
-          const miss = ['ELITE KNIGHT', 'ROYAL PALADIN', 'MASTER SORCERER', 'ELDER DRUID']
-            .filter(r => !cc[r]).map(r => SHORT[r]);
-          return `<b>${esc(srv)}</b>: falta ${miss.length ? miss.join(', ') : '5º non-EK'}`;
-        }).join('<br>')
-      : 'Nenhum personagem disponível para os membros selecionados.';
-    body.innerHTML = `<div style="color:#e05252">⚠ Não foi possível montar PT com os membros selecionados.<br><br>${detail}</div>`;
+  if (!available.length) {
+    body.innerHTML = `<div style="color:#e05252">⚠ Nenhum personagem disponível para os membros selecionados.</div>`;
     document.getElementById('rec-result').classList.add('show');
     lastRecommendPTs = [];
     return;
   }
 
+  const groupByServer = (pool) => {
+    const groups = {};
+    pool.forEach(c => {
+      const srv = c.server || '(sem servidor)';
+      if (!groups[srv]) groups[srv] = [];
+      groups[srv].push(c);
+    });
+    return groups;
+  };
+
+  // Melhor PT completa no pool; onlyServer restringe a um servidor (sem fallback parcial).
+  const bestCompletePT = (pool, onlyServer = null) => {
+    const groups = groupByServer(pool);
+    const servers = onlyServer ? (groups[onlyServer] ? [onlyServer] : []) : Object.keys(groups);
+    let best = null;
+    for (const srv of servers) {
+      for (const max of [1, 2, Infinity]) {
+        const r = tryFormPT(groups[srv], max);
+        if (r) {
+          if (!best || r.std < best.std) best = { team: r.team, std: r.std, server: srv, complete: true, missing: [] };
+          break;
+        }
+      }
+    }
+    return best;
+  };
+
+  // Melhor PT parcial no pool: servidor com mais chars disponíveis.
+  const bestPartialPT = (pool) => {
+    const groups = groupByServer(pool);
+    let bestSrv = '', bestCount = 0;
+    for (const [srv, g] of Object.entries(groups)) {
+      if (g.length > bestCount) { bestCount = g.length; bestSrv = srv; }
+    }
+    if (!bestSrv) return { team: [], std: 0, complete: false, missing: ['EK', 'RP', 'MS', 'ED', '5º'], server: '' };
+    return { ...buildPartialPT(groups[bestSrv]), server: bestSrv };
+  };
+
+  // Tenta PT completa; se falhar e onlyServer=null, retorna parcial.
+  const buildPT = (pool, onlyServer = null) => {
+    const complete = bestCompletePT(pool, onlyServer);
+    if (complete) return complete;
+    if (onlyServer) return null;
+    return bestPartialPT(pool);
+  };
+
+  const EMPTY_PT = { team: [], std: 0, complete: false, missing: ['EK', 'RP', 'MS', 'ED', '5º'], server: '' };
+
+  // PT 1: servidor preferido primeiro; fallback para todos os servidores.
+  let usedFallback = false;
+  let pt1 = preferredServer ? buildPT(available, preferredServer) : null;
+  if (!pt1) { if (preferredServer) usedFallback = true; pt1 = buildPT(available) || EMPTY_PT; }
+
+  // PT 2: todos os servidores com pool restante após PT 1.
+  const usedIds = new Set(pt1.team.map(c => c.id));
+  const rem1 = available.filter(c => !usedIds.has(c.id));
+  const pt2 = rem1.length ? (buildPT(rem1) || EMPTY_PT) : EMPTY_PT;
+  pt2.team.forEach(c => usedIds.add(c.id));
+
+  // PT 3: todos os servidores com pool restante após PT 1 e PT 2.
+  const rem2 = rem1.filter(c => !usedIds.has(c.id));
+  const pt3 = rem2.length ? (buildPT(rem2) || EMPTY_PT) : EMPTY_PT;
+
+  const ptResults = [pt1, pt2, pt3];
   lastRecommendPTs = ptResults;
+
   const fallbackNote = usedFallback && preferredServer
-    ? `<div style="color:#e07b35;font-size:.8rem;margin-bottom:.9rem">⚠ ${esc(preferredServer)} não tinha PT completa — recomendando com personagens de <b>${esc(chosenServer)}</b>.</div>`
+    ? `<div style="color:#e07b35;font-size:.8rem;margin-bottom:.9rem">⚠ ${esc(preferredServer)} não tinha PT completa — PT 1 recomendada com personagens de <b>${esc(pt1.server)}</b>.</div>`
     : '';
-  body.innerHTML = fallbackNote + ptResults.map((r, i) => renderPTCard(r, i, chosenServer)).join('');
+  body.innerHTML = fallbackNote + ptResults.map((r, i) => renderPTCard(r, i, r.server)).join('');
   document.getElementById('rec-result').classList.add('show');
 }
 
