@@ -2633,8 +2633,11 @@ function runAnalise(selected) {
       const missingHtml = pt.missing && pt.missing.length
         ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.35rem;font-style:italic">⚠ Faltam: ${pt.missing.join(', ')}</div>`
         : '';
+      const membersInThisPT = new Set(pt.team.map(c => c.owner.trim().toLowerCase()));
       const buyWarnings = !pt.complete
-        ? d.noCharMembers.map(m => `<div style="color:#e07b35;font-size:.82rem;margin-top:.2rem">⚠ <b>${esc(m)}</b> deve comprar um personagem neste servidor.</div>`).join('')
+        ? selected.filter(m => !membersInThisPT.has(m.trim().toLowerCase()))
+            .map(m => `<div style="color:#e07b35;font-size:.82rem;margin-top:.2rem">⚠ <b>${esc(m)}</b> deve comprar um personagem neste servidor.</div>`)
+            .join('')
         : '';
       return `<div style="margin-bottom:.6rem;padding:.7rem 1rem;border:1px solid var(--border);border-left:3px solid ${color};border-radius:3px;background:rgba(255,255,255,.01)">
         <div style="font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:${color};margin-bottom:.35rem">${ptName}${incompleteTag}</div>
