@@ -2638,7 +2638,7 @@ function runAnalise(selected) {
         `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
       ).join('');
       const missingHtml = pt.missing && pt.missing.length
-        ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.35rem;font-style:italic">⚠ Faltam: ${pt.missing.join(', ')}</div>`
+        ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.35rem;font-style:italic">⚠ Faltam: ${pt.missing.map(m => m === '5º' ? 'Shooter' : m).join(', ')}</div>`
         : '';
       const membersInThisPT = new Set(pt.team.map(c => c.owner.trim().toLowerCase()));
       const buyWarnings = !pt.complete
