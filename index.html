@@ -2610,15 +2610,16 @@ function runAnalise(selected) {
     const membersWithChar = new Set(pool.map(c => c.owner.trim().toLowerCase()));
     const noCharMembers = selected.filter(m => !membersWithChar.has(m.trim().toLowerCase()));
     const completeCount = formedPTs.filter(p => p.complete).length;
-    const pt1 = formedPTs[0];
-    const pt1MembersIn = pt1 ? new Set(pt1.team.map(c => c.owner.trim().toLowerCase())) : new Set();
-    const pt1MissingMembers = selected.filter(m => !pt1MembersIn.has(m.trim().toLowerCase())).length;
-    const pt1MissingVocs = pt1?.missing?.length ?? 99;
-    return { srv, pool, formedPTs, completeCount, noCharMembers, pt1MissingMembers, pt1MissingVocs };
+    const firstInc = formedPTs.find(p => !p.complete);
+    const incMembersIn = firstInc ? new Set(firstInc.team.map(c => c.owner.trim().toLowerCase())) : null;
+    const incMissingMembers = firstInc ? selected.filter(m => !incMembersIn.has(m.trim().toLowerCase())).length : 999;
+    const incMissingVocs = firstInc?.missing?.length ?? 99;
+    return { srv, pool, formedPTs, completeCount, noCharMembers, incMissingMembers, incMissingVocs };
   }).filter(Boolean).sort((a, b) => {
-    if (b.completeCount !== a.completeCount) return b.completeCount - a.completeCount;
-    if (a.pt1MissingMembers !== b.pt1MissingMembers) return a.pt1MissingMembers - b.pt1MissingMembers;
-    if (a.pt1MissingVocs !== b.pt1MissingVocs) return a.pt1MissingVocs - b.pt1MissingVocs;
+    const aHasInc = a.incMissingMembers < 999, bHasInc = b.incMissingMembers < 999;
+    if (aHasInc !== bHasInc) return aHasInc ? -1 : 1;
+    if (a.incMissingMembers !== b.incMissingMembers) return a.incMissingMembers - b.incMissingMembers;
+    if (a.incMissingVocs !== b.incMissingVocs) return a.incMissingVocs - b.incMissingVocs;
     return a.srv.localeCompare(b.srv, 'pt-BR');
   });
 
@@ -2653,16 +2654,11 @@ function runAnalise(selected) {
       </div>`;
     }).join('');
 
-    const headerLabel = d.completeCount > 0
-      ? `<span style="color:#3dba6c;font-size:.75rem">✅ ${d.completeCount} PT${d.completeCount > 1 ? 's' : ''} completa${d.completeCount > 1 ? 's' : ''}</span>`
-      : `<span style="color:var(--text-muted);font-size:.75rem;font-style:italic">Nenhuma PT completa</span>`;
-
     if (!ptCards) return '';
 
     return `<div style="margin-bottom:1.25rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+      <div style="margin-bottom:.6rem">
         <span style="font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;color:var(--gold2)">${esc(d.srv)}</span>
-        ${headerLabel}
       </div>
       ${ptCards}
     </div>`;
