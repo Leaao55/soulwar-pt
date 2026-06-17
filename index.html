@@ -2592,7 +2592,7 @@ function runAnalise(selected) {
       const remaining = pool.filter(c => !usedIds.has(c.id));
       if (!remaining.length) break;
       let pt = null;
-      for (const max of [1, 2, Infinity]) {
+      for (const max of [1, 2]) {
         const r = tryFormPT(remaining, max);
         if (r) { pt = { team: r.team, std: r.std, complete: true, missing: [] }; break; }
       }
