@@ -2271,10 +2271,15 @@ function runRecommend() {
   list.innerHTML = '';
   const activeMembers = getActiveMembers();
   if (!activeMembers.length) { toast('Nenhum membro cadastrado.', 'error'); return; }
+  const DEFAULT_MEMBERS = ['MateusSP', 'Leão', 'RafaCharada', 'Nandao', 'Diego'];
+  const prevSelected = new Set((selectedMembers || []).map(s => s.trim().toLowerCase()));
+  const useDefaults = prevSelected.size === 0;
+  const defaultSet = new Set(DEFAULT_MEMBERS.map(s => s.trim().toLowerCase()));
   activeMembers.forEach(m => {
     const label = document.createElement('label');
     label.className = 'member-check-label';
-    label.innerHTML = `<input type="checkbox" value="${esc(m)}"> ${esc(m)}`;
+    const checked = useDefaults ? defaultSet.has(m.trim().toLowerCase()) : prevSelected.has(m.trim().toLowerCase());
+    label.innerHTML = `<input type="checkbox" value="${esc(m)}"${checked ? ' checked' : ''}> ${esc(m)}`;
     list.appendChild(label);
   });
   // Resetar busca de membros
