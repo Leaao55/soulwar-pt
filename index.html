@@ -451,6 +451,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
 .backup-wrap { border:1px solid var(--border); border-radius:4px; overflow:hidden;
   background:var(--surface2); padding:1rem; }
 .backup-pt { font-size:.75rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:.06em; }
+
 </style>
 </head>
 <body>
@@ -577,7 +578,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         </div>
         <button class="btn btn-outline visitor-hidden" onclick="load()" title="Atualizar dados">↻ Atualizar</button>
         <button class="btn btn-outline visitor-hidden" onclick="openServerModal()" title="Gerenciar servidores">⚙ Servidores</button>
-        <button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
+<button class="btn btn-ml" onclick="openAddModal()">+ Adicionar personagem</button>
       </div>
       <div class="pending-section" id="pending-section" style="display:none">
         <div class="pending-title">Aguardando aprovação <span class="pending-count" id="pending-count">0</span></div>
@@ -1287,6 +1288,29 @@ function fixDuplicateIds() {
   nextId = maxId + 1;
 }
 
+function removeDuplicateChars(silent = false) {
+  const seen = new Map();
+  const toRemove = new Set();
+  chars.forEach(c => {
+    const key = c.name.trim().toLowerCase();
+    if (seen.has(key)) toRemove.add(c.id);
+    else seen.set(key, c.id);
+  });
+  if (!toRemove.size) {
+    if (!silent) toast('Nenhum personagem duplicado encontrado.');
+    return 0;
+  }
+  pts.forEach((pt, pi) => {
+    pts[pi] = pt.map(cid => (cid !== null && toRemove.has(cid)) ? null : cid);
+  });
+  chars = chars.filter(c => !toRemove.has(c.id));
+  if (!silent) {
+    save(); renderChars(); renderPT();
+    toast(`${toRemove.size} personagem(s) duplicado(s) removido(s).`, 'success');
+  }
+  return toRemove.size;
+}
+
 async function load() {
   showSync('Carregando...', 'saving');
   try {
@@ -1428,6 +1452,8 @@ async function load() {
 
   while(pts.length<3) pts.push([null,null,null,null,null]);
   pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
+  const _dupRemoved = removeDuplicateChars(true);
+  if (_dupRemoved > 0) { console.log('[SW] ' + _dupRemoved + ' personagem(s) duplicado(s) removido(s) silenciosamente.'); save(); }
   showSync('', '');
   renderChars();
   renderRanking();
