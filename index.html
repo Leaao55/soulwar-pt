@@ -1216,6 +1216,7 @@ async function save() {
     }
 
     // ── 2. Enviar para a API (users embutidos em members) ──────────────────
+    removeDuplicateChars(true, false);
     const payload = {
       chars, pts, servers,
       members: buildMembersPayload(),
@@ -1287,7 +1288,7 @@ function fixDuplicateIds() {
   nextId = maxId + 1;
 }
 
-function removeDuplicateChars(silent = false) {
+function removeDuplicateChars(silent = false, shouldSave = true) {
   const seen = new Map();
   const toRemove = new Set();
   chars.forEach(c => {
@@ -1304,7 +1305,7 @@ function removeDuplicateChars(silent = false) {
   });
   chars = chars.filter(c => !toRemove.has(c.id));
   if (!silent) {
-    save(); renderChars(); renderPT();
+    if (shouldSave) save(); renderChars(); renderPT();
     toast(`${toRemove.size} personagem(s) duplicado(s) removido(s).`, 'success');
   }
   return toRemove.size;
