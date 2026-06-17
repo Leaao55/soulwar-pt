@@ -684,11 +684,10 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <button class="btn-rec-pt" onclick="runRecommend()">✦ Recomendar PT</button>
       </div>
       <div class="rec-result" id="rec-result">
-        <div class="rec-result-title">✦ PT Recomendada</div>
+        <div class="rec-result-title">✦ PTs Recomendadas</div>
         <div class="rec-result-body" id="rec-result-body"></div>
         <div class="rec-result-tips" id="rec-result-tips" style="display:none"></div>
         <div class="rec-result-footer">
-          <button class="btn-confirm" onclick="applyRecommend()">Aplicar nos slots</button>
           <button class="btn-cancel" onclick="clearRecommend()">Cancelar</button>
         </div>
       </div>
@@ -2252,7 +2251,8 @@ function deleteUser(id) {
 }
 
 // ── RECOMENDAÇÃO PT ───────────────────────────────────────────────────────
-let lastRecommend = null; // guarda o resultado pra aplicar depois
+let lastRecommend = null;
+let lastRecommendPTs = [];
 
 function runRecommend() {
   const list = document.getElementById('recommend-member-list');
@@ -2325,7 +2325,7 @@ function confirmRecommend() {
   const preferredServer = (document.getElementById('recommend-server-input')?.value || '').trim();
   selectedMembers = selected;
   closeModal('modal-recommend');
-  buildRecommendation(selected, preferredServer);
+  recommendThreePTs(selected, preferredServer);
   save();
 }
 
@@ -2538,6 +2538,194 @@ function tryFormPT(group, maxPerMember) {
   return best ? { team: best, std: bestStd } : null;
 }
 
+// ── RECOMENDAÇÃO 3 PTs ────────────────────────────────────────────────────
+function buildPartialPT(pool) {
+  const REQ = ['ELITE KNIGHT', 'ROYAL PALADIN', 'MASTER SORCERER', 'ELDER DRUID'];
+  const used = new Set();
+  const team = [];
+  const missing = [];
+  for (const role of REQ) {
+    const c = pool.find(x => x.cls === role && !used.has(x.id));
+    if (c) { team.push(c); used.add(c.id); }
+    else missing.push(SHORT[role] || role);
+  }
+  const fifth = pool.find(c => c.cls !== 'ELITE KNIGHT' && !used.has(c.id));
+  if (fifth) { team.push(fifth); used.add(fifth.id); }
+  else missing.push('5º');
+  const levels = team.map(c => c.level || 0);
+  const avg = team.length ? levels.reduce((a, b) => a + b, 0) / team.length : 0;
+  const std = team.length > 1
+    ? Math.sqrt(levels.map(x => (x - avg) ** 2).reduce((a, b) => a + b, 0) / team.length)
+    : 0;
+  return { team, std, complete: false, missing };
+}
+
+function renderPTCard(r, ptIndex, server) {
+  const color = PT_COLORS[ptIndex];
+  const name  = PT_NAMES[ptIndex];
+  const incompleteTag = !r.complete
+    ? ` <span style="color:#e07b35;font-size:.7rem;font-family:'Crimson Pro',serif;font-weight:400;text-transform:none;letter-spacing:0">(incompleta)</span>`
+    : '';
+  const serverTag = `<span style="color:var(--text-muted);font-size:.7rem;font-family:'Crimson Pro',serif;letter-spacing:0;text-transform:none"> — ${esc(server)}</span>`;
+  const lines = r.team.length
+    ? r.team.map(c => `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`).join('')
+    : `<div style="color:var(--text-muted);font-style:italic">Nenhum personagem disponível.</div>`;
+  const avg = r.team.length
+    ? Math.round(r.team.map(c => c.level || 0).reduce((a, b) => a + b, 0) / r.team.length)
+    : 0;
+  const stats = r.team.length
+    ? `<div style="margin-top:.5rem;font-size:.82rem">Level médio: <b>${avg}</b> &nbsp;·&nbsp; Desvio padrão: <b>${Math.round(r.std)}</b></div>`
+    : '';
+  const missingHtml = r.missing.length
+    ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.4rem;font-style:italic">⚠ Faltam: ${r.missing.join(', ')}</div>`
+    : '';
+  // Tips por PT
+  const membersInPT = new Set(r.team.map(c => c.owner.trim().toLowerCase()));
+  const withoutChar = lastSelectedMembers.filter(m => !membersInPT.has(m.trim().toLowerCase()));
+  const countPerMember = {};
+  r.team.forEach(c => { countPerMember[c.owner.trim()] = (countPerMember[c.owner.trim()] || 0) + 1; });
+  const multiChar = Object.entries(countPerMember).filter(([, n]) => n > 1);
+  let tipsHtml = '';
+  if (withoutChar.length || multiChar.length) {
+    const items = [];
+    if (withoutChar.length && multiChar.length) {
+      const multiNames = multiChar.map(([mc]) => `<b>${esc(mc)}</b>`).join(' e ');
+      const multiLabel = multiChar.length === 1
+        ? `${multiNames} está com ${multiChar[0][1]} personagens`
+        : `${multiNames} estão com 2+ personagens`;
+      withoutChar.forEach(wo => items.push(`⚠ <b>${esc(wo)}</b> não tem personagem. ${multiLabel} — considere passar um.`));
+    } else {
+      withoutChar.forEach(wo => items.push(`⚠ <b>${esc(wo)}</b> não tem personagem nesta PT.`));
+      multiChar.forEach(([mc, n]) => items.push(`ℹ <b>${esc(mc)}</b> está com ${n} personagens.`));
+    }
+    tipsHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border)">
+      <div class="rec-result-tips-title">💡 Dicas</div>
+      ${items.map(it => `<div class="rec-result-tips-item">${it}</div>`).join('')}
+    </div>`;
+  }
+  const applyBtn = r.team.length
+    ? `<div style="margin-top:.8rem"><button class="btn-confirm" onclick="applyPTRecommend(${ptIndex})">Aplicar nos slots</button></div>`
+    : '';
+  return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid ${color};border-radius:3px;background:rgba(255,255,255,.015)">
+    <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:${color};margin-bottom:.5rem">${name}${incompleteTag}${serverTag}</div>
+    <div style="font-size:.88rem;color:var(--text-muted);line-height:1.8">${lines}</div>
+    ${stats}${missingHtml}${tipsHtml}${applyBtn}
+  </div>`;
+}
+
+function recommendThreePTs(selected, preferredServer) {
+  lastSelectedMembers = selected;
+  const memberSet = new Set(selected);
+  const available = chars.filter(c =>
+    (c.status === 'approved' || !c.status) && memberSet.has(c.owner)
+  );
+  const serverGroups = {};
+  available.forEach(c => {
+    const srv = c.server || '(sem servidor)';
+    if (!serverGroups[srv]) serverGroups[srv] = [];
+    serverGroups[srv].push(c);
+  });
+
+  const buildThreeFrom = (pool) => {
+    const results = [];
+    let remaining = [...pool];
+    for (let i = 0; i < 3; i++) {
+      if (!remaining.length) break;
+      let ptResult = null;
+      for (const max of [1, 2, Infinity]) {
+        ptResult = tryFormPT(remaining, max);
+        if (ptResult) break;
+      }
+      if (ptResult) {
+        const usedIds = new Set(ptResult.team.map(c => c.id));
+        remaining = remaining.filter(c => !usedIds.has(c.id));
+        results.push({ team: ptResult.team, std: ptResult.std, complete: true, missing: [] });
+      } else {
+        results.push(buildPartialPT(remaining));
+        remaining = [];
+      }
+    }
+    while (results.length < 3) {
+      results.push({ team: [], std: 0, complete: false, missing: ['EK', 'RP', 'MS', 'ED', '5º'] });
+    }
+    return results;
+  };
+
+  let chosenServer = '';
+  let ptResults = null;
+  let usedFallback = false;
+
+  if (preferredServer && serverGroups[preferredServer]) {
+    const prefResults = buildThreeFrom(serverGroups[preferredServer]);
+    if (prefResults[0].complete) {
+      ptResults = prefResults;
+      chosenServer = preferredServer;
+    } else {
+      usedFallback = true;
+    }
+  } else if (preferredServer) {
+    usedFallback = true;
+  }
+
+  if (!ptResults) {
+    let bestScore = -1;
+    for (const [srv, pool] of Object.entries(serverGroups)) {
+      if (srv === preferredServer) continue;
+      const res = buildThreeFrom(pool);
+      if (!res[0].complete) continue;
+      const score = res.filter(r => r.complete).length;
+      if (score > bestScore) { bestScore = score; ptResults = res; chosenServer = srv; }
+    }
+  }
+
+  const body = document.getElementById('rec-result-body');
+  const tipsEl = document.getElementById('rec-result-tips');
+  if (tipsEl) tipsEl.style.display = 'none';
+
+  if (!ptResults) {
+    const detail = available.length
+      ? Object.keys(serverGroups).map(srv => {
+          const g = serverGroups[srv];
+          const cc = {};
+          g.forEach(c => { cc[c.cls] = (cc[c.cls] || 0) + 1; });
+          const miss = ['ELITE KNIGHT', 'ROYAL PALADIN', 'MASTER SORCERER', 'ELDER DRUID']
+            .filter(r => !cc[r]).map(r => SHORT[r]);
+          return `<b>${esc(srv)}</b>: falta ${miss.length ? miss.join(', ') : '5º non-EK'}`;
+        }).join('<br>')
+      : 'Nenhum personagem disponível para os membros selecionados.';
+    body.innerHTML = `<div style="color:#e05252">⚠ Não foi possível montar PT com os membros selecionados.<br><br>${detail}</div>`;
+    document.getElementById('rec-result').classList.add('show');
+    lastRecommendPTs = [];
+    return;
+  }
+
+  lastRecommendPTs = ptResults;
+  const fallbackNote = usedFallback && preferredServer
+    ? `<div style="color:#e07b35;font-size:.8rem;margin-bottom:.9rem">⚠ ${esc(preferredServer)} não tinha PT completa — recomendando com personagens de <b>${esc(chosenServer)}</b>.</div>`
+    : '';
+  body.innerHTML = fallbackNote + ptResults.map((r, i) => renderPTCard(r, i, chosenServer)).join('');
+  document.getElementById('rec-result').classList.add('show');
+}
+
+function _applyPTToSlot(team, ptIndex) {
+  pts[ptIndex].forEach(cid => {
+    if (cid !== null) { const c = chars.find(x => x.id === cid); if (c) c.sentTo = null; }
+  });
+  pts[ptIndex] = [null, null, null, null, null];
+  team.forEach((c, i) => { pts[ptIndex][i] = c.id; c.sentTo = ptIndex; });
+}
+
+function applyPTRecommend(ptIndex) {
+  const r = lastRecommendPTs[ptIndex];
+  if (!r || !r.team.length) return;
+  if (pts[ptIndex].some(x => x !== null)) {
+    if (!confirm(`${PT_NAMES[ptIndex]} já tem personagens. Substituir?`)) return;
+  }
+  _applyPTToSlot(r.team, ptIndex);
+  save(); renderPT(); renderChars();
+  toast(`${PT_NAMES[ptIndex]} aplicada nos slots!`, 'success');
+}
+
 // ── RANKING ───────────────────────────────────────────────────────────────
 function switchRankTab(tab, btn) {
   document.querySelectorAll('.rank-tab').forEach(b => b.classList.remove('active'));
@@ -2604,6 +2792,7 @@ function resetAllTimeRanking() {
 
 function clearRecommend() {
   lastRecommend = null;
+  lastRecommendPTs = [];
   document.getElementById('rec-result').classList.remove('show');
   const tipsEl = document.getElementById('rec-result-tips');
   if (tipsEl) { tipsEl.style.display = 'none'; tipsEl.innerHTML = ''; }
