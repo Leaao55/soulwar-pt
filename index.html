@@ -2626,6 +2626,12 @@ function runAnalise(selected) {
     const charLines = d.pool.map(c =>
       `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]||esc(c.cls)} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
     ).join('');
+    const countByOwner = {};
+    d.pool.forEach(c => { countByOwner[c.owner] = (countByOwner[c.owner] || 0) + 1; });
+    const ownerLines = Object.entries(countByOwner)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'pt-BR'))
+      .map(([owner, n]) => `<div>👤 <b>${esc(owner)}</b> — ${n} char${n > 1 ? 's' : ''}</div>`)
+      .join('');
     const completeLine = d.complete > 0
       ? `<div style="color:#3dba6c;font-size:.82rem;margin-top:.4rem">✅ ${d.complete} PT${d.complete > 1 ? 's' : ''} completa${d.complete > 1 ? 's' : ''}</div>`
       : '';
@@ -2638,7 +2644,13 @@ function runAnalise(selected) {
 
     return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
       <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:.5rem">${esc(d.srv)}</div>
-      <div style="font-size:.88rem;color:var(--text-muted);line-height:1.8">${charLines}</div>
+      <div style="display:flex;gap:2rem">
+        <div style="flex:2;font-size:.88rem;color:var(--text-muted);line-height:1.8">${charLines}</div>
+        <div style="flex:1;font-size:.82rem;color:var(--text-muted);line-height:1.8">
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;font-family:'Cinzel',serif;letter-spacing:.05em">👤 Chars por membro</div>
+          ${ownerLines}
+        </div>
+      </div>
       ${completeLine}${missingHtml}${noCharBlock}
     </div>`;
   }).join('');
