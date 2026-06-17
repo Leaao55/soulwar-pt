@@ -2641,7 +2641,12 @@ function recommendThreePTs(selected, preferredServer) {
     return groups;
   };
 
+  // Membros sem char numa equipe (usado como critério primário de comparação).
+  const withoutCount = (team) =>
+    lastSelectedMembers.filter(m => !team.some(c => c.owner.trim().toLowerCase() === m.trim().toLowerCase())).length;
+
   // Melhor PT completa no pool; onlyServer restringe a um servidor (sem fallback parcial).
+  // Critério: 1º menor withoutChar (sem repasse vence), 2º menor desvio padrão.
   const bestCompletePT = (pool, onlyServer = null) => {
     const groups = groupByServer(pool);
     const servers = onlyServer ? (groups[onlyServer] ? [onlyServer] : []) : Object.keys(groups);
@@ -2650,7 +2655,10 @@ function recommendThreePTs(selected, preferredServer) {
       for (const max of [1, 2, Infinity]) {
         const r = tryFormPT(groups[srv], max);
         if (r) {
-          if (!best || r.std < best.std) best = { team: r.team, std: r.std, server: srv, complete: true, missing: [] };
+          const wc = withoutCount(r.team);
+          const bestWc = best ? withoutCount(best.team) : Infinity;
+          if (!best || wc < bestWc || (wc === bestWc && r.std < best.std))
+            best = { team: r.team, std: r.std, server: srv, complete: true, missing: [] };
           break;
         }
       }
