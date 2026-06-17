@@ -2611,9 +2611,13 @@ function runAnalise(selected) {
     const noCharMembers = selected.filter(m => !membersWithChar.has(m.trim().toLowerCase()));
     const completeCount = formedPTs.filter(p => p.complete).length;
     return { srv, pool, formedPTs, completeCount, noCharMembers };
-  }).filter(Boolean).sort((a, b) =>
-    b.completeCount - a.completeCount || a.srv.localeCompare(b.srv, 'pt-BR')
-  );
+  }).filter(Boolean).sort((a, b) => {
+    if (b.completeCount !== a.completeCount) return b.completeCount - a.completeCount;
+    const aMissing = a.formedPTs[0]?.missing?.length ?? 99;
+    const bMissing = b.formedPTs[0]?.missing?.length ?? 99;
+    if (aMissing !== bMissing) return aMissing - bMissing;
+    return a.srv.localeCompare(b.srv, 'pt-BR');
+  });
 
   if (!serverData.length) {
     grid.innerHTML = '<div class="empty">Nenhum personagem disponível para os membros selecionados.</div>';
