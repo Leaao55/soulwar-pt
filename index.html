@@ -2626,9 +2626,12 @@ function runAnalise(selected) {
     const charLines = d.pool.map(c =>
       `<div>· <b>${esc(c.name)}</b> — ${SHORT[c.cls]||esc(c.cls)} — Lv ${c.level||'?'} — ${esc(c.owner)}</div>`
     ).join('');
+    const completeLine = d.complete > 0
+      ? `<div style="color:#3dba6c;font-size:.82rem;margin-top:.4rem">✅ ${d.complete} PT${d.complete > 1 ? 's' : ''} completa${d.complete > 1 ? 's' : ''}</div>`
+      : '';
     const missingHtml = d.missing.length
-      ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.4rem;font-style:italic">⚠ Faltam: ${d.missing.join(', ')}</div>`
-      : `<div style="color:#3dba6c;font-size:.82rem;margin-top:.4rem;font-style:italic">✓ PT completa possível</div>`;
+      ? `<div style="color:#e07b35;font-size:.82rem;margin-top:.25rem;font-style:italic">${d.complete > 0 ? 'Para a próxima PT, falta: ' : 'Falta: '}${d.missing.join(', ')}</div>`
+      : '';
     const noCharBlock = noCharWarnings
       ? `<div style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)">${noCharWarnings}</div>`
       : '';
@@ -2636,7 +2639,7 @@ function runAnalise(selected) {
     return `<div style="margin-bottom:1rem;padding:1rem 1.2rem;border:1px solid var(--border);border-left:3px solid var(--gold2);border-radius:3px;background:rgba(255,255,255,.015)">
       <div style="font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold2);margin-bottom:.5rem">${esc(d.srv)}</div>
       <div style="font-size:.88rem;color:var(--text-muted);line-height:1.8">${charLines}</div>
-      ${missingHtml}${noCharBlock}
+      ${completeLine}${missingHtml}${noCharBlock}
     </div>`;
   }).join('');
 }
