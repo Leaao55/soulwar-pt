@@ -1748,7 +1748,7 @@ function renderPT() {
     const admFooter = currentRole === 'adm'
       ? `<button class="btn-finalize" onclick="finalizePT(${pi})">⚔ Soulwar Finalizada</button>`
       : '';
-    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação (ex: parou na sala X)..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"></div>`;
+    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"></div>`;
     card.innerHTML=`
       <div class="pt-card-header">
         <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
