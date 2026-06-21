@@ -37,8 +37,8 @@ h1 span{color:var(--text-muted);font-size:.5em;display:block;letter-spacing:.25e
 
 .logout-btn:hover{border-color:var(--text-muted);color:var(--text);}
 
-.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:620px;
-  border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.tabs{display:flex;justify-content:center;gap:0;margin:1.5rem auto 0;max-width:900px;
+  border:1px solid var(--border);border-radius:4px;overflow-x:auto;}
 .tab{flex:1;padding:.7rem 1rem;font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.1em;
   background:transparent;color:var(--text-muted);border:none;cursor:pointer;transition:all .2s;
   border-right:1px solid var(--border);text-transform:uppercase;}
@@ -207,7 +207,7 @@ label{font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-trans
   .form-grid{grid-template-columns:1fr;}
   th:nth-child(2),td:nth-child(2){display:none;}
   th:nth-child(6),td:nth-child(6){display:none;}
-  
+  .tab{font-size:.68rem;padding:.6rem .55rem;letter-spacing:.06em;}
 }
 
 
@@ -529,8 +529,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="tab" onclick="switchTab('analise',this)">📊 Análise</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
-      <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
   </div>
+  <div style="text-align:center;margin-top:.5rem"><span class="sync-status" id="sync-status"></span></div>
   </header>
 
   <main>
