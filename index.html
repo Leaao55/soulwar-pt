@@ -440,6 +440,14 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
   letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:all .18s; }
 .btn-finalize:hover { background:rgba(224,82,82,.08); color:#e05252; }
 
+/* ── OBS PT ── */
+.pt-obs-wrap { padding:.5rem 1rem; border-top:1px solid rgba(42,47,74,.4); }
+.pt-obs-input { background:var(--surface2); border:1px solid var(--border); color:var(--text);
+  font-family:'Crimson Pro',serif; padding:.5rem .8rem; border-radius:3px; width:100%;
+  font-size:.9rem; outline:none; transition:border-color .2s; box-sizing:border-box; }
+.pt-obs-input:focus { border-color:var(--gold-dim); }
+.pt-obs-input::placeholder { color:var(--text-muted); }
+
 /* ── BACKUP ── */
 .backup-item { display:flex; align-items:center; justify-content:space-between;
   padding:.85rem 1.2rem; background:var(--surface); border:1px solid var(--border);
@@ -1068,6 +1076,7 @@ let deletedUserIds   = [];
 let deletedUserNames = [];
 let backups     = [];
 let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+let ptObservations = ['', '', ''];
 const DEFAULT_SERVERS = ["Auroria","Belaria","Bellum","Divinian","Elysian","Etherian","Grimoria I","Grimoria II","Grimoria III","Grimoria IV","Halorian","Lunarian","Mystian","Serenian","Solarian","Spectrum","Tenebrium","Vesperia"];
 let servers = [...DEFAULT_SERVERS];
 let members = ["Leão"];
@@ -1236,7 +1245,8 @@ async function save() {
       deletedUserNames,
       backup_chars: backups,
       ranking_weekly:  rankingWeekly,
-      ranking_alltime: rankingAllTime
+      ranking_alltime: rankingAllTime,
+      pt_observations: ptObservations
     };
     console.log('[SW] save() — ranking_weekly a enviar:', JSON.stringify(rankingWeekly));
     console.log('[SW] save() — ranking_alltime a enviar:', JSON.stringify(rankingAllTime));
@@ -1271,6 +1281,7 @@ async function save() {
     localStorage.setItem('sw_ranking_alltime',   JSON.stringify(rankingAllTime));
     localStorage.setItem('sw_selected_members',   JSON.stringify(selectedMembers));
     localStorage.setItem('sw_pending_repasse_map', JSON.stringify(pendingRepasseMap));
+    localStorage.setItem('sw_pt_observations', JSON.stringify(ptObservations));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -1348,6 +1359,8 @@ async function load() {
         console.log('[SW] load() — backup_chars do localStorage:', backups.length, 'backups (GAS não retornou o campo)');
       }
       if (d.pts)         pts      = JSON.parse(d.pts);
+      if (d.pt_observations) ptObservations = JSON.parse(d.pt_observations);
+      else { const _po = localStorage.getItem('sw_pt_observations'); if (_po) ptObservations = JSON.parse(_po); }
       if (d.servers) {
         const _saved = JSON.parse(d.servers);
         const _merged = [..._saved];
@@ -1416,6 +1429,8 @@ async function load() {
     const dun  = localStorage.getItem('sw_deletedUserNames');
     if(c)  { chars=JSON.parse(c); chars.forEach(ch => { ch.id = Number(ch.id); }); fixDuplicateIds(); }
     if(p)  pts=JSON.parse(p);
+    const po = localStorage.getItem('sw_pt_observations');
+    if(po) ptObservations=JSON.parse(po);
     const rkW = localStorage.getItem('sw_ranking_weekly');
     if(rkW) rankingWeekly=JSON.parse(rkW);
     const rkA = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
@@ -1733,11 +1748,12 @@ function renderPT() {
     const admFooter = currentRole === 'adm'
       ? `<button class="btn-finalize" onclick="finalizePT(${pi})">⚔ Soulwar Finalizada</button>`
       : '';
+    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação (ex: parou na sala X)..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"></div>`;
     card.innerHTML=`
       <div class="pt-card-header">
         <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
         <span class="pt-card-count">${filled}/5</span>
-      </div>${slots}${admFooter}`;
+      </div>${slots}${obsWrap}${admFooter}`;
     grid.appendChild(card);
   });
 }
@@ -2051,12 +2067,18 @@ function confirmFinalize() {
   chars = chars.filter(c => !idSet.has(c.id));
   deletedIds.push(...ptIds);
   pts[pi] = [null, null, null, null, null];
+  ptObservations[pi] = '';
   finalizingPTIndex = null;
 
   pendingRepasseMap = {};
   closeModal('modal-finalize');
   save(); renderPT(); renderChars(); renderRanking();
   toast(`${PT_NAMES[pi]} finalizada! ${names.length} personagem(s) removido(s).`, 'success');
+}
+
+function updatePTObservation(pi, value) {
+  ptObservations[pi] = value;
+  save();
 }
 
 function removeFromPT(pi,cid) {
