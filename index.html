@@ -2875,12 +2875,11 @@ function _applyPTToSlot(team, ptIndex) {
 function applyPTRecommend(ptIndex) {
   const r = lastRecommendPTs[ptIndex];
   if (!r || !r.team.length) return;
-  if (pts[ptIndex].some(x => x !== null)) {
-    if (!confirm(`${PT_NAMES[ptIndex]} já tem personagens. Substituir?`)) return;
-  }
-  _applyPTToSlot(r.team, ptIndex);
+  const emptySlot = pts.findIndex(pt => pt.every(x => x === null));
+  if (emptySlot === -1) { toast('Todos os slots estão ocupados.', 'error'); return; }
+  _applyPTToSlot(r.team, emptySlot);
   save(); renderPT(); renderChars();
-  toast(`${PT_NAMES[ptIndex]} aplicada nos slots!`, 'success');
+  toast(`${PT_NAMES[emptySlot]} aplicada nos slots!`, 'success');
 }
 
 // ── RANKING ───────────────────────────────────────────────────────────────
