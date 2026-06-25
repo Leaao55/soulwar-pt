@@ -1988,7 +1988,7 @@ async function addChar() {
       toast('Cupom inválido.', 'error');
       return;
     }
-    await load();
+    try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
     chars.push({
       id:nextId++,
       owner: 'Visitante',
@@ -1999,7 +1999,9 @@ async function addChar() {
       status: 'pending',
       sentTo: null
     });
-    await save(); closeModal('modal-add'); renderChars();
+    await save();
+    closeModal('modal-add');
+    renderChars();
     toast('Personagem enviado para aprovação!', 'success');
     return;
   }
