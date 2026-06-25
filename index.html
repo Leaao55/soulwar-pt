@@ -1978,6 +1978,10 @@ async function addChar() {
 
   // Visitante precisa informar telefone
   if (currentRole === 'visitor') {
+    if (window._savingChar) {
+      console.log('[SW][DEBUG] salvamento já em andamento, ignorando clique duplicado');
+      return;
+    }
     const phone = document.getElementById('m-phone').value.trim();
     if (!phone) {
       document.getElementById('m-phone').focus();
@@ -1990,43 +1994,48 @@ async function addChar() {
       toast('Cupom inválido.', 'error');
       return;
     }
+    window._savingChar = true;
     const _btnAdd = document.querySelector('#modal-add .btn-confirm');
     const _hint = document.getElementById('m-saving-hint');
     if (_btnAdd) { _btnAdd.disabled = true; _btnAdd.textContent = 'Salvando...'; }
     if (_hint) _hint.style.display = 'block';
     console.log('[SW][TIMING] inicio visitor save:', Date.now());
-    try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
-    chars.push({
-      id:nextId++,
-      owner: 'Visitante',
-      name, cls, level, server, obs,
-      conta: conta || null,
-      phone: phone,
-      coupon: couponRaw || null,
-      status: 'pending',
-      sentTo: null
-    });
-    console.log('[SW][TIMING] antes save():', Date.now());
     try {
-      await save();
-      console.log('[SW][TIMING] depois do await save, antes de fechar modal');
-      console.log('[SW][DEBUG] passo 1 - _hint:', _hint, '_btnAdd:', _btnAdd);
-      if (_hint) _hint.style.display = 'none';
-      console.log('[SW][DEBUG] passo 2 - entrando no try de fechamento');
+      try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
+      chars.push({
+        id:nextId++,
+        owner: 'Visitante',
+        name, cls, level, server, obs,
+        conta: conta || null,
+        phone: phone,
+        coupon: couponRaw || null,
+        status: 'pending',
+        sentTo: null
+      });
+      console.log('[SW][TIMING] antes save():', Date.now());
       try {
-        closeModal('modal-add');
-        console.log('[SW][DEBUG] passo 3 - closeModal ok');
-        toast('Personagem cadastrado! Aguardando aprovação.', 'success');
-        console.log('[SW][DEBUG] passo 4 - toast ok');
-        renderChars();
-        console.log('[SW][TIMING] modal fechado com sucesso');
-      } catch(err) {
-        console.error('[SW][ERROR] falha ao fechar modal:', err);
+        await save();
+        console.log('[SW][TIMING] depois do await save, antes de fechar modal');
+        console.log('[SW][DEBUG] passo 1 - _hint:', _hint, '_btnAdd:', _btnAdd);
+        if (_hint) _hint.style.display = 'none';
+        console.log('[SW][DEBUG] passo 2 - entrando no try de fechamento');
+        try {
+          closeModal('modal-add');
+          console.log('[SW][DEBUG] passo 3 - closeModal ok');
+          toast('Personagem cadastrado! Aguardando aprovação.', 'success');
+          console.log('[SW][DEBUG] passo 4 - toast ok');
+          renderChars();
+          console.log('[SW][TIMING] modal fechado com sucesso');
+        } catch(err) {
+          console.error('[SW][ERROR] falha ao fechar modal:', err);
+        }
+      } catch(e) {
+        console.error('[SW] addChar visitor: erro pós-save():', e);
+        if (_hint) _hint.style.display = 'none';
+        if (_btnAdd) { _btnAdd.disabled = false; _btnAdd.textContent = 'Adicionar'; }
       }
-    } catch(e) {
-      console.error('[SW] addChar visitor: erro pós-save():', e);
-      if (_hint) _hint.style.display = 'none';
-      if (_btnAdd) { _btnAdd.disabled = false; _btnAdd.textContent = 'Adicionar'; }
+    } finally {
+      window._savingChar = false;
     }
     return;
   }
