@@ -1897,6 +1897,8 @@ function openAddModal() {
     contaReq.textContent = currentRole === 'visitor' ? '(opcional)' : '*';
     contaReq.style.color = currentRole === 'visitor' ? 'var(--text-muted)' : '#e05252';
   }
+  const addBtn = document.querySelector('#modal-add .btn-confirm');
+  if (addBtn) { addBtn.disabled = false; addBtn.textContent = 'Adicionar'; }
   openModal('modal-add');
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
