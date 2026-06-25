@@ -1670,9 +1670,8 @@ function renderChars() {
   renderPending();
   const isVisitor = currentRole === 'visitor';
   document.body.classList.toggle('visitor-mode', isVisitor);
-  document.getElementById('chars-table-wrap').style.display = isVisitor ? 'none' : '';
-  document.getElementById('approved-title').style.display = isVisitor ? 'none' : '';
-  if (isVisitor) return;
+  const thDono = document.querySelector('#chars-table-wrap thead th:nth-child(2)');
+  if (thDono) thDono.style.display = isVisitor ? 'none' : '';
   const q  = document.getElementById('search').value.toLowerCase();
   const fc  = FAC_VAL['filter-class'];
   const fs  = FAC_VAL['filter-server'];
@@ -1694,7 +1693,7 @@ function renderChars() {
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
-      <td class="owner-name">${esc(c.owner)}</td>
+      <td class="owner-name"${isVisitor ? ' style="display:none"' : ''}>${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
       <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
@@ -1750,7 +1749,7 @@ function renderPT() {
     const admFooter = currentRole === 'adm'
       ? `<button class="btn-finalize" onclick="finalizePT(${pi})">⚔ Soulwar Finalizada</button>`
       : '';
-    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"></div>`;
+    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"${currentRole !== 'adm' ? ' readonly' : ''}></div>`;
     card.innerHTML=`
       <div class="pt-card-header">
         <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
