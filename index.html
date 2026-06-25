@@ -538,8 +538,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" id="tab-pt-btn" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
-      <button class="tab" onclick="switchTab('como-funciona',this)">❓ Como Funciona</button>
-      <button class="tab" onclick="switchTab('urgente',this)" style="color:#ff6b6b;">🔥 Urgente</button>
+      <button class="tab" id="tab-como-funciona-btn" onclick="switchTab('como-funciona',this)" style="display:none">❓ Como Funciona</button>
+      <button class="tab" id="tab-urgente-btn" onclick="switchTab('urgente',this)" style="display:none;color:#ff6b6b;">🔥 Urgente</button>
       <button class="tab" id="tab-analise-btn" onclick="switchTab('analise',this)">📊 Análise</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
@@ -1123,6 +1123,10 @@ function enterApp(role, user) {
     const ptTabBtn = document.getElementById('tab-pt-btn');
     if (ptTabBtn) ptTabBtn.style.display = 'none';
     const analiseTabBtn = document.getElementById('tab-analise-btn');
+    const comoFuncionaTabBtn = document.getElementById('tab-como-funciona-btn');
+    if (comoFuncionaTabBtn) comoFuncionaTabBtn.style.display = '';
+    const urgenteTabBtn = document.getElementById('tab-urgente-btn');
+    if (urgenteTabBtn) urgenteTabBtn.style.display = '';
     if (analiseTabBtn) analiseTabBtn.style.display = 'none';
     const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = 'none';
