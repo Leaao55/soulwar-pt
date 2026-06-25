@@ -1496,7 +1496,8 @@ async function load() {
         if (_la) rankingAllTime = JSON.parse(_la);
         console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
       }
-      if (d.coupons)     coupons  = JSON.parse(d.coupons);
+      if (d.coupons) { coupons = JSON.parse(d.coupons); }
+      else { const _lc = localStorage.getItem('sw_coupons'); if (_lc) coupons = JSON.parse(_lc); }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       const _sm = localStorage.getItem('sw_selected_members');
       if (_sm) selectedMembers = JSON.parse(_sm);
