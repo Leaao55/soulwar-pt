@@ -611,7 +611,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <table>
           <thead><tr>
             <th>#</th><th>Dono</th><th>Personagem</th><th class="col-conta">Conta</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none;max-width:90px;white-space:nowrap">WhatsApp</th><th style="white-space:nowrap;min-width:80px"></th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -710,12 +710,12 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div style="max-width:640px;margin:0 auto">
 
         <div style="border:2px solid #e05252;border-top:4px solid #e05252;border-radius:4px;background:rgba(224,82,82,.07);padding:1.8rem 2rem;margin-bottom:1.2rem;text-align:center">
-          <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e05252;text-shadow:0 0 20px rgba(224,82,82,.35);margin-bottom:.5rem">🔥 Estamos Dando Prioridade Extrema para o Servidor Grimoria!</div>
+          <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e05252;text-shadow:0 0 20px rgba(224,82,82,.35);margin-bottom:.5rem">🔥 Precisamos Urgente de Personagens no Servidor Grimória!</div>
         </div>
 
         <div style="border:1px solid rgba(224,82,82,.35);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:.9rem">
-          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos dando prioridade <b style="color:#e05252">TOTAL</b> para fechar times em <b style="color:#e05252">QUALQUER servidor do Grimoria</b>. E isso significa <b style="color:var(--gold2)">atendimento mais rápido</b> pra você!</p>
-          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Se você tem um personagem nos servidores de Grimoria que se encaixa nos requisitos (veja a aba <b style="color:var(--gold2)">"Como Funciona"</b>), não perca tempo: cadastre agora e garanta seu lugar na fila com prioridade.</p>
+          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos dando prioridade <b style="color:#e05252">TOTAL</b> para fechar times em <b style="color:#e05252">QUALQUER servidor do Grimória</b>. E isso significa <b style="color:var(--gold2)">atendimento mais rápido</b> pra você!</p>
+          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Se você tem um personagem nos servidores de Grimória que se encaixa nos requisitos (veja a aba <b style="color:var(--gold2)">"Como Funciona"</b>), não perca tempo: cadastre agora e garanta seu lugar na fila com prioridade.</p>
           <p style="font-size:.97rem;color:var(--text);line-height:1.65">Os itens da Soulwar estão <b style="color:var(--gold2)">valorizados no momento</b> — quanto antes você fizer a quest, mais vale a pena. O mercado pode virar e os preços caírem, então corra enquanto está bom!</p>
           <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos <b style="color:#e05252">100% focados</b> em fechar o máximo de PTs agora. Se o seu char é desse servidor, essa é a hora certa pra garantir seu service.</p>
         </div>
@@ -754,7 +754,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <div id="users-empty" class="empty" style="display:none">Nenhum usuário cadastrado.</div>
         </div>
       </div>
-
     </div>
 
     <!-- TAB: BACKUP (ADM only) -->
@@ -842,11 +841,10 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <input type="tel" id="m-phone" placeholder="Ex: 11999999999 (só números)">
       </div>
     </div>
-    <div class="modal-footer" style="align-items:center">
+    <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-add')">Cancelar</button>
       <button class="btn-confirm" onclick="addChar()">Adicionar</button>
     </div>
-    <div id="m-saving-hint" style="display:none;text-align:right;font-size:.73rem;color:var(--text-muted);padding:.3rem .1rem 0">Isso pode levar alguns segundos...</div>
   </div>
 </div>
 
@@ -1354,7 +1352,7 @@ async function save() {
     const saveJson = await saveResp.json().catch(() => null);
     console.log('[SW] save() — resposta do GAS:', JSON.stringify(saveJson));
     showSync('Salvo ✓', 'ok');
-    if (currentRole === 'adm') { renderUsers(); }
+    if (currentRole === 'adm') renderUsers();
 
     // ── 3. Backup local ────────────────────────────────────────────────────
     localStorage.setItem('sw_chars',       JSON.stringify(chars));
@@ -1574,14 +1572,16 @@ async function load() {
   renderChars();
   renderRanking();
   renderAnalise();
-  if (currentRole === 'adm') { renderUsers(); }
+  if (currentRole === 'adm') renderUsers();
 }
 
 const dataReady = load();
 
-dataReady.then(async () => {
-  rankingAllTime = {"Leão":58,"LC":47,"Nandao":33,"RafaCharada":29,"Diego":24,"MateusSP":19,"teste":12,"Tito Coins":8};
-  await save(); renderRanking();
+dataReady.then(() => {
+  if (!Object.keys(rankingAllTime).length) {
+    rankingAllTime = {"Leão":58,"LC":47,"Nandao":33,"RafaCharada":29,"Diego":24,"MateusSP":19,"teste":12,"Tito Coins":8};
+    save(); renderRanking();
+  }
 });
 
 // ── TABS ──────────────────────────────────────────────────────────────────
@@ -1593,7 +1593,7 @@ function switchTab(t, btn) {
   if(t==='chars') renderChars();
   else if(t==='pt') renderPT();
   else if(t==='ranking') renderRanking();
-  else if(t==='users') { renderUsers(); }
+  else if(t==='users') renderUsers();
   else if(t==='backup') renderBackups();
   else if(t==='analise') renderAnalise();
 }
@@ -1796,8 +1796,8 @@ function renderChars() {
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
       <td class="col-obs" style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
-      <td class="td-wpp" style="display:none;max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
-      <td style="text-align:right;white-space:nowrap;min-width:80px;padding:0 6px">
+      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
         ${canDelete ? `<button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>` : ''}
@@ -1857,9 +1857,6 @@ function renderPT() {
 
 // ── ADD CHAR ──────────────────────────────────────────────────────────────
 function openAddModal() {
-  const _btnAdd = document.querySelector('#modal-add .btn-confirm');
-  if (_btnAdd) { _btnAdd.disabled = false; _btnAdd.textContent = 'Adicionar'; }
-  window._savingChar = false;
   populateServerSelects();
   document.getElementById('m-name').value='';
   document.getElementById('m-level').value='';
@@ -1904,7 +1901,6 @@ function openAddModal() {
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
 async function addChar() {
-  console.log('[SW][DEBUG] entrou na função de salvar, role:', currentRole);
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
   const level = parseInt(document.getElementById('m-level').value) || 0;
@@ -1954,58 +1950,24 @@ async function addChar() {
 
   // Visitante precisa informar telefone
   if (currentRole === 'visitor') {
-    if (window._savingChar) {
-      console.log('[SW][DEBUG] salvamento já em andamento, ignorando clique duplicado');
-      return;
-    }
     const phone = document.getElementById('m-phone').value.trim();
     if (!phone) {
       document.getElementById('m-phone').focus();
       toast('Informe seu WhatsApp para contato.', 'error');
       return;
     }
-    window._savingChar = true;
-    const _btnAdd = document.querySelector('#modal-add .btn-confirm');
-    const _hint = document.getElementById('m-saving-hint');
-    if (_btnAdd) { _btnAdd.disabled = true; _btnAdd.textContent = 'Salvando...'; }
-    if (_hint) _hint.style.display = 'block';
-    console.log('[SW][TIMING] inicio visitor save:', Date.now());
-    try {
-      try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
-      chars.push({
-        id:nextId++,
-        owner: 'Visitante',
-        name, cls, level, server, obs,
-        conta: conta || null,
-        phone: phone,
-        status: 'pending',
-        sentTo: null
-      });
-      console.log('[SW][TIMING] antes save():', Date.now());
-      try {
-        await save();
-        console.log('[SW][TIMING] depois do await save, antes de fechar modal');
-        console.log('[SW][DEBUG] passo 1 - hint existe:', !!_hint, 'btn existe:', !!_btnAdd);
-        if (_hint) _hint.style.display = 'none';
-        console.log('[SW][DEBUG] passo 2 - entrando no try de fechamento');
-        try {
-          closeModal('modal-add');
-          console.log('[SW][DEBUG] passo 3 - closeModal ok');
-          toast('Personagem cadastrado! Aguardando aprovação.', 'success');
-          console.log('[SW][DEBUG] passo 4 - toast ok');
-          renderChars();
-          console.log('[SW][TIMING] modal fechado com sucesso');
-        } catch(err) {
-          console.error('[SW][ERROR] falha ao fechar modal:', err);
-        }
-      } catch(e) {
-        console.error('[SW] addChar visitor: erro pós-save():', e);
-        if (_hint) _hint.style.display = 'none';
-        if (_btnAdd) { _btnAdd.disabled = false; _btnAdd.textContent = 'Adicionar'; }
-      }
-    } finally {
-      window._savingChar = false;
-    }
+    await load();
+    chars.push({
+      id:nextId++,
+      owner: 'Visitante',
+      name, cls, level, server, obs,
+      conta: conta || null,
+      phone: phone,
+      status: 'pending',
+      sentTo: null
+    });
+    await save(); closeModal('modal-add'); renderChars();
+    toast('Personagem enviado para aprovação!', 'success');
     return;
   }
 
