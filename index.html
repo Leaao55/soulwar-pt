@@ -301,8 +301,6 @@ body.visitor-mode .col-wpp { display:none !important; }
 body.user-mode .col-wpp { display:none !important; }
 body.visitor-mode .col-conta { display:none !important; }
 body.visitor-mode .col-obs { display:none !important; }
-body.visitor-mode .col-coupon { display:none !important; }
-body.user-mode .col-coupon { display:none !important; }
 body.visitor-mode .btn-approve,
 body.visitor-mode .btn-reject,
 body.visitor-mode .btn-delete-user { display:none !important; }
@@ -602,7 +600,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Visitante</th><th>Personagem</th><th class="col-conta">Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th class="col-obs">Obs</th><th class="col-coupon">Cupom</th><th class="col-adm-actions"></th>
+              <th>Visitante</th><th>Personagem</th><th class="col-conta">Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th class="col-obs">Obs</th><th class="col-adm-actions"></th>
             </tr></thead>
             <tbody id="pending-body"></tbody>
           </table>
@@ -613,7 +611,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <table>
           <thead><tr>
             <th>#</th><th>Dono</th><th>Personagem</th><th class="col-conta">Conta</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none;max-width:90px;white-space:nowrap">WhatsApp</th><th class="col-coupon" style="max-width:80px;white-space:nowrap">Cupom</th><th style="white-space:nowrap;min-width:80px"></th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none;max-width:90px;white-space:nowrap">WhatsApp</th><th style="white-space:nowrap;min-width:80px"></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -757,15 +755,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         </div>
       </div>
 
-      <!-- Cupons (ADM only) -->
-      <div style="margin-top:2rem">
-        <div class="approved-title" style="color:var(--gold2)">🎟 Cupons de indicação</div>
-        <div style="display:flex;gap:.5rem;margin:.75rem 0">
-          <input type="text" id="coupon-input" placeholder="Ex: AMIGO2026" style="flex:1;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
-          <button class="btn-confirm" onclick="addCoupon()">+ Adicionar</button>
-        </div>
-        <div id="coupons-list"></div>
-      </div>
     </div>
 
     <!-- TAB: BACKUP (ADM only) -->
@@ -854,10 +843,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       </div>
     </div>
     <div class="modal-footer" style="align-items:center">
-      <div id="m-coupon-group" style="display:none;flex:1;align-items:center;gap:4px">
-        <span style="font-size:9px;color:var(--text-muted);white-space:nowrap">Cupom:</span>
-        <input type="text" id="m-coupon" placeholder="" style="text-transform:uppercase;max-width:80px;padding:2px 6px;font-size:.78rem;height:auto;background:var(--surface2);border:1px solid var(--border);color:var(--text)" oninput="this.value=this.value.toUpperCase()">
-      </div>
       <button class="btn-cancel" onclick="closeModal('modal-add')">Cancelar</button>
       <button class="btn-confirm" onclick="addChar()">Adicionar</button>
     </div>
@@ -1190,7 +1175,6 @@ let userNextId = 1;
 let nextId  = 1;
 let rankingWeekly  = {}; // { memberName: count }
 let rankingAllTime = {}; // { memberName: count }
-let coupons = [];
 let pendingSendId    = null;
 let selectedPT       = null;
 let editingCharId    = null;
@@ -1354,8 +1338,7 @@ async function save() {
       backup_chars: backups,
       ranking_weekly:  rankingWeekly,
       ranking_alltime: rankingAllTime,
-      pt_observations: ptObservations,
-      coupons
+      pt_observations: ptObservations
     };
     console.log('[SW] save() — ranking_weekly a enviar:', JSON.stringify(rankingWeekly));
     console.log('[SW] save() — ranking_alltime a enviar:', JSON.stringify(rankingAllTime));
@@ -1371,7 +1354,7 @@ async function save() {
     const saveJson = await saveResp.json().catch(() => null);
     console.log('[SW] save() — resposta do GAS:', JSON.stringify(saveJson));
     showSync('Salvo ✓', 'ok');
-    if (currentRole === 'adm') { renderUsers(); renderCoupons(); }
+    if (currentRole === 'adm') { renderUsers(); }
 
     // ── 3. Backup local ────────────────────────────────────────────────────
     localStorage.setItem('sw_chars',       JSON.stringify(chars));
@@ -1391,7 +1374,6 @@ async function save() {
     localStorage.setItem('sw_selected_members',   JSON.stringify(selectedMembers));
     localStorage.setItem('sw_pending_repasse_map', JSON.stringify(pendingRepasseMap));
     localStorage.setItem('sw_pt_observations', JSON.stringify(ptObservations));
-    localStorage.setItem('sw_coupons', JSON.stringify(coupons));
   } catch(e) {
     console.error('[SW] save() erro:', e);
     showSync('Erro ao salvar', 'err');
@@ -1497,8 +1479,6 @@ async function load() {
         if (_la) rankingAllTime = JSON.parse(_la);
         console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
       }
-      if (d.coupons) { coupons = JSON.parse(d.coupons); }
-      else { const _lc = localStorage.getItem('sw_coupons'); if (_lc) coupons = JSON.parse(_lc); }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       const _sm = localStorage.getItem('sw_selected_members');
       if (_sm) selectedMembers = JSON.parse(_sm);
@@ -1562,8 +1542,6 @@ async function load() {
     if(sm) selectedMembers=JSON.parse(sm);
     const prm = localStorage.getItem('sw_pending_repasse_map');
     if(prm) pendingRepasseMap=JSON.parse(prm);
-    const cps = localStorage.getItem('sw_coupons');
-    if(cps) coupons=JSON.parse(cps);
     showSync('Offline — dados locais', 'err');
   }
   // Migração automática: obs "CONTA N" → campo conta
@@ -1596,7 +1574,7 @@ async function load() {
   renderChars();
   renderRanking();
   renderAnalise();
-  if (currentRole === 'adm') { renderUsers(); renderCoupons(); }
+  if (currentRole === 'adm') { renderUsers(); }
 }
 
 const dataReady = load();
@@ -1615,7 +1593,7 @@ function switchTab(t, btn) {
   if(t==='chars') renderChars();
   else if(t==='pt') renderPT();
   else if(t==='ranking') renderRanking();
-  else if(t==='users') { renderUsers(); renderCoupons(); }
+  else if(t==='users') { renderUsers(); }
   else if(t==='backup') renderBackups();
   else if(t==='analise') renderAnalise();
 }
@@ -1819,7 +1797,6 @@ function renderChars() {
       <td class="server-val">${esc(c.server||'')}</td>
       <td class="col-obs" style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
       <td class="td-wpp" style="display:none;max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
-      <td class="col-coupon" style="font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold2);max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.coupon ? esc(c.coupon) : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap;min-width:80px;padding:0 6px">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
@@ -1889,7 +1866,6 @@ function openAddModal() {
   document.getElementById('m-obs').value='';
   document.getElementById('m-conta').value='';
   document.getElementById('m-phone').value='';
-  document.getElementById('m-coupon').value='';
   document.getElementById('m-class').value='';
   document.getElementById('m-server').value='';
 
@@ -1917,8 +1893,6 @@ function openAddModal() {
 
   const phoneGroup = document.getElementById('m-phone-group');
   if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
-  const couponGroup = document.getElementById('m-coupon-group');
-  if (couponGroup) couponGroup.style.display = currentRole === 'visitor' ? 'flex' : 'none';
   const contaGroup = document.getElementById('m-conta').closest('.form-group');
   if (contaGroup) contaGroup.style.display = currentRole === 'visitor' ? 'none' : '';
   const contaReq = document.getElementById('m-conta-req');
@@ -1970,7 +1944,6 @@ async function addChar() {
       name, cls, level, server, obs,
       conta: conta || null,
       phone: '',
-      coupon: null,
       status: 'approved',
       sentTo: null
     });
@@ -1991,12 +1964,6 @@ async function addChar() {
       toast('Informe seu WhatsApp para contato.', 'error');
       return;
     }
-    const couponRaw = document.getElementById('m-coupon').value.trim().toUpperCase();
-    if (couponRaw && !coupons.includes(couponRaw)) {
-      document.getElementById('m-coupon').focus();
-      toast('Cupom inválido.', 'error');
-      return;
-    }
     window._savingChar = true;
     const _btnAdd = document.querySelector('#modal-add .btn-confirm');
     const _hint = document.getElementById('m-saving-hint');
@@ -2011,7 +1978,6 @@ async function addChar() {
         name, cls, level, server, obs,
         conta: conta || null,
         phone: phone,
-        coupon: couponRaw || null,
         status: 'pending',
         sentTo: null
       });
@@ -2052,7 +2018,6 @@ async function addChar() {
     name, cls, level, server, obs,
     conta: conta || null,
     phone: '',
-    coupon: null,
     status: 'approved',
     sentTo: null
   });
@@ -2339,7 +2304,6 @@ function renderPending() {
         : currentRole === 'adm' ? '<span class="phone-val">—</span>' : ''}
       </td>
       <td class="col-obs" style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
-      <td class="col-coupon" style="font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold2)">${c.coupon ? esc(c.coupon) : '<span style="opacity:.35">—</span>'}</td>
       <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
         <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
         <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
@@ -2367,37 +2331,6 @@ function rejectChar(id) {
   toast(`Personagem recusado.`);
 }
 
-
-// ── CUPONS (ADM) ──────────────────────────────────────────────────────────
-function renderCoupons() {
-  const list = document.getElementById('coupons-list');
-  if (!list) return;
-  list.innerHTML = '';
-  if (!coupons.length) {
-    list.innerHTML = '<div style="color:var(--text-muted);font-size:.85rem">Nenhum cupom cadastrado.</div>';
-    return;
-  }
-  coupons.forEach((cp, i) => {
-    const div = document.createElement('div');
-    div.style.cssText = 'display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid var(--border)';
-    div.innerHTML = `<span style="flex:1;font-family:'Cinzel',serif;font-size:.9rem;letter-spacing:.06em;color:var(--gold2)">${esc(cp)}</span><button class="btn-reject" onclick="removeCoupon(${i})" title="Remover cupom">✕</button>`;
-    list.appendChild(div);
-  });
-}
-
-function addCoupon() {
-  const val = document.getElementById('coupon-input').value.trim().toUpperCase();
-  if (!val) return;
-  if (coupons.includes(val)) { toast('Cupom já existe.', 'error'); return; }
-  coupons.push(val);
-  document.getElementById('coupon-input').value = '';
-  save(); renderCoupons();
-}
-
-function removeCoupon(idx) {
-  coupons.splice(idx, 1);
-  save(); renderCoupons();
-}
 
 // ── USUÁRIOS (ADM) ────────────────────────────────────────────────────────
 function renderUsers() {
