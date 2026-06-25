@@ -622,36 +622,14 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <!-- TAB: RANKING -->
     <div class="section" id="tab-ranking">
       <div class="ranking-wrap">
-        <div class="rank-tabs">
-          <button class="rank-tab active" onclick="switchRankTab('weekly',this)">📅 Semanal</button>
-          <button class="rank-tab" onclick="switchRankTab('alltime',this)">⚔ All-Time</button>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+            <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
+          </table>
         </div>
-        <!-- Painel Semanal -->
-        <div class="rank-panel active" id="rank-panel-weekly">
-          <div class="ranking-section-header" style="justify-content:center">
-            <span class="ranking-prize" style="display:block;text-align:center;width:100%">🏆 1º lugar ganha 250 RC</span>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
-              <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
-            </table>
-          </div>
-          <div style="text-align:right;margin-top:.75rem">
-            <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
-          </div>
-        </div>
-        <!-- Painel All-Time -->
-        <div class="rank-panel" id="rank-panel-alltime">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
-              <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
-            </table>
-          </div>
-          <div style="text-align:right;margin-top:.75rem">
-            <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
-          </div>
+        <div style="text-align:right;margin-top:.75rem">
+          <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
         </div>
       </div>
     </div>
@@ -3054,12 +3032,9 @@ function renderRankingTable(tbodyId, data) {
 }
 
 function renderRanking() {
-  renderRankingTable('ranking-weekly-body',  rankingWeekly);
   renderRankingTable('ranking-alltime-body', rankingAllTime);
   const isAdm = currentRole === 'adm';
-  const btnW = document.getElementById('btn-reset-weekly');
   const btnA = document.getElementById('btn-reset-alltime');
-  if (btnW) btnW.style.display = isAdm ? '' : 'none';
   if (btnA) btnA.style.display = isAdm ? '' : 'none';
 }
 
