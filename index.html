@@ -1801,7 +1801,7 @@ function renderChars() {
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
       <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
-      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('Olá tibiano! Seu personagem ' + c.name + ', Lv ' + (c.level||'?') + ', do servidor ' + (c.server||'?') + ', está escalado para uma Soulwar agora. Está disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
@@ -2254,7 +2254,8 @@ function renderPending() {
 
   pending.forEach(c => {
     const phone = c.phone ? c.phone.replace(/\D/g,'') : '';
-    const wppUrl = phone ? `https://wa.me/55${phone}` : '';
+    const wppMsg = encodeURIComponent(`Olá tibiano! Seu personagem ${c.name}, Lv ${c.level||'?'}, do servidor ${c.server||'?'}, está escalado para uma Soulwar agora. Está disponível?`);
+    const wppUrl = phone ? `https://wa.me/55${phone}?text=${wppMsg}` : '';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
