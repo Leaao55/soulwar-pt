@@ -533,7 +533,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <h1>Soulwar PT Manager <span>Rubinot · Quest Party Builder</span></h1>
     <div class="tabs">
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
-      <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" id="tab-pt-btn" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
       <button class="tab" onclick="switchTab('como-funciona',this)">❓ Como Funciona</button>
       <button class="tab" id="tab-analise-btn" onclick="switchTab('analise',this)">📊 Análise</button>
@@ -1114,6 +1114,8 @@ function enterApp(role, user) {
     badge.className = 'role-badge visitor';
     document.body.classList.add('visitor-mode');
     if (usersTabBtn) usersTabBtn.style.display = 'none';
+    const ptTabBtn = document.getElementById('tab-pt-btn');
+    if (ptTabBtn) ptTabBtn.style.display = 'none';
     const analiseTabBtn = document.getElementById('tab-analise-btn');
     if (analiseTabBtn) analiseTabBtn.style.display = 'none';
     const thWpp = document.getElementById('th-wpp');
