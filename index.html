@@ -1203,6 +1203,7 @@ let pendingWithoutChar  = [];
 
 const TEST_MODE = false;
 const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
+const API_SECRET = "rbn_x9k2_leao_2026_soulwar";
 
 function showSync(msg, type) {
   const el = document.getElementById('sync-status');
@@ -1252,7 +1253,7 @@ async function save() {
   showSync('Salvando...', 'saving');
   try {
     // ── 1. Buscar estado remoto para merge ─────────────────────────────────
-    const r = await fetch(API + '?action=load');
+    const r = await fetch(API + '?action=load&secret=' + encodeURIComponent(API_SECRET));
     const j = await r.json();
     console.log('[SW] save() — estado remoto recebido:', j.ok, Object.keys(j.data || {}));
 
@@ -1342,6 +1343,7 @@ async function save() {
     // ── 2. Enviar para a API (users embutidos em members) ──────────────────
     removeDuplicateChars(true, false);
     const payload = {
+      secret: API_SECRET,
       chars, pts, servers,
       members: buildMembersPayload(),
       nextId: String(nextId),
@@ -1440,7 +1442,7 @@ function removeDuplicateChars(silent = false, shouldSave = true) {
 async function load() {
   showSync('Carregando...', 'saving');
   try {
-    const r = await fetch(API + '?action=load');
+    const r = await fetch(API + '?action=load&secret=' + encodeURIComponent(API_SECRET));
     const j = await r.json();
     console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
     console.log('[SW] load() — d.ranking_weekly raw:', j.data?.ranking_weekly);
