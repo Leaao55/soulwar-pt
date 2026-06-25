@@ -1895,6 +1895,8 @@ function openAddModal() {
 
   const phoneGroup = document.getElementById('m-phone-group');
   if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
+  const contaGroup = document.getElementById('m-conta').closest('.form-group');
+  if (contaGroup) contaGroup.style.display = currentRole === 'visitor' ? 'none' : '';
   const contaReq = document.getElementById('m-conta-req');
   if (contaReq) {
     contaReq.textContent = currentRole === 'visitor' ? '(opcional)' : '*';
