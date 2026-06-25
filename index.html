@@ -514,8 +514,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     </div>
 
     <div id="visitor-fields">
-      <p class="login-visitor-info">Visitantes são bem vindos aqui, cadastre seus personagens que logo entraremos em contato.</p>
-      <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">Entrar como Visitante</button>
+      <p class="login-visitor-info">Cadastre seu personagem para participar da fila de Soulwar.</p>
+      <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">📋 Cadastrar Personagem</button>
     </div>
 
     <div class="login-error" id="login-error"></div>
@@ -1004,6 +1004,7 @@ async function doLogin() {
 
 function doLoginVisitor() {
   enterApp('visitor');
+  openAddModal();
 }
 
 function enterApp(role, user) {
