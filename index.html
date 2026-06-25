@@ -1147,7 +1147,7 @@ async function save() {
   showSync('Salvando...', 'saving');
   try {
     // ── 1. Buscar estado remoto para merge ─────────────────────────────────
-    const r = await fetch(API + '?action=load');
+    const r = await fetch(API + '?action=load&secret=rbn_x9k2_leao_2026_soulwar');
     const j = await r.json();
     console.log('[SW] save() — estado remoto recebido:', j.ok, Object.keys(j.data || {}));
 
@@ -1237,6 +1237,7 @@ async function save() {
     // ── 2. Enviar para a API (users embutidos em members) ──────────────────
     removeDuplicateChars(true, false);
     const payload = {
+      secret: 'rbn_x9k2_leao_2026_soulwar',
       chars, pts, servers,
       members: buildMembersPayload(),
       nextId: String(nextId),
