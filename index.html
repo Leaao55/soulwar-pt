@@ -1900,7 +1900,7 @@ function openAddModal() {
   openModal('modal-add');
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
-async function addChar() {
+function addChar() {
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
   const level = parseInt(document.getElementById('m-level').value) || 0;
@@ -1926,65 +1926,37 @@ async function addChar() {
     return;
   }
 
-  // Captura valores do formulário antes de qualquer operação async
   const cls    = document.getElementById('m-class').value;
   const server = document.getElementById('m-server').value;
   const obs    = document.getElementById('m-obs').value.trim();
 
-  // Usuário: aprovado direto com o próprio nome
-  if (currentRole === 'user') {
-    await load();
-    chars.push({
-      id:nextId++,
-      owner: currentUser.name,
-      name, cls, level, server, obs,
-      conta: conta || null,
-      phone: '',
-      status: 'approved',
-      sentTo: null
-    });
-    await save(); closeModal('modal-add'); renderChars();
-    toast(`${name} adicionado!`, 'success');
-    return;
-  }
+  let newChar, successMsg;
 
-  // Visitante precisa informar telefone
-  if (currentRole === 'visitor') {
+  if (currentRole === 'user') {
+    newChar = { id:nextId++, owner: currentUser.name, name, cls, level, server, obs, conta: conta || null, phone: '', status: 'approved', sentTo: null };
+    successMsg = `${name} adicionado!`;
+  } else if (currentRole === 'visitor') {
     const phone = document.getElementById('m-phone').value.trim();
     if (!phone) {
       document.getElementById('m-phone').focus();
       toast('Informe seu WhatsApp para contato.', 'error');
       return;
     }
-    await load();
-    chars.push({
-      id:nextId++,
-      owner: 'Visitante',
-      name, cls, level, server, obs,
-      conta: conta || null,
-      phone: phone,
-      status: 'pending',
-      sentTo: null
-    });
-    await save(); closeModal('modal-add'); renderChars();
-    toast('Personagem enviado para aprovação!', 'success');
-    return;
+    newChar = { id:nextId++, owner: 'Visitante', name, cls, level, server, obs, conta: conta || null, phone, status: 'pending', sentTo: null };
+    successMsg = 'Personagem enviado para aprovação!';
+  } else {
+    const owner = document.getElementById('m-owner').value;
+    newChar = { id:nextId++, owner, name, cls, level, server, obs, conta: conta || null, phone: '', status: 'approved', sentTo: null };
+    successMsg = `${name} adicionado!`;
   }
 
-  // ADM: aprovado direto
-  const owner = document.getElementById('m-owner').value;
-  await load();
-  chars.push({
-    id:nextId++,
-    owner,
-    name, cls, level, server, obs,
-    conta: conta || null,
-    phone: '',
-    status: 'approved',
-    sentTo: null
+  chars.push(newChar);
+  renderChars();
+  closeModal('modal-add');
+  toast(successMsg, 'success');
+  save().catch(() => {
+    toast('Falha ao salvar personagem, tente novamente.', 'error');
   });
-  await save(); closeModal('modal-add'); renderChars();
-  toast(`${name} adicionado!`, 'success');
 }
 function openEditModal(id) {
   const c = chars.find(x => x.id === id);
