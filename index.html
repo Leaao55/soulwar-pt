@@ -1613,7 +1613,7 @@ function switchTab(t, btn) {
   if(t==='chars') renderChars();
   else if(t==='pt') renderPT();
   else if(t==='ranking') renderRanking();
-  else if(t==='users') renderUsers();
+  else if(t==='users') { renderUsers(); renderCoupons(); }
   else if(t==='backup') renderBackups();
   else if(t==='analise') renderAnalise();
 }
