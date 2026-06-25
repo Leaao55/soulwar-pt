@@ -298,9 +298,6 @@ body.visitor-mode .btn[onclick*="openServerModal"] { display:none !important; }
 body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
-body.user-mode .col-wpp { display:none !important; }
-body.visitor-mode .col-conta { display:none !important; }
-body.visitor-mode .col-obs { display:none !important; }
 body.visitor-mode .btn-approve,
 body.visitor-mode .btn-reject,
 body.visitor-mode .btn-delete-user { display:none !important; }
@@ -519,7 +516,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div id="visitor-fields">
       <p class="login-visitor-info">Cadastre seu personagem para participar da fila de Soulwar.</p>
       <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">📋 Cadastrar Personagem</button>
-      <button class="btn-login" onclick="enterApp('visitor'); switchTab('como-funciona', document.querySelector('.tabs button[onclick*=&quot;como-funciona&quot;]'))" style="margin-top:.5rem;background:transparent;border-color:var(--border);color:var(--text-muted)">❓ Como Funciona</button>
     </div>
 
     <div class="login-error" id="login-error"></div>
@@ -536,11 +532,9 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <h1>Soulwar PT Manager <span>Rubinot · Quest Party Builder</span></h1>
     <div class="tabs">
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
-      <button class="tab" id="tab-pt-btn" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
+      <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
-      <button class="tab" id="tab-como-funciona-btn" onclick="switchTab('como-funciona',this)" style="display:none">❓ Como Funciona</button>
-      <button class="tab" id="tab-urgente-btn" onclick="switchTab('urgente',this)" style="display:none;color:#ff6b6b;">🔥 Urgente</button>
-      <button class="tab" id="tab-analise-btn" onclick="switchTab('analise',this)">📊 Análise</button>
+      <button class="tab" onclick="switchTab('analise',this)">📊 Análise</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
   </div>
@@ -600,7 +594,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Visitante</th><th>Personagem</th><th class="col-conta">Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th class="col-obs">Obs</th><th class="col-adm-actions"></th>
+              <th>Visitante</th><th>Personagem</th><th>Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
             </tr></thead>
             <tbody id="pending-body"></tbody>
           </table>
@@ -610,8 +604,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="table-wrap" id="chars-table-wrap">
         <table>
           <thead><tr>
-            <th>#</th><th>Dono</th><th>Personagem</th><th class="col-conta">Conta</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
+            <th>#</th><th>Dono</th><th>Personagem</th><th>Conta</th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -622,110 +616,37 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <!-- TAB: RANKING -->
     <div class="section" id="tab-ranking">
       <div class="ranking-wrap">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
-            <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
-          </table>
+        <div class="rank-tabs">
+          <button class="rank-tab active" onclick="switchRankTab('weekly',this)">📅 Semanal</button>
+          <button class="rank-tab" onclick="switchRankTab('alltime',this)">⚔ All-Time</button>
         </div>
-        <div style="text-align:right;margin-top:.75rem">
-          <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: COMO FUNCIONA -->
-    <div class="section" id="tab-como-funciona">
-      <div style="max-width:640px;margin:0 auto">
-
-        <div style="border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
-          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">❓ Como Funciona o Service de Soulwar</div>
-          <div style="display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap">
-            <span style="font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold2)">💰 Valor do Service</span>
-            <span style="font-size:1rem;color:var(--text)">1.000 Rubini Coins (RC)</span>
+        <!-- Painel Semanal -->
+        <div class="rank-panel active" id="rank-panel-weekly">
+          <div class="ranking-section-header" style="justify-content:center">
+            <span class="ranking-prize" style="display:block;text-align:center;width:100%">🏆 1º lugar ganha 250 RC</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+              <tbody id="ranking-weekly-body" class="ranking-body"></tbody>
+            </table>
+          </div>
+          <div style="text-align:right;margin-top:.75rem">
+            <button class="btn-reset-rank" id="btn-reset-weekly" style="display:none" onclick="resetWeeklyRanking()">🔄 Resetar Semana</button>
           </div>
         </div>
-
-        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
-          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem">📋 Requisitos por Vocação</div>
-          <table style="width:100%;border-collapse:collapse">
-            <thead>
-              <tr style="border-bottom:1px solid var(--border)">
-                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Vocação</th>
-                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Level mínimo</th>
-                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Refil sugerido</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
-                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ms">MS</span></td>
-                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">400+</td>
-                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
-                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ed">ED</span></td>
-                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">400+</td>
-                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
-                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ek">EK</span></td>
-                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">500+</td>
-                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">10kk</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
-                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-rp">RP</span></td>
-                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">500+</td>
-                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
-              </tr>
-              <tr>
-                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-em">EM</span></td>
-                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">600+</td>
-                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="font-size:.8rem;color:var(--text-muted);font-style:italic;margin-top:.9rem;line-height:1.6">O <b style="color:var(--text);font-style:normal">refil</b> é o valor em dinheiro que deve estar disponível no personagem para repor poções e suprimentos durante o service.</p>
+        <!-- Painel All-Time -->
+        <div class="rank-panel" id="rank-panel-alltime">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
+              <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
+            </table>
+          </div>
+          <div style="text-align:right;margin-top:.75rem">
+            <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
+          </div>
         </div>
-
-        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
-          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem">✅ Passo a Passo</div>
-          <ol style="padding-left:1.2rem;margin:0;display:flex;flex-direction:column;gap:.65rem">
-            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Verifique se seu personagem atende ao <b style="color:var(--gold2)">level mínimo</b> da sua vocação.</li>
-            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Clique em <a href="javascript:void(0)" onclick="enterApp('visitor');openAddModal();" style="color:var(--gold);font-weight:bold;cursor:pointer">Cadastrar Personagem</a> na tela inicial e preencha as informações do seu char.</li>
-            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Aguarde a aprovação — seu personagem entrará na <b style="color:var(--gold2)">fila de Soulwar</b>.</li>
-            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Quando chegar sua vez, entraremos em contato via <b style="color:var(--gold2)">WhatsApp</b> para combinar o horário.</li>
-          </ol>
-        </div>
-
-        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.2rem 1.8rem;display:flex;flex-direction:column;gap:.6rem">
-          <p style="font-size:.93rem;color:var(--text);line-height:1.55">⏳ <b style="color:var(--gold2)">Prazo estimado:</b> de 1 a 3 dias, dependendo da fila.</p>
-          <p style="font-size:.93rem;color:var(--text);line-height:1.55">💳 <b style="color:var(--gold2)">Pagamento:</b> os 1.000 RC devem estar disponíveis na conta durante o service — o pagamento é feito no momento da execução, não antes.</p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- TAB: URGENTE -->
-    <div class="section" id="tab-urgente">
-      <div style="max-width:640px;margin:0 auto">
-
-        <div style="border:2px solid #e05252;border-top:4px solid #e05252;border-radius:4px;background:rgba(224,82,82,.07);padding:1.8rem 2rem;margin-bottom:1.2rem;text-align:center">
-          <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e05252;text-shadow:0 0 20px rgba(224,82,82,.35);margin-bottom:.5rem">🔥 Precisamos Urgente de Personagens no Servidor Grimória!</div>
-        </div>
-
-        <div style="border:1px solid rgba(224,82,82,.35);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:.9rem">
-          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos dando prioridade <b style="color:#e05252">TOTAL</b> para fechar times em <b style="color:#e05252">QUALQUER servidor do Grimória</b>. E isso significa <b style="color:var(--gold2)">atendimento mais rápido</b> pra você!</p>
-          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Se você tem um personagem nos servidores de Grimória que se encaixa nos requisitos (veja a aba <b style="color:var(--gold2)">"Como Funciona"</b>), não perca tempo: cadastre agora e garanta seu lugar na fila com prioridade.</p>
-          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Os itens da Soulwar estão <b style="color:var(--gold2)">valorizados no momento</b> — quanto antes você fizer a quest, mais vale a pena. O mercado pode virar e os preços caírem, então corra enquanto está bom!</p>
-          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos <b style="color:#e05252">100% focados</b> em fechar o máximo de PTs agora. Se o seu char é desse servidor, essa é a hora certa pra garantir seu service.</p>
-        </div>
-
-        <div style="text-align:center">
-          <button onclick="enterApp('visitor'); openAddModal();" style="font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;padding:.9rem 2rem;border:2px solid #e05252;background:rgba(224,82,82,.15);color:#e05252;border-radius:3px;cursor:pointer;transition:all .18s;width:100%;max-width:360px"
-            onmouseover="this.style.background='rgba(224,82,82,.28)';this.style.color='#ff8080'"
-            onmouseout="this.style.background='rgba(224,82,82,.15)';this.style.color='#e05252'">📋 Cadastrar Meu Personagem Agora</button>
-        </div>
-
       </div>
     </div>
 
@@ -1113,21 +1034,13 @@ function enterApp(role, user) {
     document.body.classList.add('user-mode');
     if (usersTabBtn) usersTabBtn.style.display = 'none';
     const thWppU = document.getElementById('th-wpp');
-    if (thWppU) thWppU.style.display = 'none';
-    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
+    if (thWppU) thWppU.style.display = '';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
   } else {
     badge.textContent = '👁 Visitante';
     badge.className = 'role-badge visitor';
     document.body.classList.add('visitor-mode');
     if (usersTabBtn) usersTabBtn.style.display = 'none';
-    const ptTabBtn = document.getElementById('tab-pt-btn');
-    if (ptTabBtn) ptTabBtn.style.display = 'none';
-    const analiseTabBtn = document.getElementById('tab-analise-btn');
-    const comoFuncionaTabBtn = document.getElementById('tab-como-funciona-btn');
-    if (comoFuncionaTabBtn) comoFuncionaTabBtn.style.display = '';
-    const urgenteTabBtn = document.getElementById('tab-urgente-btn');
-    if (urgenteTabBtn) urgenteTabBtn.style.display = '';
-    if (analiseTabBtn) analiseTabBtn.style.display = 'none';
     const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = 'none';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
@@ -1185,7 +1098,6 @@ let pendingWithoutChar  = [];
 
 const TEST_MODE = false;
 const API = "https://script.google.com/macros/s/AKfycbwBhHkqkgtJoWDU-R6ge89TBpmBkLeBhLTdrsos3xVWonY-xJP8pIhgHt7YPfbTy2fy/exec";
-const API_SECRET = "rbn_x9k2_leao_2026_soulwar";
 
 function showSync(msg, type) {
   const el = document.getElementById('sync-status');
@@ -1217,7 +1129,7 @@ function getActiveMembers() {
   const delNamesSet = new Set(deletedUserNames);
   const approvedNames = users.filter(u => u.status === 'approved').map(u => u.name);
   const filteredExtras = members.filter(m => !delNamesSet.has(m));
-  return [...new Set([...filteredExtras, ...approvedNames, 'Visitante'])];
+  return [...new Set([...filteredExtras, ...approvedNames])];
 }
 
 // ── Monta array members com users embutidos para envio à API ──────────────
@@ -1235,7 +1147,7 @@ async function save() {
   showSync('Salvando...', 'saving');
   try {
     // ── 1. Buscar estado remoto para merge ─────────────────────────────────
-    const r = await fetch(API + '?action=load&secret=' + encodeURIComponent(API_SECRET));
+    const r = await fetch(API + '?action=load');
     const j = await r.json();
     console.log('[SW] save() — estado remoto recebido:', j.ok, Object.keys(j.data || {}));
 
@@ -1325,7 +1237,6 @@ async function save() {
     // ── 2. Enviar para a API (users embutidos em members) ──────────────────
     removeDuplicateChars(true, false);
     const payload = {
-      secret: API_SECRET,
       chars, pts, servers,
       members: buildMembersPayload(),
       nextId: String(nextId),
@@ -1424,7 +1335,7 @@ function removeDuplicateChars(silent = false, shouldSave = true) {
 async function load() {
   showSync('Carregando...', 'saving');
   try {
-    const r = await fetch(API + '?action=load&secret=' + encodeURIComponent(API_SECRET));
+    const r = await fetch(API + '?action=load');
     const j = await r.json();
     console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
     console.log('[SW] load() — d.ranking_weekly raw:', j.data?.ranking_weekly);
@@ -1576,13 +1487,6 @@ async function load() {
 }
 
 const dataReady = load();
-
-dataReady.then(() => {
-  if (!Object.keys(rankingAllTime).length) {
-    rankingAllTime = {"Leão":58,"LC":47,"Nandao":33,"RafaCharada":29,"Diego":24,"MateusSP":19,"teste":12,"Tito Coins":8};
-    save(); renderRanking();
-  }
-});
 
 // ── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(t, btn) {
@@ -1765,8 +1669,9 @@ function renderChars() {
   renderPending();
   const isVisitor = currentRole === 'visitor';
   document.body.classList.toggle('visitor-mode', isVisitor);
-  const thDono = document.querySelector('#chars-table-wrap thead th:nth-child(2)');
-  if (thDono) thDono.style.display = isVisitor ? 'none' : '';
+  document.getElementById('chars-table-wrap').style.display = isVisitor ? 'none' : '';
+  document.getElementById('approved-title').style.display = isVisitor ? 'none' : '';
+  if (isVisitor) return;
   const q  = document.getElementById('search').value.toLowerCase();
   const fc  = FAC_VAL['filter-class'];
   const fs  = FAC_VAL['filter-server'];
@@ -1785,28 +1690,27 @@ function renderChars() {
   list.forEach((c,i)=>{
     const sent = c.sentTo!==null && c.sentTo!==undefined;
     const canEdit = currentRole === 'adm' || (currentRole === 'user' && currentUser && c.owner === currentUser.name);
-    const canDelete = currentRole === 'adm' || (currentRole === 'user' && currentUser && c.owner.trim().toLowerCase() === currentUser.name.trim().toLowerCase());
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
-      <td class="owner-name"${isVisitor ? ' style="display:none"' : ''}>${esc(c.owner)}</td>
+      <td class="owner-name">${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
-      <td class="col-conta" style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
+      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
-      <td class="col-obs" style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
-      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
+      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
-        ${canDelete ? `<button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>` : ''}
+        <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
       </td>`;
     tbody.appendChild(tr);
   });
   // Sincronizar visibilidade da coluna WhatsApp após render
   const thWpp = document.getElementById('th-wpp');
-  const canSeeWpp = currentRole === 'adm';
+  const canSeeWpp = currentRole === 'adm' || currentRole === 'user';
   if (thWpp) thWpp.style.display = canSeeWpp ? '' : 'none';
   document.querySelectorAll('.td-wpp').forEach(el => el.style.display = canSeeWpp ? '' : 'none');
 }
@@ -1845,7 +1749,7 @@ function renderPT() {
     const admFooter = currentRole === 'adm'
       ? `<button class="btn-finalize" onclick="finalizePT(${pi})">⚔ Soulwar Finalizada</button>`
       : '';
-    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"${currentRole !== 'adm' ? ' readonly' : ''}></div>`;
+    const obsWrap = `<div class="pt-obs-wrap"><input type="text" class="pt-obs-input" placeholder="Observação..." value="${esc(ptObservations[pi] || '')}" onchange="updatePTObservation(${pi}, this.value)"></div>`;
     card.innerHTML=`
       <div class="pt-card-header">
         <span class="pt-card-title ${PT_ACCENT[pi]}">${PT_NAMES[pi]}</span>
@@ -1890,8 +1794,6 @@ function openAddModal() {
 
   const phoneGroup = document.getElementById('m-phone-group');
   if (phoneGroup) phoneGroup.style.display = currentRole === 'visitor' ? 'block' : 'none';
-  const contaGroup = document.getElementById('m-conta').closest('.form-group');
-  if (contaGroup) contaGroup.style.display = currentRole === 'visitor' ? 'none' : '';
   const contaReq = document.getElementById('m-conta-req');
   if (contaReq) {
     contaReq.textContent = currentRole === 'visitor' ? '(opcional)' : '*';
@@ -1901,7 +1803,6 @@ function openAddModal() {
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
 function addChar() {
-  if (window._savingChar) return;
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
   const level = parseInt(document.getElementById('m-level').value) || 0;
@@ -1927,42 +1828,65 @@ function addChar() {
     return;
   }
 
-  const cls    = document.getElementById('m-class').value;
-  const server = document.getElementById('m-server').value;
-  const obs    = document.getElementById('m-obs').value.trim();
-
-  let newChar, successMsg;
-
+  // Usuário: aprovado direto com o próprio nome
   if (currentRole === 'user') {
-    newChar = { id:nextId++, owner: currentUser.name, name, cls, level, server, obs, conta: conta || null, phone: '', status: 'approved', sentTo: null };
-    successMsg = `${name} adicionado!`;
-  } else if (currentRole === 'visitor') {
+    chars.push({
+      id:nextId++,
+      owner: currentUser.name,
+      name, cls: document.getElementById('m-class').value,
+      level: level,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      conta: conta || null,
+      phone: '',
+      status: 'approved',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast(`${name} adicionado!`, 'success');
+    return;
+  }
+
+  // Visitante precisa informar telefone
+  if (currentRole === 'visitor') {
     const phone = document.getElementById('m-phone').value.trim();
     if (!phone) {
       document.getElementById('m-phone').focus();
       toast('Informe seu WhatsApp para contato.', 'error');
       return;
     }
-    newChar = { id:nextId++, owner: 'Visitante', name, cls, level, server, obs, conta: conta || null, phone, status: 'pending', sentTo: null };
-    successMsg = 'Personagem enviado para aprovação!';
-  } else {
-    const owner = document.getElementById('m-owner').value;
-    newChar = { id:nextId++, owner, name, cls, level, server, obs, conta: conta || null, phone: '', status: 'approved', sentTo: null };
-    successMsg = `${name} adicionado!`;
+    chars.push({
+      id:nextId++,
+      owner: document.getElementById('m-owner').value,
+      name, cls: document.getElementById('m-class').value,
+      level: level,
+      server: document.getElementById('m-server').value,
+      obs: document.getElementById('m-obs').value.trim(),
+      conta: conta || null,
+      phone: phone,
+      status: 'pending',
+      sentTo: null
+    });
+    save(); closeModal('modal-add'); renderChars();
+    toast('Personagem enviado para aprovação!', 'success');
+    return;
   }
 
-  chars.push(newChar);
-  window._savingChar = true;
-  save().then(() => {
-    window._savingChar = false;
-    closeModal('modal-add');
-    renderChars();
-    toast(successMsg, 'success');
-  }).catch(err => {
-    window._savingChar = false;
-    console.error(err);
-    toast('Erro ao salvar. Tente novamente.', 'error');
+  // ADM: aprovado direto
+  chars.push({
+    id:nextId++,
+    owner: document.getElementById('m-owner').value,
+    name, cls: document.getElementById('m-class').value,
+    level: level,
+    server: document.getElementById('m-server').value,
+    obs: document.getElementById('m-obs').value.trim(),
+    conta: conta || null,
+    phone: '',
+    status: 'approved',
+    sentTo: null
   });
+  save(); closeModal('modal-add'); renderChars();
+  toast(`${name} adicionado!`, 'success');
 }
 function openEditModal(id) {
   const c = chars.find(x => x.id === id);
@@ -2229,21 +2153,20 @@ function renderPending() {
 
   pending.forEach(c => {
     const phone = c.phone ? c.phone.replace(/\D/g,'') : '';
-    const wppMsg = encodeURIComponent(`\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ${c.name}\n\u{1F4CA} Level: ${c.level||'?'}\n\u{1F30D} Servidor: ${c.server||'?'}\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?`);
-    const wppUrl = phone ? `https://wa.me/55${phone}?text=${wppMsg}` : '';
+    const wppUrl = phone ? `https://wa.me/55${phone}` : '';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
-      <td class="col-conta" style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
+      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
-      <td class="col-wpp">${currentRole === 'adm' && wppUrl
+      <td>${(currentRole === 'adm' || currentRole === 'user') && wppUrl
         ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
-        : currentRole === 'adm' ? '<span class="phone-val">—</span>' : ''}
+        : (currentRole === 'adm' || currentRole === 'user') ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
       </td>
-      <td class="col-obs" style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
+      <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
       <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
         <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
         <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
@@ -3021,9 +2944,12 @@ function renderRankingTable(tbodyId, data) {
 }
 
 function renderRanking() {
+  renderRankingTable('ranking-weekly-body',  rankingWeekly);
   renderRankingTable('ranking-alltime-body', rankingAllTime);
   const isAdm = currentRole === 'adm';
+  const btnW = document.getElementById('btn-reset-weekly');
   const btnA = document.getElementById('btn-reset-alltime');
+  if (btnW) btnW.style.display = isAdm ? '' : 'none';
   if (btnA) btnA.style.display = isAdm ? '' : 'none';
 }
 
