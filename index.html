@@ -391,34 +391,6 @@ body.visitor-mode .visitor-hidden { display:none !important; }
 .rec-result-tips-item b { color:var(--text); }
 .rec-result-footer { display:flex; gap:.75rem; margin-top:1rem; }
 
-/* ── RANKING ── */
-.ranking-wrap { max-width:500px; margin:0 auto; }
-.rank-tabs { display:flex; border:1px solid var(--border); border-radius:4px; overflow:hidden; margin-bottom:1.4rem; }
-.rank-tab { flex:1; padding:.6rem 1rem; font-family:'Cinzel',serif; font-size:.75rem; letter-spacing:.1em;
-  background:transparent; color:var(--text-muted); border:none; cursor:pointer; transition:all .2s;
-  border-right:1px solid var(--border); text-transform:uppercase; }
-.rank-tab:last-child { border-right:none; }
-.rank-tab.active { background:var(--surface); color:var(--gold2); }
-.rank-tab:hover:not(.active) { color:var(--text); background:rgba(255,255,255,.03); }
-.rank-panel { display:none; }
-.rank-panel.active { display:block; }
-.ranking-section-header { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
-.ranking-title { font-family:'Cinzel',serif; font-size:.95rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold2); }
-.ranking-prize { font-size:.75rem; color:var(--gold); font-family:'Cinzel',serif; letter-spacing:.06em; }
-.btn-reset-rank { font-family:'Cinzel',serif; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase;
-  padding:.3rem .8rem; border:1px solid var(--em); background:transparent; color:var(--em);
-  border-radius:3px; cursor:pointer; transition:all .18s; margin-left:auto; }
-.btn-reset-rank:hover { background:rgba(224,82,82,.12); }
-.ranking-body td { padding:.75rem 1rem; }
-.rank-pos { font-family:'Cinzel',serif; font-size:.82rem; color:var(--text-muted); width:3.2rem; white-space:nowrap; }
-.rank-cell { display:flex; align-items:baseline; gap:.5rem; }
-.rank-name { font-size:.95rem; font-weight:600; color:var(--text); }
-.rank-badge { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.06em;
-  color:var(--text-muted); white-space:nowrap; }
-.rank-1 .rank-pos { color:#ffd700; }
-.rank-2 .rank-pos { color:#c0c0c0; }
-.rank-3 .rank-pos { color:#cd7f32; }
-.rank-empty { text-align:center; color:var(--text-muted); padding:2.5rem 1rem; font-style:italic; font-size:.9rem; }
 /* ── MODAL FINALIZAR ── */
 .finalize-char-row td { padding:.6rem .9rem; vertical-align:middle; }
 .finalize-char-name { font-weight:600; font-size:.92rem; }
@@ -537,7 +509,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div class="tabs">
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" id="tab-pt-btn" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
-      <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
       <button class="tab" id="tab-como-funciona-btn" onclick="switchTab('como-funciona',this)" style="display:none">❓ Como Funciona</button>
       <button class="tab" id="tab-urgente-btn" onclick="switchTab('urgente',this)" style="display:none;color:#ff6b6b;">🔥 Urgente</button>
       <button class="tab" id="tab-analise-btn" onclick="switchTab('analise',this)">📊 Análise</button>
@@ -616,21 +587,6 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
           <tbody id="char-body"></tbody>
         </table>
         <div id="chars-empty" class="empty" style="display:none">Nenhum personagem cadastrado.</div>
-      </div>
-    </div>
-
-    <!-- TAB: RANKING -->
-    <div class="section" id="tab-ranking">
-      <div class="ranking-wrap">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th style="width:3.2rem">#</th><th>Membro</th></tr></thead>
-            <tbody id="ranking-alltime-body" class="ranking-body"></tbody>
-          </table>
-        </div>
-        <div style="text-align:right;margin-top:.75rem">
-          <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
-        </div>
       </div>
     </div>
 
@@ -1171,8 +1127,6 @@ let members = ["Leão"];
 let users   = [];
 let userNextId = 1;
 let nextId  = 1;
-let rankingWeekly  = {}; // { memberName: count }
-let rankingAllTime = {}; // { memberName: count }
 let pendingSendId    = null;
 let selectedPT       = null;
 let editingCharId    = null;
@@ -1334,12 +1288,8 @@ async function save() {
       deletedUserIds,
       deletedUserNames,
       backup_chars: backups,
-      ranking_weekly:  rankingWeekly,
-      ranking_alltime: rankingAllTime,
       pt_observations: ptObservations
     };
-    console.log('[SW] save() — ranking_weekly a enviar:', JSON.stringify(rankingWeekly));
-    console.log('[SW] save() — ranking_alltime a enviar:', JSON.stringify(rankingAllTime));
     console.log('[SW] save() — backup_chars count:', backups.length);
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
@@ -1367,8 +1317,6 @@ async function save() {
     localStorage.setItem('sw_deletedUserIds',  JSON.stringify(deletedUserIds));
     localStorage.setItem('sw_deletedUserNames',JSON.stringify(deletedUserNames));
     localStorage.setItem('sw_backup_chars', JSON.stringify(backups));
-    localStorage.setItem('sw_ranking_weekly',    JSON.stringify(rankingWeekly));
-    localStorage.setItem('sw_ranking_alltime',   JSON.stringify(rankingAllTime));
     localStorage.setItem('sw_selected_members',   JSON.stringify(selectedMembers));
     localStorage.setItem('sw_pending_repasse_map', JSON.stringify(pendingRepasseMap));
     localStorage.setItem('sw_pt_observations', JSON.stringify(ptObservations));
@@ -1427,8 +1375,6 @@ async function load() {
     const r = await fetch(API + '?action=load&secret=' + encodeURIComponent(API_SECRET));
     const j = await r.json();
     console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
-    console.log('[SW] load() — d.ranking_weekly raw:', j.data?.ranking_weekly);
-    console.log('[SW] load() — d.ranking_alltime raw:', j.data?.ranking_alltime);
     console.log('[SW] load() — d.backup_chars raw (length):', j.data?.backup_chars ? JSON.parse(j.data.backup_chars).length : 'ausente');
     if (j.ok && j.data) {
       const d = j.data;
@@ -1456,26 +1402,6 @@ async function load() {
         const _merged = [..._saved];
         DEFAULT_SERVERS.forEach(s => { if (!_merged.includes(s)) _merged.push(s); });
         servers = _merged;
-      }
-      if (d.ranking_weekly) {
-        rankingWeekly = JSON.parse(d.ranking_weekly);
-        console.log('[SW] load() — ranking_weekly do GAS:', JSON.stringify(rankingWeekly));
-      } else {
-        const _lw = localStorage.getItem('sw_ranking_weekly');
-        if (_lw) rankingWeekly = JSON.parse(_lw);
-        console.log('[SW] load() — ranking_weekly do localStorage:', JSON.stringify(rankingWeekly));
-      }
-      if (d.ranking_alltime) {
-        rankingAllTime = JSON.parse(d.ranking_alltime);
-        console.log('[SW] load() — ranking_alltime do GAS:', JSON.stringify(rankingAllTime));
-      } else if (d.ranking) {
-        // Migração: campo legado → all-time
-        rankingAllTime = JSON.parse(d.ranking);
-        console.log('[SW] load() — ranking_alltime migrado do campo legado:', JSON.stringify(rankingAllTime));
-      } else {
-        const _la = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
-        if (_la) rankingAllTime = JSON.parse(_la);
-        console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
       }
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       const _sm = localStorage.getItem('sw_selected_members');
@@ -1521,10 +1447,6 @@ async function load() {
     if(p)  pts=JSON.parse(p);
     const po = localStorage.getItem('sw_pt_observations');
     if(po) ptObservations=JSON.parse(po);
-    const rkW = localStorage.getItem('sw_ranking_weekly');
-    if(rkW) rankingWeekly=JSON.parse(rkW);
-    const rkA = localStorage.getItem('sw_ranking_alltime') || localStorage.getItem('sw_ranking');
-    if(rkA) rankingAllTime=JSON.parse(rkA);
     if(s) { const _sv=JSON.parse(s); const _mg=[..._sv]; DEFAULT_SERVERS.forEach(d=>{ if(!_mg.includes(d)) _mg.push(d); }); servers=_mg; }
     if(mb) members=JSON.parse(mb);
     if(n)  nextId=parseInt(n)||1;
@@ -1570,19 +1492,11 @@ async function load() {
   if (_dupRemoved > 0) { console.log('[SW] ' + _dupRemoved + ' personagem(s) duplicado(s) removido(s) silenciosamente.'); save(); }
   showSync('', '');
   renderChars();
-  renderRanking();
   renderAnalise();
   if (currentRole === 'adm') renderUsers();
 }
 
 const dataReady = load();
-
-dataReady.then(() => {
-  if (!Object.keys(rankingAllTime).length) {
-    rankingAllTime = {"Leão":58,"LC":47,"Nandao":33,"RafaCharada":29,"Diego":24,"MateusSP":19,"teste":12,"Tito Coins":8};
-    save(); renderRanking();
-  }
-});
 
 // ── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(t, btn) {
@@ -1592,7 +1506,6 @@ function switchTab(t, btn) {
   document.getElementById('tab-'+t).classList.add('active');
   if(t==='chars') renderChars();
   else if(t==='pt') renderPT();
-  else if(t==='ranking') renderRanking();
   else if(t==='users') renderUsers();
   else if(t==='backup') renderBackups();
   else if(t==='analise') renderAnalise();
@@ -2138,8 +2051,6 @@ function confirmFinalize() {
     const charId = parseInt(sel.dataset.charId);
     const member = pendingRepasseMap[charId] || sel.value;
     if (member) {
-      rankingWeekly[member]  = (rankingWeekly[member]  || 0) + 1;
-      rankingAllTime[member] = (rankingAllTime[member] || 0) + 1;
     }
   });
 
@@ -2159,7 +2070,7 @@ function confirmFinalize() {
 
   pendingRepasseMap = {};
   closeModal('modal-finalize');
-  save(); renderPT(); renderChars(); renderRanking();
+  save(); renderPT(); renderChars();
   toast(`${PT_NAMES[pi]} finalizada! ${names.length} personagem(s) removido(s).`, 'success');
 }
 
@@ -2992,66 +2903,6 @@ function applyPTRecommend(ptIndex) {
   toast(`${PT_NAMES[emptySlot]} aplicada nos slots!`, 'success');
 }
 
-// ── RANKING ───────────────────────────────────────────────────────────────
-function switchRankTab(tab, btn) {
-  document.querySelectorAll('.rank-tab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.rank-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('rank-panel-' + tab).classList.add('active');
-}
-
-function renderRankingTable(tbodyId, data) {
-  const tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
-  const medals = ['🥇', '🥈', '🥉'];
-  const activeMembers = getActiveMembers();
-  const allNames = new Set([...activeMembers, ...Object.keys(data)]);
-  const sorted = [...allNames]
-    .map(m => ({ name: m, count: data[m] || 0 }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'pt-BR'));
-  if (!sorted.length) {
-    tbody.innerHTML = `<tr><td colspan="2" class="rank-empty">Nenhum registro ainda.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = '';
-  sorted.forEach((entry, i) => {
-    const rank = i + 1;
-    const tr = document.createElement('tr');
-    tr.className = rank <= 3 ? `rank-${rank}` : '';
-    const label = rank <= 3 ? medals[i] : `#${rank}`;
-    const sw = entry.count === 1 ? '1 soulwar' : `${entry.count} soulwars`;
-    tr.innerHTML = `
-      <td class="rank-pos">${label}</td>
-      <td><div class="rank-cell">
-        <span class="rank-name">${esc(entry.name)}</span>
-        <span class="rank-badge">— ${sw}</span>
-      </div></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function renderRanking() {
-  renderRankingTable('ranking-alltime-body', rankingAllTime);
-  const isAdm = currentRole === 'adm';
-  const btnA = document.getElementById('btn-reset-alltime');
-  if (btnA) btnA.style.display = isAdm ? '' : 'none';
-}
-
-function resetWeeklyRanking() {
-  if (currentRole !== 'adm') return;
-  if (!confirm('Resetar o Ranking Semanal? Todos os pontos da semana serão zerados.')) return;
-  rankingWeekly = {};
-  save(); renderRanking();
-  toast('Ranking Semanal resetado.', 'success');
-}
-
-function resetAllTimeRanking() {
-  if (currentRole !== 'adm') return;
-  if (!confirm('Resetar o Ranking All-Time? Esta ação não pode ser desfeita.')) return;
-  rankingAllTime = {};
-  save(); renderRanking();
-  toast('Ranking All-Time resetado.', 'success');
-}
 
 function clearRecommend() {
   lastRecommend = null;
