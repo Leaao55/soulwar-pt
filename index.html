@@ -2004,6 +2004,7 @@ async function addChar() {
     if (_hint) _hint.style.display = 'block';
     console.log('[SW][TIMING] inicio visitor save:', Date.now());
     try {
+      try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
       chars.push({
         id:nextId++,
         owner: 'Visitante',
