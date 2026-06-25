@@ -299,6 +299,8 @@ body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
 body.user-mode .col-wpp { display:none !important; }
+body.visitor-mode .col-conta { display:none !important; }
+body.visitor-mode .col-obs { display:none !important; }
 body.visitor-mode .btn-approve,
 body.visitor-mode .btn-reject,
 body.visitor-mode .btn-delete-user { display:none !important; }
@@ -598,7 +600,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Visitante</th><th>Personagem</th><th>Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th>Obs</th><th class="col-adm-actions"></th>
+              <th>Visitante</th><th>Personagem</th><th class="col-conta">Conta</th><th>Classe</th><th>Level</th><th>Servidor</th><th class="col-wpp">WhatsApp</th><th class="col-obs">Obs</th><th class="col-adm-actions"></th>
             </tr></thead>
             <tbody id="pending-body"></tbody>
           </table>
@@ -608,8 +610,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <div class="table-wrap" id="chars-table-wrap">
         <table>
           <thead><tr>
-            <th>#</th><th>Dono</th><th>Personagem</th><th>Conta</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th>Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
+            <th>#</th><th>Dono</th><th>Personagem</th><th class="col-conta">Conta</th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -1798,11 +1800,11 @@ function renderChars() {
       <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
       <td class="owner-name"${isVisitor ? ' style="display:none"' : ''}>${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
-      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
+      <td class="col-conta" style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
-      <td style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
+      <td class="col-obs" style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
       <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
@@ -2264,7 +2266,7 @@ function renderPending() {
     tr.innerHTML = `
       <td style="font-size:.85rem;color:var(--text-muted)">${esc(c.owner)}</td>
       <td class="char-name">${esc(c.name)}</td>
-      <td style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
+      <td class="col-conta" style="font-family:'Cinzel',serif;font-size:.82rem;color:var(--text-muted);text-align:center">${c.conta||'—'}</td>
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
@@ -2272,7 +2274,7 @@ function renderPending() {
         ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
         : currentRole === 'adm' ? '<span class="phone-val">—</span>' : ''}
       </td>
-      <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
+      <td class="col-obs" style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
       <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
         <button class="btn-approve" data-id="${c.id}" title="Aprovar">✓</button>
         <button class="btn-reject" data-id="${c.id}" title="Recusar">✕</button>
