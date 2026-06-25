@@ -1,0 +1,1653 @@
+2026-06-21 09:32:40  INFO      === Verificando Soul War — todos os servidores ===
+2026-06-21 09:32:49  INFO      === MODO DEBUG: inspecionando seletores do bazaar ===
+2026-06-21 09:32:54  INFO        [debug] snapshot salvo: C:\Users\lucas\Downloads\soulwar-pt\debug_history_debug_093254.html
+2026-06-21 09:32:54  INFO      Inputs encontrados:
+[
+  {
+    "tag": "input",
+    "type": "number",
+    "name": "",
+    "placeholder": "Mín",
+    "id": "",
+    "className": "px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] w-full placeholder:text-[var(--text-muted)] w-full sm:w-28"
+  },
+  {
+    "tag": "input",
+    "type": "number",
+    "name": "",
+    "placeholder": "Máx",
+    "id": "",
+    "className": "px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] w-full placeholder:text-[var(--text-muted)] w-full sm:w-28"
+  },
+  {
+    "tag": "input",
+    "type": "number",
+    "name": "",
+    "placeholder": "Mín",
+    "id": "",
+    "className": "px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] w-full placeholder:text-[var(--text-muted)] w-full sm:w-28"
+  },
+  {
+    "tag": "input",
+    "type": "number",
+    "name": "",
+    "placeholder": "Máx",
+    "id": "",
+    "className": "px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] w-full placeholder:text-[var(--text-muted)] w-full sm:w-28"
+  },
+  {
+    "tag": "input",
+    "type": "text",
+    "name": "",
+    "placeholder": "",
+    "id": "",
+    "className": "px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] w-full placeholder:text-[var(--text-muted)] w-full sm:max-w-md"
+  },
+  {
+    "tag": "input",
+    "type": "radio",
+    "name": "searchType",
+    "placeholder": "",
+    "id": "searchByCharacter",
+    "className": "w-3 h-3 accent-[var(--color-primary-dark)]"
+  }
+]
+2026-06-21 09:32:54  INFO      Buttons encontrados:
+[
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "w-10 h-10 flex items-center justify-center rounded bg-[var(--box-bg)] border border-[var(--box-border)] text-[var(--box-header-text)] hover:bg-[var(--hover-bg)] transition-colors"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "w-8 h-8 flex items-center justify-center rounded bg-[var(--box-bg)] border border-[var(--box-border)] text-[var(--text-muted)] hover:text-white transition-colors"
+  },
+  {
+    "tag": "button",
+    "text": "Notícias",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Conta",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Biblioteca",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Comunidade",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Custom",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Suporte",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Bazar de Chars",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Notícias",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Conta",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Biblioteca",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Comunidade",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Custom",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Suporte",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "Bazar de Chars",
+    "type": "button",
+    "className": "MenuBox-module__1GrUIG__header"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "flex items-center gap-1 px-1.5 py-0.5 rounded bg-[var(--color-accent)] ring-1 ring-white/30"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "px-1 py-0.5 rounded transition-colors opacity-60 hover:opacity-100"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "px-1 py-0.5 rounded transition-colors bg-[var(--color-accent)] ring-1 ring-white/30"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "px-1 py-0.5 rounded transition-colors opacity-60 hover:opacity-100"
+  },
+  {
+    "tag": "button",
+    "text": "Geral",
+    "type": "button",
+    "className": "px-3 py-1 text-xs font-semibold rounded-t border-b-2 -mb-[9px] transition-colors border-[var(--color-primary-dark)] text-[var(--foreground)]"
+  },
+  {
+    "tag": "button",
+    "text": "Skills",
+    "type": "button",
+    "className": "px-3 py-1 text-xs font-semibold rounded-t border-b-2 -mb-[9px] transition-colors border-transparent text-[var(--text-muted)] hover:text-[var(--foreground)]"
+  },
+  {
+    "tag": "button",
+    "text": "Extras",
+    "type": "button",
+    "className": "px-3 py-1 text-xs font-semibold rounded-t border-b-2 -mb-[9px] transition-colors border-transparent text-[var(--text-muted)] hover:text-[var(--foreground)]"
+  },
+  {
+    "tag": "button",
+    "text": "Limpar filtros",
+    "type": "button",
+    "className": "text-[11px] text-[var(--text-link)] hover:text-[var(--text-link-hover)] hover:underline"
+  },
+  {
+    "tag": "button",
+    "text": "Aplicar",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] text-[var(--btn-primary-text)] border border-[var(--btn-primary-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] hover:text-[var(--btn-primary-hover-text)] hover:border-[var(--btn-primary-hover-border)] active:from-[var(--btn-primary-active-from)] active:via-[var(--btn-primary-active-via)] active:to-[var(--btn-primary-active-to)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "Todos os Mundos",
+    "type": "button",
+    "className": "w-full flex items-center justify-between gap-2 px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
+  },
+  {
+    "tag": "button",
+    "text": "Todas as Vocações",
+    "type": "button",
+    "className": "w-full flex items-center justify-between gap-2 px-2 py-1 text-xs bg-[var(--box-content-bg)] border border-[var(--box-inner-border)] rounded text-[var(--foreground)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
+  },
+  {
+    "tag": "button",
+    "text": "Buscar",
+    "type": "button",
+    "className": "px-3 py-1 text-xs font-semibold bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] text-[var(--btn-primary-text)] border border-[var(--btn-primary-border)] rounded shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] hover:text-[var(--btn-primary-hover-text)] whitespace-nowrap"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "1",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-active-bg-from)] via-[var(--btn-primary-active-bg-via)] to-[var(--btn-primary-active-bg-to)] text-[var(--btn-primary-active-text)] font-bold border border-[var(--btn-primary-active-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] flex items-center justify-center cursor-default"
+  },
+  {
+    "tag": "button",
+    "text": "2",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "3",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "4",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "5",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "inline-flex items-center justify-center font-semibold transition-all duration-150 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative bg-[var(--btn-ghost-bg)] text-[var(--btn-ghost-text)] border border-[var(--btn-ghost-border)] hover:bg-[var(--btn-ghost-hover-bg)] hover:text-[var(--btn-ghost-hover-text)] hover:border-[var(--btn-ghost-hover-border)] px-3 py-1 text-[11px]"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "1",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-active-bg-from)] via-[var(--btn-primary-active-bg-via)] to-[var(--btn-primary-active-bg-to)] text-[var(--btn-primary-active-text)] font-bold border border-[var(--btn-primary-active-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] flex items-center justify-center cursor-default"
+  },
+  {
+    "tag": "button",
+    "text": "2",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "3",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "4",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "5",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "h-7 min-w-[28px] px-2 text-xs bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] font-semibold transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+  },
+  {
+    "tag": "button",
+    "text": "",
+    "type": "submit",
+    "className": "text-[var(--box-header-text)] hover:opacity-70 transition-opacity"
+  },
+  {
+    "tag": "button",
+    "text": "Apenas Essenciais",
+    "type": "submit",
+    "className": "px-4 py-2 text-xs font-semibold bg-gradient-to-b from-[var(--btn-secondary-from)] via-[var(--btn-secondary-via)] to-[var(--btn-secondary-to)] hover:from-[var(--btn-secondary-hover-from)] hover:via-[var(--btn-secondary-hover-via)] hover:to-[var(--btn-secondary-hover-to)] text-[var(--btn-secondary-text)] hover:text-[var(--btn-secondary-hover-text)] transition-all border border-[var(--btn-secondary-border)] hover:border-[var(--btn-secondary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] rounded"
+  },
+  {
+    "tag": "button",
+    "text": "Aceitar Todos",
+    "type": "submit",
+    "className": "px-4 py-2 text-xs font-semibold bg-gradient-to-b from-[var(--btn-primary-from)] via-[var(--btn-primary-via)] to-[var(--btn-primary-to)] hover:from-[var(--btn-primary-hover-from)] hover:via-[var(--btn-primary-hover-via)] hover:to-[var(--btn-primary-hover-to)] text-[var(--btn-primary-text)] hover:text-[var(--btn-primary-hover-text)] transition-all border border-[var(--btn-primary-border)] hover:border-[var(--btn-primary-hover-border)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-1px_0_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.5)] rounded"
+  }
+]
+2026-06-21 09:39:48  INFO      === Verificando Soul War — todos os servidores ===
+2026-06-21 09:39:50  INFO      Abrindo site para obter cookies Cloudflare...
+2026-06-21 09:39:55  INFO      === MODO DEBUG: testando API do bazaar ===
+2026-06-21 09:39:58  INFO      Status API: 200
+2026-06-21 09:39:58  INFO      Payload (3000 chars):
+{"auctions":[{"id":231521,"state":3,"stateName":"finished","startingValue":9000,"currentValue":0,"winningBid":0,"hasWinner":false,"isWinning":false,"auctionStart":1781914202,"auctionEnd":1782045000,"name":"Wizard Alone","level":1118,"vocation":5,"vocationName":"Master Sorcerer","sex":1,"worldName":"Auroria","lookType":2504,"lookHead":0,"lookBody":0,"lookLegs":0,"lookFeet":0,"lookAddons":3,"direction":2,"charmPoints":71,"achievementPoints":251,"magLevel":133,"skills":{"club":11,"sword":23,"axe":11,"dist":17,"shielding":39},"highlightItems":[],"highlightAugments":[{"text":"1118 Level","argType":0},{"text":"Total Charm Points: 4991, Unused Charm Points: 71","argType":7}]},{"id":231306,"state":3,"stateName":"finished","startingValue":3500,"currentValue":0,"winningBid":0,"hasWinner":false,"isWinning":false,"auctionStart":1781881156,"auctionEnd":1782045000,"name":"Trovao Aurora","level":908,"vocation":10,"vocationName":"Exalted Monk","sex":1,"worldName":"Lunarian","lookType":2691,"lookHead":0,"lookBody":0,"lookLegs":0,"lookFeet":0,"lookAddons":3,"direction":2,"charmPoints":99,"achievementPoints":198,"magLevel":49,"skills":{"club":29,"sword":11,"axe":11,"dist":17,"shielding":87},"highlightItems":[{"itemId":26377,"clientId":26377,"tier":0,"count":1,"name":"loot pouch"},{"itemId":72913,"clientId":72913,"tier":0,"count":1,"name":"decoration kit"},{"itemId":72915,"clientId":72915,"tier":0,"count":1,"name":"decoration kit"},{"itemId":72922,"clientId":72922,"tier":0,"count":1,"name":"decoration kit"}],"highlightAugments":[{"text":"128 fist fighting (Loyalty bonus not included)","argType":0},{"text":"908 Level","argType":0},{"text":"Total Charm Points: 3959, Unused Charm Points: 99","argType":7}]},{"id":231607,"state":3,"stateName":"finished","startingValue":9999,"currentValue":0,"winningBid":0,"hasWinner":false,"isWinning":false,"auctionStart":1781931726,"auctionEnd":1782045000,"name":"Txai","level":999,"vocation":7,"vocationName":"Royal Paladin","sex":1,"worldName":"Elysian","lookType":1722,"lookHead":0,"lookBody":0,"lookLegs":0,"lookFeet":0,"lookAddons":0,"direction":2,"charmPoints":678,"achievementPoints":66,"magLevel":40,"skills":{"club":11,"sword":11,"axe":11,"dist":129,"shielding":107},"highlightItems":[{"itemId":39786,"clientId":39786,"tier":0,"count":1,"name":"soulbleeder"},{"itemId":39792,"clientId":39792,"tier":0,"count":1,"name":"soulshell"},{"itemId":46644,"clientId":46644,"tier":0,"count":1,"name":"alicorn headguard"},{"itemId":46645,"clientId":46645,"tier":0,"count":1,"name":"alicorn quiver"}],"highlightAugments":[{"text":"129 distance fighting (Loyalty bonus not included)","argType":0},{"text":"40 Magic Level (Loyalty bonus not included)","argType":0},{"text":"999 Level","argType":0}]},{"id":231466,"state":3,"stateName":"finished","startingValue":2500,"currentValue":0,"winningBid":0,"hasWinner":false,"isWinning":false,"auctionStart":1781905745,"auctionEnd":1782044100,"name":"Tevin Master","level":936,"vocation":5,"vocationName":"Master Sorcerer
+2026-06-21 09:45:13  INFO      === Verificando Soul War — todos os servidores ===
+2026-06-21 09:45:15  INFO      Abrindo site para obter cookies Cloudflare...
+2026-06-21 09:45:26  INFO      Carregando personagens do Soulwar PT Manager...
+2026-06-21 09:45:31  INFO      Total de personagens carregados: 148
+2026-06-21 09:45:31  INFO      Buscando 'Versx' no histórico do bazaar...
+2026-06-21 09:45:31  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:31  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:31  INFO      Buscando 'Hope Eradicated' no histórico do bazaar...
+2026-06-21 09:45:32  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:32  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:32  INFO      Buscando 'Biiel Tralha' no histórico do bazaar...
+2026-06-21 09:45:32  INFO        Encontrado: https://rubinot.com.br/bazaar/229103 — verificando Soul War...
+2026-06-21 09:45:36  INFO        [debug] aba Quests clicada
+2026-06-21 09:45:36  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:45:36  INFO      Buscando 'Inscaos' no histórico do bazaar...
+2026-06-21 09:45:37  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:37  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:37  INFO      Buscando 'Soulmaw' no histórico do bazaar...
+2026-06-21 09:45:37  INFO        Encontrado: https://rubinot.com.br/bazaar/211876 — verificando Soul War...
+2026-06-21 09:45:41  INFO        [debug] aba Quests clicada
+2026-06-21 09:45:41  INFO        ❌ Soul War não completa.
+2026-06-21 09:45:41  INFO      Buscando 'Julera Oldguard' no histórico do bazaar...
+2026-06-21 09:45:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:41  INFO      Buscando 'Arcanjo Caido' no histórico do bazaar...
+2026-06-21 09:45:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:41  INFO      Buscando 'Jotalotti' no histórico do bazaar...
+2026-06-21 09:45:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:41  INFO      Buscando 'Kensgold' no histórico do bazaar...
+2026-06-21 09:45:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:41  INFO      Buscando 'Amatsukazzo' no histórico do bazaar...
+2026-06-21 09:45:42  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:42  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:42  INFO      Buscando 'Sala de Reboco' no histórico do bazaar...
+2026-06-21 09:45:42  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:42  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:42  INFO      Buscando 'the power one' no histórico do bazaar...
+2026-06-21 09:45:42  INFO        Encontrado: https://rubinot.com.br/bazaar/230138 — verificando Soul War...
+2026-06-21 09:45:46  INFO        [debug] aba Quests clicada
+2026-06-21 09:45:46  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:45:46  INFO      Buscando 'fury lethal' no histórico do bazaar...
+2026-06-21 09:45:46  INFO        Encontrado: https://rubinot.com.br/bazaar/221417 — verificando Soul War...
+2026-06-21 09:45:50  INFO        [debug] aba Quests clicada
+2026-06-21 09:45:50  INFO        ❌ Soul War não completa.
+2026-06-21 09:45:50  INFO      Buscando 'rip netdown' no histórico do bazaar...
+2026-06-21 09:45:51  INFO        Encontrado: https://rubinot.com.br/bazaar/220145 — verificando Soul War...
+2026-06-21 09:45:54  INFO        [debug] aba Quests clicada
+2026-06-21 09:45:54  INFO        ❌ Soul War não completa.
+2026-06-21 09:45:54  INFO      Buscando 'Yansito' no histórico do bazaar...
+2026-06-21 09:45:55  INFO        Encontrado: https://rubinot.com.br/bazaar/214154 — verificando Soul War...
+2026-06-21 09:45:58  INFO        [debug] aba Quests clicada
+2026-06-21 09:45:58  INFO        ❌ Soul War não completa.
+2026-06-21 09:45:58  INFO      Buscando 'Mineirinsz' no histórico do bazaar...
+2026-06-21 09:45:58  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:58  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:58  INFO      Buscando 'Kina Aura' no histórico do bazaar...
+2026-06-21 09:45:59  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:45:59  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:45:59  INFO      Buscando 'Nacktan Sorcere' no histórico do bazaar...
+2026-06-21 09:45:59  INFO        Encontrado: https://rubinot.com.br/bazaar/221839 — verificando Soul War...
+2026-06-21 09:46:03  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:03  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:03  INFO      Buscando 'Icekun' no histórico do bazaar...
+2026-06-21 09:46:04  INFO        Encontrado: https://rubinot.com.br/bazaar/214951 — verificando Soul War...
+2026-06-21 09:46:07  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:07  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:07  INFO      Buscando 'Firewall Is ed' no histórico do bazaar...
+2026-06-21 09:46:07  INFO        Encontrado: https://rubinot.com.br/bazaar/217159 — verificando Soul War...
+2026-06-21 09:46:11  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:11  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:11  INFO      Buscando 'Gravito Tenebrium' no histórico do bazaar...
+2026-06-21 09:46:11  INFO        Encontrado: https://rubinot.com.br/bazaar/229901 — verificando Soul War...
+2026-06-21 09:46:15  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:15  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:46:15  INFO      Buscando 'Senhor Jesus Cristo amem' no histórico do bazaar...
+2026-06-21 09:46:15  INFO        Encontrado: https://rubinot.com.br/bazaar/228120 — verificando Soul War...
+2026-06-21 09:46:18  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:18  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:46:18  INFO      Buscando 'Sebas Ralph' no histórico do bazaar...
+2026-06-21 09:46:19  INFO        Encontrado: https://rubinot.com.br/bazaar/213423 — verificando Soul War...
+2026-06-21 09:46:22  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:22  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:22  INFO      Buscando 'Bela Cindy' no histórico do bazaar...
+2026-06-21 09:46:22  INFO        Encontrado: https://rubinot.com.br/bazaar/214367 — verificando Soul War...
+2026-06-21 09:46:26  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:26  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:26  INFO      Buscando 'Fatinha safada' no histórico do bazaar...
+2026-06-21 09:46:26  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:26  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:26  INFO      Buscando 'Testa Borderless' no histórico do bazaar...
+2026-06-21 09:46:26  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:26  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:26  INFO      Buscando 'DIGAO RENDA PASSIVA' no histórico do bazaar...
+2026-06-21 09:46:27  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:27  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:27  INFO      Buscando 'VINI ZAHARD' no histórico do bazaar...
+2026-06-21 09:46:27  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:27  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:27  INFO      Buscando 'ED do Honório gostoso' no histórico do bazaar...
+2026-06-21 09:46:27  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:27  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:27  INFO      Buscando 'Litra Say' no histórico do bazaar...
+2026-06-21 09:46:27  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:27  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:27  INFO      Buscando 'Waguri Kaoruko' no histórico do bazaar...
+2026-06-21 09:46:27  INFO        Encontrado: https://rubinot.com.br/bazaar/214614 — verificando Soul War...
+2026-06-21 09:46:32  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:32  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:32  INFO      Buscando 'Ak Pistol' no histórico do bazaar...
+2026-06-21 09:46:32  INFO        Encontrado: https://rubinot.com.br/bazaar/222441 — verificando Soul War...
+2026-06-21 09:46:36  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:36  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:36  INFO      Buscando 'Drax Warden' no histórico do bazaar...
+2026-06-21 09:46:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:36  INFO      Buscando 'Jehpor Tela' no histórico do bazaar...
+2026-06-21 09:46:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:36  INFO      Buscando 'Warhorse Defender' no histórico do bazaar...
+2026-06-21 09:46:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:46:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:46:36  INFO      Buscando 'Ddkoth' no histórico do bazaar...
+2026-06-21 09:46:36  INFO        Encontrado: https://rubinot.com.br/bazaar/198025 — verificando Soul War...
+2026-06-21 09:46:41  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:41  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:41  INFO      Buscando 'Roni Obruxo' no histórico do bazaar...
+2026-06-21 09:46:41  INFO        Encontrado: https://rubinot.com.br/bazaar/214452 — verificando Soul War...
+2026-06-21 09:46:45  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:45  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:45  INFO      Buscando 'Gandalff Do Paii' no histórico do bazaar...
+2026-06-21 09:46:46  INFO        Encontrado: https://rubinot.com.br/bazaar/214413 — verificando Soul War...
+2026-06-21 09:46:50  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:50  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:50  INFO      Buscando 'Kleblanc' no histórico do bazaar...
+2026-06-21 09:46:50  INFO        Encontrado: https://rubinot.com.br/bazaar/215964 — verificando Soul War...
+2026-06-21 09:46:54  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:54  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:54  INFO      Buscando 'Dynnozzo On Belaria' no histórico do bazaar...
+2026-06-21 09:46:54  INFO        Encontrado: https://rubinot.com.br/bazaar/214387 — verificando Soul War...
+2026-06-21 09:46:58  INFO        [debug] aba Quests clicada
+2026-06-21 09:46:58  INFO        ❌ Soul War não completa.
+2026-06-21 09:46:58  INFO      Buscando 'Ordnas' no histórico do bazaar...
+2026-06-21 09:46:58  INFO        Encontrado: https://rubinot.com.br/bazaar/211157 — verificando Soul War...
+2026-06-21 09:47:02  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:02  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:02  INFO      Buscando 'Didico' no histórico do bazaar...
+2026-06-21 09:47:02  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:02  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:02  INFO      Buscando 'Mszadasw' no histórico do bazaar...
+2026-06-21 09:47:03  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:03  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:03  INFO      Buscando 'Mackiavel' no histórico do bazaar...
+2026-06-21 09:47:03  INFO        Encontrado: https://rubinot.com.br/bazaar/224288 — verificando Soul War...
+2026-06-21 09:47:06  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:06  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:06  INFO      Buscando 'Wakasix' no histórico do bazaar...
+2026-06-21 09:47:07  INFO        Encontrado: https://rubinot.com.br/bazaar/224756 — verificando Soul War...
+2026-06-21 09:47:10  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:10  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:10  INFO      Buscando 'black trush' no histórico do bazaar...
+2026-06-21 09:47:11  INFO        Encontrado: https://rubinot.com.br/bazaar/228683 — verificando Soul War...
+2026-06-21 09:47:14  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:14  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:47:14  INFO      Buscando 'beckinho' no histórico do bazaar...
+2026-06-21 09:47:14  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:14  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:14  INFO      Buscando 'wolve' no histórico do bazaar...
+2026-06-21 09:47:15  INFO        Encontrado: https://rubinot.com.br/bazaar/219756 — verificando Soul War...
+2026-06-21 09:47:19  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:19  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:19  INFO      Buscando 'catinga de baseado' no histórico do bazaar...
+2026-06-21 09:47:19  INFO        Encontrado: https://rubinot.com.br/bazaar/222776 — verificando Soul War...
+2026-06-21 09:47:23  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:23  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:23  INFO      Buscando 'free kamikaze' no histórico do bazaar...
+2026-06-21 09:47:23  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:23  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:23  INFO      Buscando 'instinto ruiim' no histórico do bazaar...
+2026-06-21 09:47:23  INFO        Encontrado: https://rubinot.com.br/bazaar/229508 — verificando Soul War...
+2026-06-21 09:47:27  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:27  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:47:27  INFO      Buscando 'Hipnozy' no histórico do bazaar...
+2026-06-21 09:47:27  INFO        Encontrado: https://rubinot.com.br/bazaar/224671 — verificando Soul War...
+2026-06-21 09:47:31  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:31  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:31  INFO      Buscando 'Master Mino' no histórico do bazaar...
+2026-06-21 09:47:32  INFO        Encontrado: https://rubinot.com.br/bazaar/224488 — verificando Soul War...
+2026-06-21 09:47:35  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:35  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:35  INFO      Buscando 'toma paralyze' no histórico do bazaar...
+2026-06-21 09:47:35  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:35  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:35  INFO      Buscando 'iririririri' no histórico do bazaar...
+2026-06-21 09:47:36  INFO        Encontrado: https://rubinot.com.br/bazaar/220121 — verificando Soul War...
+2026-06-21 09:47:39  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:39  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:39  INFO      Buscando 'netinho flam' no histórico do bazaar...
+2026-06-21 09:47:39  INFO        Encontrado: https://rubinot.com.br/bazaar/220435 — verificando Soul War...
+2026-06-21 09:47:43  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:43  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:43  INFO      Buscando 'yito antizurdos' no histórico do bazaar...
+2026-06-21 09:47:43  INFO        Encontrado: https://rubinot.com.br/bazaar/216798 — verificando Soul War...
+2026-06-21 09:47:47  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:47  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:47  INFO      Buscando 'Boowman' no histórico do bazaar...
+2026-06-21 09:47:47  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:47  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:47  INFO      Buscando 'Un De Ad' no histórico do bazaar...
+2026-06-21 09:47:47  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:47  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:47  INFO      Buscando 'Danilo Elite' no histórico do bazaar...
+2026-06-21 09:47:47  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:47  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:47  INFO      Buscando 'Capitao Inacio' no histórico do bazaar...
+2026-06-21 09:47:47  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:47  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:47  INFO      Buscando 'Gutter Drakun' no histórico do bazaar...
+2026-06-21 09:47:48  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:48  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:48  INFO      Buscando 'Eolipe Ne' no histórico do bazaar...
+2026-06-21 09:47:48  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:48  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:48  INFO      Buscando 'Rafa Tanka Nada' no histórico do bazaar...
+2026-06-21 09:47:48  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:48  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:48  INFO      Buscando 'Jorge Pneus' no histórico do bazaar...
+2026-06-21 09:47:48  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:48  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:48  INFO      Buscando 'Giusepi Camedia' no histórico do bazaar...
+2026-06-21 09:47:48  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:48  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:48  INFO      Buscando 'Lczin Lombrado' no histórico do bazaar...
+2026-06-21 09:47:48  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:48  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:48  INFO      Buscando 'Vitinha' no histórico do bazaar...
+2026-06-21 09:47:49  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:49  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:49  INFO      Buscando 'Moon Rise' no histórico do bazaar...
+2026-06-21 09:47:49  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:49  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:49  INFO      Buscando 'Frango de Padaria' no histórico do bazaar...
+2026-06-21 09:47:49  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:49  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:49  INFO      Buscando 'Danzzik' no histórico do bazaar...
+2026-06-21 09:47:49  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:49  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:49  INFO      Buscando 'Loroza Skin' no histórico do bazaar...
+2026-06-21 09:47:49  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:49  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:49  INFO      Buscando 'Palizin' no histórico do bazaar...
+2026-06-21 09:47:50  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:50  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:50  INFO      Buscando 'Trust Sereno' no histórico do bazaar...
+2026-06-21 09:47:50  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:50  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:50  INFO      Buscando 'Knight Axe Fight' no histórico do bazaar...
+2026-06-21 09:47:50  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:50  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:50  INFO      Buscando 'Bruno Kniight' no histórico do bazaar...
+2026-06-21 09:47:50  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:50  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:50  INFO      Buscando 'Fangorn' no histórico do bazaar...
+2026-06-21 09:47:50  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:47:50  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:47:50  INFO      Buscando 'Baseads' no histórico do bazaar...
+2026-06-21 09:47:51  INFO        Encontrado: https://rubinot.com.br/bazaar/225601 — verificando Soul War...
+2026-06-21 09:47:54  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:54  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:54  INFO      Buscando 'Matar Rosa' no histórico do bazaar...
+2026-06-21 09:47:54  INFO        Encontrado: https://rubinot.com.br/bazaar/225502 — verificando Soul War...
+2026-06-21 09:47:58  INFO        [debug] aba Quests clicada
+2026-06-21 09:47:58  INFO        ❌ Soul War não completa.
+2026-06-21 09:47:58  INFO      Buscando 'Hash Jahbless' no histórico do bazaar...
+2026-06-21 09:47:58  INFO        Encontrado: https://rubinot.com.br/bazaar/225106 — verificando Soul War...
+2026-06-21 09:48:02  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:03  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:03  INFO      Buscando 'Spell Ice' no histórico do bazaar...
+2026-06-21 09:48:03  INFO        Encontrado: https://rubinot.com.br/bazaar/229775 — verificando Soul War...
+2026-06-21 09:48:06  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:06  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:48:06  INFO      Buscando 'Druid Mixito' no histórico do bazaar...
+2026-06-21 09:48:07  INFO        Encontrado: https://rubinot.com.br/bazaar/225138 — verificando Soul War...
+2026-06-21 09:48:10  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:10  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:10  INFO      Buscando 'Vellmoria' no histórico do bazaar...
+2026-06-21 09:48:10  INFO        Encontrado: https://rubinot.com.br/bazaar/230844 — verificando Soul War...
+2026-06-21 09:48:14  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:14  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:48:14  INFO      Buscando 'King Rama' no histórico do bazaar...
+2026-06-21 09:48:14  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:14  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:14  INFO      Buscando 'Dj Rolinh' no histórico do bazaar...
+2026-06-21 09:48:14  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:14  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:14  INFO      Buscando 'The manoh is back' no histórico do bazaar...
+2026-06-21 09:48:14  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:14  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:14  INFO      Buscando 'Question' no histórico do bazaar...
+2026-06-21 09:48:15  INFO        Encontrado: https://rubinot.com.br/bazaar/221582 — verificando Soul War...
+2026-06-21 09:48:18  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:18  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:48:18  INFO      Buscando 'Paredinhaakk' no histórico do bazaar...
+2026-06-21 09:48:18  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:18  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:18  INFO      Buscando 'Exis' no histórico do bazaar...
+2026-06-21 09:48:19  INFO        Encontrado: https://rubinot.com.br/bazaar/230697 — verificando Soul War...
+2026-06-21 09:48:22  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:22  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:22  INFO      Buscando 'Warsome Brenner' no histórico do bazaar...
+2026-06-21 09:48:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:22  INFO      Buscando 'Auroritak' no histórico do bazaar...
+2026-06-21 09:48:23  INFO        Encontrado: https://rubinot.com.br/bazaar/229166 — verificando Soul War...
+2026-06-21 09:48:26  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:26  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:48:26  INFO      Buscando 'Zaniepokojony' no histórico do bazaar...
+2026-06-21 09:48:26  INFO        Encontrado: https://rubinot.com.br/bazaar/226346 — verificando Soul War...
+2026-06-21 09:48:30  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:30  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:30  INFO      Buscando 'Fafito The Bloker' no histórico do bazaar...
+2026-06-21 09:48:30  INFO        Encontrado: https://rubinot.com.br/bazaar/226422 — verificando Soul War...
+2026-06-21 09:48:34  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:34  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:34  INFO      Buscando 'Compralider Rendafixa' no histórico do bazaar...
+2026-06-21 09:48:34  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:34  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:34  INFO      Buscando 'Ada Walla' no histórico do bazaar...
+2026-06-21 09:48:35  INFO        Encontrado: https://rubinot.com.br/bazaar/226100 — verificando Soul War...
+2026-06-21 09:48:38  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:38  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:38  INFO      Buscando 'Rushary Druid' no histórico do bazaar...
+2026-06-21 09:48:38  INFO        Encontrado: https://rubinot.com.br/bazaar/226551 — verificando Soul War...
+2026-06-21 09:48:42  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:42  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:42  INFO      Buscando 'Gott Ist Tot' no histórico do bazaar...
+2026-06-21 09:48:42  INFO        Encontrado: https://rubinot.com.br/bazaar/227186 — verificando Soul War...
+2026-06-21 09:48:47  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:47  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:47  INFO      Buscando 'Isneipe' no histórico do bazaar...
+2026-06-21 09:48:47  INFO        Encontrado: https://rubinot.com.br/bazaar/226726 — verificando Soul War...
+2026-06-21 09:48:50  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:50  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:50  INFO      Buscando 'Strzeleck' no histórico do bazaar...
+2026-06-21 09:48:51  INFO        Encontrado: https://rubinot.com.br/bazaar/226309 — verificando Soul War...
+2026-06-21 09:48:54  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:54  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:54  INFO      Buscando 'Mad Igi' no histórico do bazaar...
+2026-06-21 09:48:54  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:54  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:54  INFO      Buscando 'Pala Pala Paladin' no histórico do bazaar...
+2026-06-21 09:48:54  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:48:54  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:48:54  INFO      Buscando 'Ekromn' no histórico do bazaar...
+2026-06-21 09:48:55  INFO        Encontrado: https://rubinot.com.br/bazaar/228049 — verificando Soul War...
+2026-06-21 09:48:59  INFO        [debug] aba Quests clicada
+2026-06-21 09:48:59  INFO        ❌ Soul War não completa.
+2026-06-21 09:48:59  INFO      Buscando 'Royal mago' no histórico do bazaar...
+2026-06-21 09:48:59  INFO        Encontrado: https://rubinot.com.br/bazaar/207930 — verificando Soul War...
+2026-06-21 09:49:03  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:03  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:03  INFO      Buscando 'Kukinha' no histórico do bazaar...
+2026-06-21 09:49:03  INFO        Encontrado: https://rubinot.com.br/bazaar/228068 — verificando Soul War...
+2026-06-21 09:49:07  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:07  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:07  INFO      Buscando 'Ca us' no histórico do bazaar...
+2026-06-21 09:49:08  INFO        Encontrado: https://rubinot.com.br/bazaar/225649 — verificando Soul War...
+2026-06-21 09:49:11  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:11  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:11  INFO      Buscando 'Lucasy' no histórico do bazaar...
+2026-06-21 09:49:11  INFO        Encontrado: https://rubinot.com.br/bazaar/224746 — verificando Soul War...
+2026-06-21 09:49:15  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:15  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:15  INFO      Buscando 'Abrackadaver' no histórico do bazaar...
+2026-06-21 09:49:15  INFO        Encontrado: https://rubinot.com.br/bazaar/227704 — verificando Soul War...
+2026-06-21 09:49:19  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:19  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:19  INFO      Buscando 'Riigzao' no histórico do bazaar...
+2026-06-21 09:49:19  INFO        Encontrado: https://rubinot.com.br/bazaar/229636 — verificando Soul War...
+2026-06-21 09:49:23  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:23  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:49:23  INFO      Buscando 'polvo colombiano' no histórico do bazaar...
+2026-06-21 09:49:23  INFO        Encontrado: https://rubinot.com.br/bazaar/222354 — verificando Soul War...
+2026-06-21 09:49:28  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:28  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:28  INFO      Buscando 'iago jamaicano' no histórico do bazaar...
+2026-06-21 09:49:28  INFO        Encontrado: https://rubinot.com.br/bazaar/225515 — verificando Soul War...
+2026-06-21 09:49:32  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:32  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:32  INFO      Buscando 'liam davi' no histórico do bazaar...
+2026-06-21 09:49:32  INFO        Encontrado: https://rubinot.com.br/bazaar/226054 — verificando Soul War...
+2026-06-21 09:49:36  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:36  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:36  INFO      Buscando 'nebuloza rpzinha' no histórico do bazaar...
+2026-06-21 09:49:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:49:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:49:36  INFO      Buscando 'cepa orodapes' no histórico do bazaar...
+2026-06-21 09:49:37  INFO        Encontrado: https://rubinot.com.br/bazaar/226932 — verificando Soul War...
+2026-06-21 09:49:40  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:40  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:40  INFO      Buscando 'hakuna vesperiano' no histórico do bazaar...
+2026-06-21 09:49:40  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:49:40  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:49:40  INFO      Buscando 'abis' no histórico do bazaar...
+2026-06-21 09:49:41  INFO        Encontrado: https://rubinot.com.br/bazaar/226806 — verificando Soul War...
+2026-06-21 09:49:44  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:44  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:44  INFO      Buscando 'Ed bomba' no histórico do bazaar...
+2026-06-21 09:49:44  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:49:44  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:49:44  INFO      Buscando 'tgocc' no histórico do bazaar...
+2026-06-21 09:49:45  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:49:45  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:49:45  INFO      Buscando 'terror on grimoria' no histórico do bazaar...
+2026-06-21 09:49:45  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:49:45  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:49:45  INFO      Buscando 'rasgakhul noexorimas' no histórico do bazaar...
+2026-06-21 09:49:45  INFO        Encontrado: https://rubinot.com.br/bazaar/227204 — verificando Soul War...
+2026-06-21 09:49:49  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:49  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:49  INFO      Buscando 'Pedrada Show' no histórico do bazaar...
+2026-06-21 09:49:49  INFO        Encontrado: https://rubinot.com.br/bazaar/228835 — verificando Soul War...
+2026-06-21 09:49:53  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:53  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:53  INFO      Buscando 'Careca Tacabolt' no histórico do bazaar...
+2026-06-21 09:49:53  INFO        Encontrado: https://rubinot.com.br/bazaar/228850 — verificando Soul War...
+2026-06-21 09:49:57  INFO        [debug] aba Quests clicada
+2026-06-21 09:49:57  INFO        ❌ Soul War não completa.
+2026-06-21 09:49:57  INFO      Buscando 'Archer Varus' no histórico do bazaar...
+2026-06-21 09:49:58  INFO        Encontrado: https://rubinot.com.br/bazaar/210642 — verificando Soul War...
+2026-06-21 09:50:02  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:02  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:02  INFO      Buscando 'El Goreeca' no histórico do bazaar...
+2026-06-21 09:50:03  INFO        Encontrado: https://rubinot.com.br/bazaar/229876 — verificando Soul War...
+2026-06-21 09:50:06  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:06  INFO        ✅ Soul War COMPLETA.
+2026-06-21 09:50:06  INFO      Buscando 'Lord Tuga' no histórico do bazaar...
+2026-06-21 09:50:07  INFO        Encontrado: https://rubinot.com.br/bazaar/228672 — verificando Soul War...
+2026-06-21 09:50:10  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:10  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:10  INFO      Buscando 'Rpaladino' no histórico do bazaar...
+2026-06-21 09:50:11  INFO        Encontrado: https://rubinot.com.br/bazaar/228577 — verificando Soul War...
+2026-06-21 09:50:15  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:15  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:15  INFO      Buscando 'Cynaxe two' no histórico do bazaar...
+2026-06-21 09:50:15  INFO        Encontrado: https://rubinot.com.br/bazaar/228684 — verificando Soul War...
+2026-06-21 09:50:19  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:19  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:19  INFO      Buscando 'Levi Archerman' no histórico do bazaar...
+2026-06-21 09:50:19  INFO        Encontrado: https://rubinot.com.br/bazaar/211122 — verificando Soul War...
+2026-06-21 09:50:23  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:23  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:23  INFO      Buscando 'Terror Bronzeado' no histórico do bazaar...
+2026-06-21 09:50:23  INFO        Encontrado: https://rubinot.com.br/bazaar/229345 — verificando Soul War...
+2026-06-21 09:50:28  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:28  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:28  INFO      Buscando 'Bronxz Offshore' no histórico do bazaar...
+2026-06-21 09:50:28  INFO        Encontrado: https://rubinot.com.br/bazaar/229490 — verificando Soul War...
+2026-06-21 09:50:33  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:33  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:33  INFO      Buscando 'Guijo' no histórico do bazaar...
+2026-06-21 09:50:33  INFO        Encontrado: https://rubinot.com.br/bazaar/225013 — verificando Soul War...
+2026-06-21 09:50:37  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:37  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:37  INFO      Buscando 'Nvtkill' no histórico do bazaar...
+2026-06-21 09:50:37  INFO        Encontrado: https://rubinot.com.br/bazaar/229312 — verificando Soul War...
+2026-06-21 09:50:41  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:41  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:41  INFO      Buscando 'Im Pro Player' no histórico do bazaar...
+2026-06-21 09:50:41  INFO        Encontrado: https://rubinot.com.br/bazaar/229099 — verificando Soul War...
+2026-06-21 09:50:45  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:45  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:45  INFO      Buscando 'Gran Magig' no histórico do bazaar...
+2026-06-21 09:50:45  INFO        Encontrado: https://rubinot.com.br/bazaar/229310 — verificando Soul War...
+2026-06-21 09:50:49  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:49  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:49  INFO      Buscando 'Daemon Witch' no histórico do bazaar...
+2026-06-21 09:50:49  INFO        Encontrado: https://rubinot.com.br/bazaar/228350 — verificando Soul War...
+2026-06-21 09:50:53  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:53  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:53  INFO      Buscando 'Character Namee' no histórico do bazaar...
+2026-06-21 09:50:53  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-21 09:50:53  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-21 09:50:53  INFO      Buscando 'Knightin Doido' no histórico do bazaar...
+2026-06-21 09:50:53  INFO        Encontrado: https://rubinot.com.br/bazaar/229382 — verificando Soul War...
+2026-06-21 09:50:58  INFO        [debug] aba Quests clicada
+2026-06-21 09:50:58  INFO        ❌ Soul War não completa.
+2026-06-21 09:50:58  INFO      Buscando 'Prisminha' no histórico do bazaar...
+2026-06-21 09:50:58  INFO        Encontrado: https://rubinot.com.br/bazaar/229999 — verificando Soul War...
+2026-06-21 09:51:02  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:02  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:02  INFO      Buscando 'Beertiinhoow Mcz' no histórico do bazaar...
+2026-06-21 09:51:02  INFO        Encontrado: https://rubinot.com.br/bazaar/229376 — verificando Soul War...
+2026-06-21 09:51:06  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:06  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:06  INFO      Buscando 'Overrdocc' no histórico do bazaar...
+2026-06-21 09:51:06  INFO        Encontrado: https://rubinot.com.br/bazaar/229799 — verificando Soul War...
+2026-06-21 09:51:10  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:10  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:10  INFO      Buscando 'Tito Striker' no histórico do bazaar...
+2026-06-21 09:51:10  INFO        Encontrado: https://rubinot.com.br/bazaar/229912 — verificando Soul War...
+2026-06-21 09:51:14  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:14  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:14  INFO      Buscando 'Lordchuck' no histórico do bazaar...
+2026-06-21 09:51:14  INFO        Encontrado: https://rubinot.com.br/bazaar/230126 — verificando Soul War...
+2026-06-21 09:51:18  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:18  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:18  INFO      Buscando 'Erupoldon' no histórico do bazaar...
+2026-06-21 09:51:18  INFO        Encontrado: https://rubinot.com.br/bazaar/230054 — verificando Soul War...
+2026-06-21 09:51:22  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:22  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:22  INFO      Buscando 'Neverendi' no histórico do bazaar...
+2026-06-21 09:51:22  INFO        Encontrado: https://rubinot.com.br/bazaar/229318 — verificando Soul War...
+2026-06-21 09:51:26  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:26  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:26  INFO      Buscando 'Miaranha' no histórico do bazaar...
+2026-06-21 09:51:26  INFO        Encontrado: https://rubinot.com.br/bazaar/229007 — verificando Soul War...
+2026-06-21 09:51:30  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:30  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:30  INFO      Buscando 'Armagedon on Vesperia' no histórico do bazaar...
+2026-06-21 09:51:31  INFO        Encontrado: https://rubinot.com.br/bazaar/230028 — verificando Soul War...
+2026-06-21 09:51:34  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:34  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:34  INFO      Buscando 'Mykkzera' no histórico do bazaar...
+2026-06-21 09:51:35  INFO        Encontrado: https://rubinot.com.br/bazaar/229786 — verificando Soul War...
+2026-06-21 09:51:39  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:39  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:39  INFO      Buscando 'Fael Tryhard' no histórico do bazaar...
+2026-06-21 09:51:39  INFO        Encontrado: https://rubinot.com.br/bazaar/229485 — verificando Soul War...
+2026-06-21 09:51:44  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:44  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:44  INFO      Buscando 'Korean Lieutenant' no histórico do bazaar...
+2026-06-21 09:51:44  INFO        Encontrado: https://rubinot.com.br/bazaar/229334 — verificando Soul War...
+2026-06-21 09:51:48  INFO        [debug] aba Quests clicada
+2026-06-21 09:51:48  INFO        ❌ Soul War não completa.
+2026-06-21 09:51:48  INFO      === RESULTADO ===
+2026-06-21 09:51:48  INFO      Personagens com Soul War completa: 12
+2026-06-21 09:51:48  INFO        ✅ Biiel Tralha (ELITE KNIGHT, Lv 611, Grimoria I) — dono: Leão
+2026-06-21 09:51:48  INFO        ✅ the power one (ELDER DRUID, Lv 415, Grimoria I) — dono: jacruz
+2026-06-21 09:51:48  INFO        ✅ Gravito Tenebrium (MASTER SORCERER, Lv 400, Tenebrium) — dono: RafaCharada
+2026-06-21 09:51:48  INFO        ✅ Senhor Jesus Cristo amem (MASTER SORCERER, Lv 464, Grimoria I) — dono: Visitante
+2026-06-21 09:51:48  INFO        ✅ black trush (ROYAL PALADIN, Lv 710, Bellum) — dono: MateusSP
+2026-06-21 09:51:48  INFO        ✅ instinto ruiim (MASTER SORCERER, Lv 524, Spectrum) — dono: MateusSP
+2026-06-21 09:51:48  INFO        ✅ Spell Ice (ELDER DRUID, Lv 400, Tenebrium) — dono: Leão
+2026-06-21 09:51:48  INFO        ✅ Vellmoria (MASTER SORCERER, Lv 400, Grimoria I) — dono: Diego
+2026-06-21 09:51:48  INFO        ✅ Question (ELITE KNIGHT, Lv 500, Bellum) — dono: Diego
+2026-06-21 09:51:48  INFO        ✅ Auroritak (ELDER DRUID, Lv 411, Grimoria I) — dono: Tito Coins
+2026-06-21 09:51:48  INFO        ✅ Riigzao (ELDER DRUID, Lv 448, Belaria) — dono: MateusSP
+2026-06-21 09:51:48  INFO        ✅ El Goreeca (ELDER DRUID, Lv 403, Tenebrium) — dono: MateusSP
+2026-06-21 09:51:48  INFO      Personagens não encontrados no histórico do bazaar: 59
+2026-06-21 09:51:48  INFO        — Versx
+2026-06-21 09:51:48  INFO        — Hope Eradicated
+2026-06-21 09:51:48  INFO        — Inscaos
+2026-06-21 09:51:48  INFO        — Julera Oldguard
+2026-06-21 09:51:48  INFO        — Arcanjo Caido
+2026-06-21 09:51:48  INFO        — Jotalotti
+2026-06-21 09:51:48  INFO        — Kensgold
+2026-06-21 09:51:48  INFO        — Amatsukazzo
+2026-06-21 09:51:48  INFO        — Sala de Reboco
+2026-06-21 09:51:48  INFO        — Mineirinsz
+2026-06-21 09:51:48  INFO        — Kina Aura
+2026-06-21 09:51:48  INFO        — Fatinha safada
+2026-06-21 09:51:48  INFO        — Testa Borderless
+2026-06-21 09:51:48  INFO        — DIGAO RENDA PASSIVA
+2026-06-21 09:51:48  INFO        — VINI ZAHARD
+2026-06-21 09:51:48  INFO        — ED do Honório gostoso
+2026-06-21 09:51:48  INFO        — Litra Say
+2026-06-21 09:51:48  INFO        — Drax Warden
+2026-06-21 09:51:48  INFO        — Jehpor Tela
+2026-06-21 09:51:48  INFO        — Warhorse Defender
+2026-06-21 09:51:48  INFO        — Didico
+2026-06-21 09:51:48  INFO        — Mszadasw
+2026-06-21 09:51:48  INFO        — beckinho
+2026-06-21 09:51:48  INFO        — free kamikaze
+2026-06-21 09:51:48  INFO        — toma paralyze
+2026-06-21 09:51:48  INFO        — Boowman
+2026-06-21 09:51:48  INFO        — Un De Ad
+2026-06-21 09:51:48  INFO        — Danilo Elite
+2026-06-21 09:51:48  INFO        — Capitao Inacio
+2026-06-21 09:51:48  INFO        — Gutter Drakun
+2026-06-21 09:51:48  INFO        — Eolipe Ne
+2026-06-21 09:51:48  INFO        — Rafa Tanka Nada
+2026-06-21 09:51:48  INFO        — Jorge Pneus
+2026-06-21 09:51:48  INFO        — Giusepi Camedia
+2026-06-21 09:51:48  INFO        — Lczin Lombrado
+2026-06-21 09:51:48  INFO        — Vitinha
+2026-06-21 09:51:48  INFO        — Moon Rise
+2026-06-21 09:51:48  INFO        — Frango de Padaria
+2026-06-21 09:51:48  INFO        — Danzzik
+2026-06-21 09:51:48  INFO        — Loroza Skin
+2026-06-21 09:51:48  INFO        — Palizin
+2026-06-21 09:51:48  INFO        — Trust Sereno
+2026-06-21 09:51:48  INFO        — Knight Axe Fight
+2026-06-21 09:51:48  INFO        — Bruno Kniight
+2026-06-21 09:51:48  INFO        — Fangorn
+2026-06-21 09:51:48  INFO        — King Rama
+2026-06-21 09:51:48  INFO        — Dj Rolinh
+2026-06-21 09:51:48  INFO        — The manoh is back
+2026-06-21 09:51:48  INFO        — Paredinhaakk
+2026-06-21 09:51:48  INFO        — Warsome Brenner
+2026-06-21 09:51:48  INFO        — Compralider Rendafixa
+2026-06-21 09:51:48  INFO        — Mad Igi
+2026-06-21 09:51:48  INFO        — Pala Pala Paladin
+2026-06-21 09:51:48  INFO        — nebuloza rpzinha
+2026-06-21 09:51:48  INFO        — hakuna vesperiano
+2026-06-21 09:51:48  INFO        — Ed bomba
+2026-06-21 09:51:48  INFO        — tgocc
+2026-06-21 09:51:48  INFO        — terror on grimoria
+2026-06-21 09:51:48  INFO        — Character Namee
+2026-06-21 09:51:48  INFO      Resultado salvo em: C:\Users\lucas\Downloads\soulwar-pt\soulwar_results.json
+2026-06-25 00:40:35  INFO      === Verificando Soul War — todos os servidores ===
+2026-06-25 00:40:47  INFO      Abrindo site para obter cookies Cloudflare...
+2026-06-25 00:40:51  INFO      Carregando personagens do Soulwar PT Manager...
+2026-06-25 00:40:54  ERROR     Erro inesperado na verificação: Resposta do Apps Script não OK ao carregar dados.
+Traceback (most recent call last):
+  File "C:\Users\lucas\Downloads\soulwar-pt\rubinot_soulwar_check.py", line 377, in main
+    run_check(server_filter, debug=debug)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas\Downloads\soulwar-pt\rubinot_soulwar_check.py", line 316, in run_check
+    chars = load_chars_from_sheets(server_filter)
+  File "C:\Users\lucas\Downloads\soulwar-pt\rubinot_soulwar_check.py", line 67, in load_chars_from_sheets
+    raise RuntimeError("Resposta do Apps Script não OK ao carregar dados.")
+RuntimeError: Resposta do Apps Script não OK ao carregar dados.
+2026-06-25 00:43:06  INFO      === Verificando Soul War — todos os servidores ===
+2026-06-25 00:43:08  INFO      Abrindo site para obter cookies Cloudflare...
+2026-06-25 00:43:11  INFO      Carregando personagens do Soulwar PT Manager...
+2026-06-25 00:43:18  INFO      Total de personagens carregados: 128
+2026-06-25 00:43:18  INFO      Buscando 'Versx' no histórico do bazaar...
+2026-06-25 00:43:18  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:18  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:18  INFO      Buscando 'Hope Eradicated' no histórico do bazaar...
+2026-06-25 00:43:18  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:18  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:18  INFO      Buscando 'Inscaos' no histórico do bazaar...
+2026-06-25 00:43:19  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:19  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:19  INFO      Buscando 'Soulmaw' no histórico do bazaar...
+2026-06-25 00:43:19  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:19  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:19  INFO      Buscando 'Julera Oldguard' no histórico do bazaar...
+2026-06-25 00:43:19  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:19  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:19  INFO      Buscando 'Arcanjo Caido' no histórico do bazaar...
+2026-06-25 00:43:19  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:19  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:19  INFO      Buscando 'Jotalotti' no histórico do bazaar...
+2026-06-25 00:43:19  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:19  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:19  INFO      Buscando 'Kensgold' no histórico do bazaar...
+2026-06-25 00:43:19  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:19  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:19  INFO      Buscando 'Amatsukazzo' no histórico do bazaar...
+2026-06-25 00:43:20  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:20  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:20  INFO      Buscando 'Sala de Reboco' no histórico do bazaar...
+2026-06-25 00:43:20  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:20  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:20  INFO      Buscando 'fury lethal' no histórico do bazaar...
+2026-06-25 00:43:20  INFO        Encontrado: https://rubinot.com.br/bazaar/221417 — verificando Soul War...
+2026-06-25 00:43:24  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:24  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:24  INFO      Buscando 'Mineirinsz' no histórico do bazaar...
+2026-06-25 00:43:25  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:25  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:25  INFO      Buscando 'Kina Aura' no histórico do bazaar...
+2026-06-25 00:43:25  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:25  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:25  INFO      Buscando 'Nacktan Sorcere' no histórico do bazaar...
+2026-06-25 00:43:25  INFO        Encontrado: https://rubinot.com.br/bazaar/221839 — verificando Soul War...
+2026-06-25 00:43:29  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:29  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:29  INFO      Buscando 'Icekun' no histórico do bazaar...
+2026-06-25 00:43:29  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:29  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:29  INFO      Buscando 'Bela Cindy' no histórico do bazaar...
+2026-06-25 00:43:30  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:30  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:30  INFO      Buscando 'Fatinha safada' no histórico do bazaar...
+2026-06-25 00:43:30  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:30  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:30  INFO      Buscando 'Testa Borderless' no histórico do bazaar...
+2026-06-25 00:43:30  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:30  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:30  INFO      Buscando 'DIGAO RENDA PASSIVA' no histórico do bazaar...
+2026-06-25 00:43:30  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:30  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:30  INFO      Buscando 'VINI ZAHARD' no histórico do bazaar...
+2026-06-25 00:43:30  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:30  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:30  INFO      Buscando 'ED do Honório gostoso' no histórico do bazaar...
+2026-06-25 00:43:30  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:30  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:30  INFO      Buscando 'Litra Say' no histórico do bazaar...
+2026-06-25 00:43:31  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:31  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:31  INFO      Buscando 'Waguri Kaoruko' no histórico do bazaar...
+2026-06-25 00:43:31  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:31  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:31  INFO      Buscando 'Ak Pistol' no histórico do bazaar...
+2026-06-25 00:43:31  INFO        Encontrado: https://rubinot.com.br/bazaar/222441 — verificando Soul War...
+2026-06-25 00:43:35  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:35  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:35  INFO      Buscando 'Drax Warden' no histórico do bazaar...
+2026-06-25 00:43:35  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:35  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:35  INFO      Buscando 'Jehpor Tela' no histórico do bazaar...
+2026-06-25 00:43:35  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:35  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:35  INFO      Buscando 'Warhorse Defender' no histórico do bazaar...
+2026-06-25 00:43:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:36  INFO      Buscando 'Ddkoth' no histórico do bazaar...
+2026-06-25 00:43:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:36  INFO      Buscando 'Roni Obruxo' no histórico do bazaar...
+2026-06-25 00:43:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:36  INFO      Buscando 'Gandalff Do Paii' no histórico do bazaar...
+2026-06-25 00:43:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:36  INFO      Buscando 'Kleblanc' no histórico do bazaar...
+2026-06-25 00:43:36  INFO        Encontrado: https://rubinot.com.br/bazaar/215964 — verificando Soul War...
+2026-06-25 00:43:40  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:40  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:40  INFO      Buscando 'Didico' no histórico do bazaar...
+2026-06-25 00:43:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:41  INFO      Buscando 'Mszadasw' no histórico do bazaar...
+2026-06-25 00:43:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:41  INFO      Buscando 'Mackiavel' no histórico do bazaar...
+2026-06-25 00:43:41  INFO        Encontrado: https://rubinot.com.br/bazaar/224288 — verificando Soul War...
+2026-06-25 00:43:45  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:45  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:45  INFO      Buscando 'Wakasix' no histórico do bazaar...
+2026-06-25 00:43:45  INFO        Encontrado: https://rubinot.com.br/bazaar/224756 — verificando Soul War...
+2026-06-25 00:43:49  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:49  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:49  INFO      Buscando 'beckinho' no histórico do bazaar...
+2026-06-25 00:43:50  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:50  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:50  INFO      Buscando 'wolve' no histórico do bazaar...
+2026-06-25 00:43:50  INFO        Encontrado: https://rubinot.com.br/bazaar/219756 — verificando Soul War...
+2026-06-25 00:43:54  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:54  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:54  INFO      Buscando 'catinga de baseado' no histórico do bazaar...
+2026-06-25 00:43:54  INFO        Encontrado: https://rubinot.com.br/bazaar/222776 — verificando Soul War...
+2026-06-25 00:43:58  INFO        [debug] aba Quests clicada
+2026-06-25 00:43:58  INFO        ❌ Soul War não completa.
+2026-06-25 00:43:58  INFO      Buscando 'free kamikaze' no histórico do bazaar...
+2026-06-25 00:43:58  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:43:58  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:43:58  INFO      Buscando 'Hipnozy' no histórico do bazaar...
+2026-06-25 00:43:58  INFO        Encontrado: https://rubinot.com.br/bazaar/224671 — verificando Soul War...
+2026-06-25 00:44:03  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:03  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:03  INFO      Buscando 'Master Mino' no histórico do bazaar...
+2026-06-25 00:44:03  INFO        Encontrado: https://rubinot.com.br/bazaar/224488 — verificando Soul War...
+2026-06-25 00:44:07  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:07  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:07  INFO      Buscando 'toma paralyze' no histórico do bazaar...
+2026-06-25 00:44:07  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:07  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:07  INFO      Buscando 'iririririri' no histórico do bazaar...
+2026-06-25 00:44:07  INFO        Encontrado: https://rubinot.com.br/bazaar/220121 — verificando Soul War...
+2026-06-25 00:44:11  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:11  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:11  INFO      Buscando 'netinho flam' no histórico do bazaar...
+2026-06-25 00:44:11  INFO        Encontrado: https://rubinot.com.br/bazaar/220435 — verificando Soul War...
+2026-06-25 00:44:16  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:16  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:16  INFO      Buscando 'yito antizurdos' no histórico do bazaar...
+2026-06-25 00:44:16  INFO        Encontrado: https://rubinot.com.br/bazaar/216798 — verificando Soul War...
+2026-06-25 00:44:20  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:20  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:20  INFO      Buscando 'Boowman' no histórico do bazaar...
+2026-06-25 00:44:20  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:20  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:20  INFO      Buscando 'Un De Ad' no histórico do bazaar...
+2026-06-25 00:44:20  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:20  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:20  INFO      Buscando 'Danilo Elite' no histórico do bazaar...
+2026-06-25 00:44:20  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:20  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:20  INFO      Buscando 'Capitao Inacio' no histórico do bazaar...
+2026-06-25 00:44:21  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:21  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:21  INFO      Buscando 'Gutter Drakun' no histórico do bazaar...
+2026-06-25 00:44:21  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:21  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:21  INFO      Buscando 'Eolipe Ne' no histórico do bazaar...
+2026-06-25 00:44:21  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:21  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:21  INFO      Buscando 'Rafa Tanka Nada' no histórico do bazaar...
+2026-06-25 00:44:21  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:21  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:21  INFO      Buscando 'Jorge Pneus' no histórico do bazaar...
+2026-06-25 00:44:21  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:21  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:21  INFO      Buscando 'Giusepi Camedia' no histórico do bazaar...
+2026-06-25 00:44:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:22  INFO      Buscando 'Lczin Lombrado' no histórico do bazaar...
+2026-06-25 00:44:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:22  INFO      Buscando 'Vitinha' no histórico do bazaar...
+2026-06-25 00:44:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:22  INFO      Buscando 'Moon Rise' no histórico do bazaar...
+2026-06-25 00:44:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:22  INFO      Buscando 'Frango de Padaria' no histórico do bazaar...
+2026-06-25 00:44:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:22  INFO      Buscando 'Danzzik' no histórico do bazaar...
+2026-06-25 00:44:22  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:22  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:22  INFO      Buscando 'Loroza Skin' no histórico do bazaar...
+2026-06-25 00:44:23  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:23  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:23  INFO      Buscando 'Palizin' no histórico do bazaar...
+2026-06-25 00:44:23  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:23  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:23  INFO      Buscando 'Trust Sereno' no histórico do bazaar...
+2026-06-25 00:44:23  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:23  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:23  INFO      Buscando 'Knight Axe Fight' no histórico do bazaar...
+2026-06-25 00:44:23  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:23  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:23  INFO      Buscando 'Bruno Kniight' no histórico do bazaar...
+2026-06-25 00:44:23  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:23  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:23  INFO      Buscando 'Fangorn' no histórico do bazaar...
+2026-06-25 00:44:24  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:24  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:24  INFO      Buscando 'Baseads' no histórico do bazaar...
+2026-06-25 00:44:24  INFO        Encontrado: https://rubinot.com.br/bazaar/225601 — verificando Soul War...
+2026-06-25 00:44:28  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:28  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:28  INFO      Buscando 'Matar Rosa' no histórico do bazaar...
+2026-06-25 00:44:28  INFO        Encontrado: https://rubinot.com.br/bazaar/225502 — verificando Soul War...
+2026-06-25 00:44:32  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:32  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:32  INFO      Buscando 'Druid Mixito' no histórico do bazaar...
+2026-06-25 00:44:32  INFO        Encontrado: https://rubinot.com.br/bazaar/225138 — verificando Soul War...
+2026-06-25 00:44:36  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:36  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:36  INFO      Buscando 'King Rama' no histórico do bazaar...
+2026-06-25 00:44:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:36  INFO      Buscando 'Dj Rolinh' no histórico do bazaar...
+2026-06-25 00:44:36  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:36  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:36  INFO      Buscando 'The manoh is back' no histórico do bazaar...
+2026-06-25 00:44:37  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:37  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:37  INFO      Buscando 'Paredinhaakk' no histórico do bazaar...
+2026-06-25 00:44:37  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:37  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:37  INFO      Buscando 'Exis' no histórico do bazaar...
+2026-06-25 00:44:37  INFO        Encontrado: https://rubinot.com.br/bazaar/230940 — verificando Soul War...
+2026-06-25 00:44:41  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:41  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:41  INFO      Buscando 'Warsome Brenner' no histórico do bazaar...
+2026-06-25 00:44:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:41  INFO      Buscando 'Zaniepokojony' no histórico do bazaar...
+2026-06-25 00:44:41  INFO        Encontrado: https://rubinot.com.br/bazaar/226346 — verificando Soul War...
+2026-06-25 00:44:46  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:46  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:46  INFO      Buscando 'Compralider Rendafixa' no histórico do bazaar...
+2026-06-25 00:44:46  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:46  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:46  INFO      Buscando 'Rushary Druid' no histórico do bazaar...
+2026-06-25 00:44:46  INFO        Encontrado: https://rubinot.com.br/bazaar/226551 — verificando Soul War...
+2026-06-25 00:44:50  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:50  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:50  INFO      Buscando 'Strzeleck' no histórico do bazaar...
+2026-06-25 00:44:50  INFO        Encontrado: https://rubinot.com.br/bazaar/226309 — verificando Soul War...
+2026-06-25 00:44:54  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:54  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:54  INFO      Buscando 'Mad Igi' no histórico do bazaar...
+2026-06-25 00:44:54  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:54  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:54  INFO      Buscando 'Pala Pala Paladin' no histórico do bazaar...
+2026-06-25 00:44:55  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:44:55  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:44:55  INFO      Buscando 'Ekromn' no histórico do bazaar...
+2026-06-25 00:44:55  INFO        Encontrado: https://rubinot.com.br/bazaar/228049 — verificando Soul War...
+2026-06-25 00:44:59  INFO        [debug] aba Quests clicada
+2026-06-25 00:44:59  INFO        ❌ Soul War não completa.
+2026-06-25 00:44:59  INFO      Buscando 'Royal mago' no histórico do bazaar...
+2026-06-25 00:44:59  INFO        Encontrado: https://rubinot.com.br/bazaar/207930 — verificando Soul War...
+2026-06-25 00:45:03  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:03  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:03  INFO      Buscando 'Kukinha' no histórico do bazaar...
+2026-06-25 00:45:03  INFO        Encontrado: https://rubinot.com.br/bazaar/228068 — verificando Soul War...
+2026-06-25 00:45:07  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:07  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:07  INFO      Buscando 'Ca us' no histórico do bazaar...
+2026-06-25 00:45:08  INFO        Encontrado: https://rubinot.com.br/bazaar/225649 — verificando Soul War...
+2026-06-25 00:45:12  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:12  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:12  INFO      Buscando 'Abrackadaver' no histórico do bazaar...
+2026-06-25 00:45:12  INFO        Encontrado: https://rubinot.com.br/bazaar/227704 — verificando Soul War...
+2026-06-25 00:45:16  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:16  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:16  INFO      Buscando 'polvo colombiano' no histórico do bazaar...
+2026-06-25 00:45:16  INFO        Encontrado: https://rubinot.com.br/bazaar/222354 — verificando Soul War...
+2026-06-25 00:45:20  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:20  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:20  INFO      Buscando 'iago jamaicano' no histórico do bazaar...
+2026-06-25 00:45:20  INFO        Encontrado: https://rubinot.com.br/bazaar/225515 — verificando Soul War...
+2026-06-25 00:45:24  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:24  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:24  INFO      Buscando 'liam davi' no histórico do bazaar...
+2026-06-25 00:45:25  INFO        Encontrado: https://rubinot.com.br/bazaar/226054 — verificando Soul War...
+2026-06-25 00:45:28  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:29  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:29  INFO      Buscando 'cepa orodapes' no histórico do bazaar...
+2026-06-25 00:45:29  INFO        Encontrado: https://rubinot.com.br/bazaar/226932 — verificando Soul War...
+2026-06-25 00:45:33  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:33  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:33  INFO      Buscando 'hakuna vesperiano' no histórico do bazaar...
+2026-06-25 00:45:33  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:45:33  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:45:33  INFO      Buscando 'Ed bomba' no histórico do bazaar...
+2026-06-25 00:45:33  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:45:33  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:45:33  INFO      Buscando 'tgocc' no histórico do bazaar...
+2026-06-25 00:45:34  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:45:34  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:45:34  INFO      Buscando 'terror on grimoria' no histórico do bazaar...
+2026-06-25 00:45:34  INFO        Encontrado: https://rubinot.com.br/bazaar/232217 — verificando Soul War...
+2026-06-25 00:45:38  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:38  INFO        ✅ Soul War COMPLETA.
+2026-06-25 00:45:38  INFO      Buscando 'rasgakhul noexorimas' no histórico do bazaar...
+2026-06-25 00:45:38  INFO        Encontrado: https://rubinot.com.br/bazaar/227204 — verificando Soul War...
+2026-06-25 00:45:42  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:42  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:42  INFO      Buscando 'Pedrada Show' no histórico do bazaar...
+2026-06-25 00:45:43  INFO        Encontrado: https://rubinot.com.br/bazaar/228835 — verificando Soul War...
+2026-06-25 00:45:47  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:47  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:47  INFO      Buscando 'Careca Tacabolt' no histórico do bazaar...
+2026-06-25 00:45:47  INFO        Encontrado: https://rubinot.com.br/bazaar/228850 — verificando Soul War...
+2026-06-25 00:45:51  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:51  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:51  INFO      Buscando 'Lord Tuga' no histórico do bazaar...
+2026-06-25 00:45:51  INFO        Encontrado: https://rubinot.com.br/bazaar/228672 — verificando Soul War...
+2026-06-25 00:45:55  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:55  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:55  INFO      Buscando 'Rpaladino' no histórico do bazaar...
+2026-06-25 00:45:55  INFO        Encontrado: https://rubinot.com.br/bazaar/228577 — verificando Soul War...
+2026-06-25 00:45:59  INFO        [debug] aba Quests clicada
+2026-06-25 00:45:59  INFO        ❌ Soul War não completa.
+2026-06-25 00:45:59  INFO      Buscando 'Cynaxe two' no histórico do bazaar...
+2026-06-25 00:46:00  INFO        Encontrado: https://rubinot.com.br/bazaar/228684 — verificando Soul War...
+2026-06-25 00:46:04  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:04  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:04  INFO      Buscando 'Levi Archerman' no histórico do bazaar...
+2026-06-25 00:46:04  INFO        Encontrado: https://rubinot.com.br/bazaar/211122 — verificando Soul War...
+2026-06-25 00:46:08  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:08  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:08  INFO      Buscando 'Bronxz Offshore' no histórico do bazaar...
+2026-06-25 00:46:08  INFO        Encontrado: https://rubinot.com.br/bazaar/229490 — verificando Soul War...
+2026-06-25 00:46:12  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:12  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:12  INFO      Buscando 'Guijo' no histórico do bazaar...
+2026-06-25 00:46:12  INFO        Encontrado: https://rubinot.com.br/bazaar/225013 — verificando Soul War...
+2026-06-25 00:46:16  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:16  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:16  INFO      Buscando 'Nvtkill' no histórico do bazaar...
+2026-06-25 00:46:16  INFO        Encontrado: https://rubinot.com.br/bazaar/229312 — verificando Soul War...
+2026-06-25 00:46:20  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:20  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:20  INFO      Buscando 'Gran Magig' no histórico do bazaar...
+2026-06-25 00:46:21  INFO        Encontrado: https://rubinot.com.br/bazaar/229310 — verificando Soul War...
+2026-06-25 00:46:25  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:25  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:25  INFO      Buscando 'Daemon Witch' no histórico do bazaar...
+2026-06-25 00:46:25  INFO        Encontrado: https://rubinot.com.br/bazaar/228350 — verificando Soul War...
+2026-06-25 00:46:29  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:29  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:29  INFO      Buscando 'Character Namee' no histórico do bazaar...
+2026-06-25 00:46:29  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:46:29  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:46:29  INFO      Buscando 'Prisminha' no histórico do bazaar...
+2026-06-25 00:46:29  INFO        Encontrado: https://rubinot.com.br/bazaar/229999 — verificando Soul War...
+2026-06-25 00:46:33  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:33  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:33  INFO      Buscando 'Beertiinhoow Mcz' no histórico do bazaar...
+2026-06-25 00:46:33  INFO        Encontrado: https://rubinot.com.br/bazaar/229376 — verificando Soul War...
+2026-06-25 00:46:37  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:37  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:37  INFO      Buscando 'Overrdocc' no histórico do bazaar...
+2026-06-25 00:46:38  INFO        Encontrado: https://rubinot.com.br/bazaar/229799 — verificando Soul War...
+2026-06-25 00:46:42  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:42  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:42  INFO      Buscando 'Tito Striker' no histórico do bazaar...
+2026-06-25 00:46:42  INFO        Encontrado: https://rubinot.com.br/bazaar/229912 — verificando Soul War...
+2026-06-25 00:46:46  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:46  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:46  INFO      Buscando 'Lordchuck' no histórico do bazaar...
+2026-06-25 00:46:46  INFO        Encontrado: https://rubinot.com.br/bazaar/230126 — verificando Soul War...
+2026-06-25 00:46:50  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:50  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:50  INFO      Buscando 'Erupoldon' no histórico do bazaar...
+2026-06-25 00:46:51  INFO        Encontrado: https://rubinot.com.br/bazaar/230054 — verificando Soul War...
+2026-06-25 00:46:55  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:55  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:55  INFO      Buscando 'Neverendi' no histórico do bazaar...
+2026-06-25 00:46:55  INFO        Encontrado: https://rubinot.com.br/bazaar/229318 — verificando Soul War...
+2026-06-25 00:46:59  INFO        [debug] aba Quests clicada
+2026-06-25 00:46:59  INFO        ❌ Soul War não completa.
+2026-06-25 00:46:59  INFO      Buscando 'Miaranha' no histórico do bazaar...
+2026-06-25 00:46:59  INFO        Encontrado: https://rubinot.com.br/bazaar/229007 — verificando Soul War...
+2026-06-25 00:47:03  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:03  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:03  INFO      Buscando 'Korean Lieutenant' no histórico do bazaar...
+2026-06-25 00:47:03  INFO        Encontrado: https://rubinot.com.br/bazaar/229334 — verificando Soul War...
+2026-06-25 00:47:07  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:07  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:07  INFO      Buscando 'Goreca ed' no histórico do bazaar...
+2026-06-25 00:47:07  INFO        Encontrado: https://rubinot.com.br/bazaar/228834 — verificando Soul War...
+2026-06-25 00:47:11  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:11  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:11  INFO      Buscando 'Irakzin Kdiq' no histórico do bazaar...
+2026-06-25 00:47:12  INFO        Encontrado: https://rubinot.com.br/bazaar/229077 — verificando Soul War...
+2026-06-25 00:47:16  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:16  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:16  INFO      Buscando 'Galetinho On Rubinot' no histórico do bazaar...
+2026-06-25 00:47:16  INFO        Encontrado: https://rubinot.com.br/bazaar/229676 — verificando Soul War...
+2026-06-25 00:47:20  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:20  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:20  INFO      Buscando 'Elder Verdadeiro Druid' no histórico do bazaar...
+2026-06-25 00:47:20  INFO        Encontrado: https://rubinot.com.br/bazaar/231998 — verificando Soul War...
+2026-06-25 00:47:24  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:24  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:24  INFO      Buscando 'Vukhh' no histórico do bazaar...
+2026-06-25 00:47:24  INFO        Encontrado: https://rubinot.com.br/bazaar/232008 — verificando Soul War...
+2026-06-25 00:47:28  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:28  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:28  INFO      Buscando 'Doc Desempregado' no histórico do bazaar...
+2026-06-25 00:47:29  INFO        Encontrado: https://rubinot.com.br/bazaar/232230 — verificando Soul War...
+2026-06-25 00:47:33  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:33  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:33  INFO      Buscando 'Pally On Pally' no histórico do bazaar...
+2026-06-25 00:47:33  INFO        Encontrado: https://rubinot.com.br/bazaar/231759 — verificando Soul War...
+2026-06-25 00:47:37  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:37  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:37  INFO      Buscando 'Afonsio' no histórico do bazaar...
+2026-06-25 00:47:37  INFO        Encontrado: https://rubinot.com.br/bazaar/232705 — verificando Soul War...
+2026-06-25 00:47:41  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:41  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:41  INFO      Buscando 'Captain Smellice' no histórico do bazaar...
+2026-06-25 00:47:41  INFO        Não encontrado via API (total itens retornados: 0)
+2026-06-25 00:47:41  INFO        Não encontrado no histórico (nunca foi ao bazaar).
+2026-06-25 00:47:41  INFO      Buscando 'Poutrinho Returns' no histórico do bazaar...
+2026-06-25 00:47:41  INFO        Encontrado: https://rubinot.com.br/bazaar/232796 — verificando Soul War...
+2026-06-25 00:47:45  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:45  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:45  INFO      Buscando 'Vinekz On Screen' no histórico do bazaar...
+2026-06-25 00:47:45  INFO        Encontrado: https://rubinot.com.br/bazaar/232785 — verificando Soul War...
+2026-06-25 00:47:49  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:49  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:49  INFO      Buscando 'Kaioh Retsuh' no histórico do bazaar...
+2026-06-25 00:47:50  INFO        Encontrado: https://rubinot.com.br/bazaar/232883 — verificando Soul War...
+2026-06-25 00:47:54  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:54  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:54  INFO      Buscando 'Periferiko' no histórico do bazaar...
+2026-06-25 00:47:54  INFO        Encontrado: https://rubinot.com.br/bazaar/232786 — verificando Soul War...
+2026-06-25 00:47:58  INFO        [debug] aba Quests clicada
+2026-06-25 00:47:58  INFO        ❌ Soul War não completa.
+2026-06-25 00:47:58  INFO      === RESULTADO ===
+2026-06-25 00:47:58  INFO      Personagens com Soul War completa: 1
+2026-06-25 00:47:58  INFO        ✅ terror on grimoria (ELDER DRUID, Lv 415, Grimoria I) — dono: MateusSP
+2026-06-25 00:47:58  INFO      Personagens não encontrados no histórico do bazaar: 65
+2026-06-25 00:47:58  INFO        — Versx
+2026-06-25 00:47:58  INFO        — Hope Eradicated
+2026-06-25 00:47:58  INFO        — Inscaos
+2026-06-25 00:47:58  INFO        — Soulmaw
+2026-06-25 00:47:58  INFO        — Julera Oldguard
+2026-06-25 00:47:58  INFO        — Arcanjo Caido
+2026-06-25 00:47:58  INFO        — Jotalotti
+2026-06-25 00:47:58  INFO        — Kensgold
+2026-06-25 00:47:58  INFO        — Amatsukazzo
+2026-06-25 00:47:58  INFO        — Sala de Reboco
+2026-06-25 00:47:58  INFO        — Mineirinsz
+2026-06-25 00:47:58  INFO        — Kina Aura
+2026-06-25 00:47:58  INFO        — Icekun
+2026-06-25 00:47:58  INFO        — Bela Cindy
+2026-06-25 00:47:58  INFO        — Fatinha safada
+2026-06-25 00:47:58  INFO        — Testa Borderless
+2026-06-25 00:47:58  INFO        — DIGAO RENDA PASSIVA
+2026-06-25 00:47:58  INFO        — VINI ZAHARD
+2026-06-25 00:47:58  INFO        — ED do Honório gostoso
+2026-06-25 00:47:58  INFO        — Litra Say
+2026-06-25 00:47:58  INFO        — Waguri Kaoruko
+2026-06-25 00:47:58  INFO        — Drax Warden
+2026-06-25 00:47:58  INFO        — Jehpor Tela
+2026-06-25 00:47:58  INFO        — Warhorse Defender
+2026-06-25 00:47:58  INFO        — Ddkoth
+2026-06-25 00:47:58  INFO        — Roni Obruxo
+2026-06-25 00:47:58  INFO        — Gandalff Do Paii
+2026-06-25 00:47:58  INFO        — Didico
+2026-06-25 00:47:58  INFO        — Mszadasw
+2026-06-25 00:47:58  INFO        — beckinho
+2026-06-25 00:47:58  INFO        — free kamikaze
+2026-06-25 00:47:58  INFO        — toma paralyze
+2026-06-25 00:47:58  INFO        — Boowman
+2026-06-25 00:47:58  INFO        — Un De Ad
+2026-06-25 00:47:58  INFO        — Danilo Elite
+2026-06-25 00:47:58  INFO        — Capitao Inacio
+2026-06-25 00:47:58  INFO        — Gutter Drakun
+2026-06-25 00:47:58  INFO        — Eolipe Ne
+2026-06-25 00:47:58  INFO        — Rafa Tanka Nada
+2026-06-25 00:47:58  INFO        — Jorge Pneus
+2026-06-25 00:47:58  INFO        — Giusepi Camedia
+2026-06-25 00:47:58  INFO        — Lczin Lombrado
+2026-06-25 00:47:58  INFO        — Vitinha
+2026-06-25 00:47:58  INFO        — Moon Rise
+2026-06-25 00:47:58  INFO        — Frango de Padaria
+2026-06-25 00:47:58  INFO        — Danzzik
+2026-06-25 00:47:58  INFO        — Loroza Skin
+2026-06-25 00:47:58  INFO        — Palizin
+2026-06-25 00:47:58  INFO        — Trust Sereno
+2026-06-25 00:47:58  INFO        — Knight Axe Fight
+2026-06-25 00:47:58  INFO        — Bruno Kniight
+2026-06-25 00:47:58  INFO        — Fangorn
+2026-06-25 00:47:58  INFO        — King Rama
+2026-06-25 00:47:58  INFO        — Dj Rolinh
+2026-06-25 00:47:58  INFO        — The manoh is back
+2026-06-25 00:47:58  INFO        — Paredinhaakk
+2026-06-25 00:47:58  INFO        — Warsome Brenner
+2026-06-25 00:47:58  INFO        — Compralider Rendafixa
+2026-06-25 00:47:58  INFO        — Mad Igi
+2026-06-25 00:47:58  INFO        — Pala Pala Paladin
+2026-06-25 00:47:58  INFO        — hakuna vesperiano
+2026-06-25 00:47:58  INFO        — Ed bomba
+2026-06-25 00:47:58  INFO        — tgocc
+2026-06-25 00:47:58  INFO        — Character Namee
+2026-06-25 00:47:58  INFO        — Captain Smellice
+2026-06-25 00:47:58  INFO      Resultado salvo em: C:\Users\lucas\Downloads\soulwar-pt\soulwar_results.json
