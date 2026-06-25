@@ -1900,7 +1900,7 @@ function openAddModal() {
   openModal('modal-add');
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
-function addChar() {
+async function addChar() {
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
   const level = parseInt(document.getElementById('m-level').value) || 0;
@@ -1952,11 +1952,25 @@ function addChar() {
 
   chars.push(newChar);
   renderChars();
-  closeModal('modal-add');
-  toast(successMsg, 'success');
-  save().catch(() => {
-    toast('Falha ao salvar personagem, tente novamente.', 'error');
-  });
+
+  if (currentRole === 'visitor') {
+    const btn = document.querySelector('#modal-add .btn-confirm');
+    if (btn) { btn.disabled = true; btn.textContent = 'Verificando personagem...'; }
+    try {
+      await save();
+      closeModal('modal-add');
+      toast(successMsg, 'success');
+    } catch(e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Adicionar'; }
+      toast('Falha ao salvar personagem, tente novamente.', 'error');
+    }
+  } else {
+    closeModal('modal-add');
+    toast(successMsg, 'success');
+    save().catch(() => {
+      toast('Falha ao gravar — verifique sua conexão.', 'error');
+    });
+  }
 }
 function openEditModal(id) {
   const c = chars.find(x => x.id === id);
