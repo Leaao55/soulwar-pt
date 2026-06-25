@@ -1599,11 +1599,9 @@ async function load() {
 
 const dataReady = load();
 
-dataReady.then(() => {
-  if (!Object.keys(rankingAllTime).length) {
-    rankingAllTime = {"Leão":58,"LC":47,"Nandao":33,"RafaCharada":29,"Diego":24,"MateusSP":19,"teste":12,"Tito Coins":8};
-    save(); renderRanking();
-  }
+dataReady.then(async () => {
+  rankingAllTime = {"Leão":58,"LC":47,"Nandao":33,"RafaCharada":29,"Diego":24,"MateusSP":19,"teste":12,"Tito Coins":8};
+  await save(); renderRanking();
 });
 
 // ── TABS ──────────────────────────────────────────────────────────────────
