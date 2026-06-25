@@ -861,6 +861,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="btn-cancel" onclick="closeModal('modal-add')">Cancelar</button>
       <button class="btn-confirm" onclick="addChar()">Adicionar</button>
     </div>
+    <div id="m-saving-hint" style="display:none;text-align:right;font-size:.73rem;color:var(--text-muted);padding:.3rem .1rem 0">Isso pode levar alguns segundos...</div>
   </div>
 </div>
 
@@ -1990,8 +1991,11 @@ async function addChar() {
       return;
     }
     const _btnAdd = document.querySelector('#modal-add .btn-confirm');
+    const _hint = document.getElementById('m-saving-hint');
     if (_btnAdd) { _btnAdd.disabled = true; _btnAdd.textContent = 'Salvando...'; }
+    if (_hint) _hint.style.display = 'block';
     console.log('[SW][TIMING] inicio visitor save:', Date.now());
+    try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
     chars.push({
       id:nextId++,
       owner: 'Visitante',
@@ -2006,11 +2010,13 @@ async function addChar() {
     try {
       await save();
       console.log('[SW][TIMING] depois do await save, antes de fechar modal');
+      if (_hint) _hint.style.display = 'none';
       closeModal('modal-add');
       renderChars();
-      toast('Personagem enviado para aprovação!', 'success');
+      toast('Personagem cadastrado! Aguardando aprovação.', 'success');
     } catch(e) {
       console.error('[SW] addChar visitor: erro pós-save():', e);
+      if (_hint) _hint.style.display = 'none';
       if (_btnAdd) { _btnAdd.disabled = false; _btnAdd.textContent = 'Adicionar'; }
     }
     return;
