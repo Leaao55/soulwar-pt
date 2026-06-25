@@ -535,6 +535,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
+      <button class="tab" onclick="switchTab('como-funciona',this)">❓ Como Funciona</button>
       <button class="tab" id="tab-analise-btn" onclick="switchTab('analise',this)">📊 Análise</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
@@ -648,6 +649,73 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
             <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- TAB: COMO FUNCIONA -->
+    <div class="section" id="tab-como-funciona">
+      <div style="max-width:640px;margin:0 auto">
+
+        <div style="border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
+          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">❓ Como Funciona o Service de Soulwar</div>
+          <div style="display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap">
+            <span style="font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold2)">💰 Valor do Service</span>
+            <span style="font-size:1rem;color:var(--text)">1.000 Rubini Coins (RC)</span>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
+          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem">📋 Requisitos por Vocação</div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Vocação</th>
+                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Level mínimo</th>
+                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Refil sugerido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ms">MS</span> <span class="badge badge-ed" style="margin-left:.3rem">ED</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">400+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ek">EK</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">500+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">10kk</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-rp">RP</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">500+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+              <tr>
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-em">EM</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">600+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size:.8rem;color:var(--text-muted);font-style:italic;margin-top:.9rem;line-height:1.6">O <b style="color:var(--text);font-style:normal">refil</b> é o valor em dinheiro que deve estar disponível no personagem para repor poções e suprimentos durante o service.</p>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
+          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem">✅ Passo a Passo</div>
+          <ol style="padding-left:1.2rem;margin:0;display:flex;flex-direction:column;gap:.65rem">
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Verifique se seu personagem atende ao <b style="color:var(--gold2)">level mínimo</b> da sua vocação.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Deixe no personagem, ou na conta: o valor de <b style="color:var(--gold2)">refil indicado</b> + os <b style="color:var(--gold2)">1.000 RC</b> do pagamento do service.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Clique em <b style="color:var(--gold2)">"Cadastrar Personagem"</b> na tela inicial e preencha as informações do seu char.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Aguarde a aprovação — seu personagem entrará na <b style="color:var(--gold2)">fila de Soulwar</b>.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Quando chegar sua vez, entraremos em contato via <b style="color:var(--gold2)">WhatsApp/Discord</b> para combinar o horário.</li>
+          </ol>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.2rem 1.8rem;display:flex;flex-direction:column;gap:.6rem">
+          <p style="font-size:.93rem;color:var(--text);line-height:1.55">⏳ <b style="color:var(--gold2)">Prazo estimado:</b> de 1 a 3 dias, dependendo da fila.</p>
+          <p style="font-size:.93rem;color:var(--text);line-height:1.55">💳 <b style="color:var(--gold2)">Pagamento:</b> os 1.000 RC devem estar disponíveis na conta durante o service — o pagamento é feito no momento da execução, não antes.</p>
+        </div>
+
       </div>
     </div>
 
