@@ -516,6 +516,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
     <div id="visitor-fields">
       <p class="login-visitor-info">Cadastre seu personagem para participar da fila de Soulwar.</p>
       <button class="btn-login" onclick="doLoginVisitor()" style="margin-top:.75rem">📋 Cadastrar Personagem</button>
+      <button class="btn-login" onclick="enterApp('visitor'); switchTab('como-funciona', document.querySelector('.tabs button[onclick*=&quot;como-funciona&quot;]'))" style="margin-top:.5rem;background:transparent;border-color:var(--border);color:var(--text-muted)">❓ Como Funciona</button>
     </div>
 
     <div class="login-error" id="login-error"></div>
@@ -534,6 +535,8 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
       <button class="tab active" onclick="switchTab('chars',this)">⚔ Personagens</button>
       <button class="tab" onclick="switchTab('pt',this)">🛡 Montagem de PT</button>
       <button class="tab" onclick="switchTab('ranking',this)">🏆 Ranking</button>
+      <button class="tab" id="tab-como-funciona-btn" onclick="switchTab('como-funciona',this)" style="display:none">❓ Como Funciona</button>
+      <button class="tab" id="tab-urgente-btn" onclick="switchTab('urgente',this)" style="display:none;color:#ff6b6b;">🔥 Urgente</button>
       <button class="tab" onclick="switchTab('analise',this)">📊 Análise</button>
       <button class="tab" id="tab-users-btn" onclick="switchTab('users',this)" style="display:none">👥 Usuários</button>
       <button class="tab" id="tab-backup-btn" onclick="switchTab('backup',this)" style="display:none">💾 Backup</button>
@@ -647,6 +650,101 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
             <button class="btn-reset-rank" id="btn-reset-alltime" style="display:none" onclick="resetAllTimeRanking()">🔄 Resetar All-Time</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- TAB: COMO FUNCIONA -->
+    <div class="section" id="tab-como-funciona">
+      <div style="max-width:640px;margin:0 auto">
+
+        <div style="border:1px solid var(--border);border-top:2px solid var(--gold);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
+          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">❓ Como Funciona o Service de Soulwar</div>
+          <div style="display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap">
+            <span style="font-family:'Cinzel',serif;font-size:1.05rem;color:var(--gold2)">💰 Valor do Service</span>
+            <span style="font-size:1rem;color:var(--text)">1.000 Rubini Coins (RC)</span>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
+          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem">📋 Requisitos por Vocação</div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Vocação</th>
+                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Level mínimo</th>
+                <th style="font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;padding:.5rem .75rem;text-align:left">Refil sugerido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ms">MS</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">400+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ed">ED</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">400+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-ek">EK</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">500+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">10kk</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(42,47,74,.5)">
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-rp">RP</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">500+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+              <tr>
+                <td style="padding:.6rem .75rem;font-size:.93rem;color:var(--text)"><span class="badge badge-em">EM</span></td>
+                <td style="padding:.6rem .75rem;font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2)">600+</td>
+                <td style="padding:.6rem .75rem;font-size:.9rem;color:var(--text-muted)">6kk</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size:.8rem;color:var(--text-muted);font-style:italic;margin-top:.9rem;line-height:1.6">O <b style="color:var(--text);font-style:normal">refil</b> é o valor em dinheiro que deve estar disponível no personagem para repor poções e suprimentos durante o service.</p>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1.2rem">
+          <div style="font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem">✅ Passo a Passo</div>
+          <ol style="padding-left:1.2rem;margin:0;display:flex;flex-direction:column;gap:.65rem">
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Verifique se seu personagem atende ao <b style="color:var(--gold2)">level mínimo</b> da sua vocação.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Clique em <a href="javascript:void(0)" onclick="enterApp('visitor');openAddModal();" style="color:var(--gold);font-weight:bold;cursor:pointer">Cadastrar Personagem</a> na tela inicial e preencha as informações do seu char.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Aguarde a aprovação — seu personagem entrará na <b style="color:var(--gold2)">fila de Soulwar</b>.</li>
+            <li style="font-size:.93rem;color:var(--text);line-height:1.55">Quando chegar sua vez, entraremos em contato via <b style="color:var(--gold2)">WhatsApp</b> para combinar o horário.</li>
+          </ol>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:4px;background:var(--surface);padding:1.2rem 1.8rem;display:flex;flex-direction:column;gap:.6rem">
+          <p style="font-size:.93rem;color:var(--text);line-height:1.55">⏳ <b style="color:var(--gold2)">Prazo estimado:</b> de 1 a 3 dias, dependendo da fila.</p>
+          <p style="font-size:.93rem;color:var(--text);line-height:1.55">💳 <b style="color:var(--gold2)">Pagamento:</b> os 1.000 RC devem estar disponíveis na conta durante o service — o pagamento é feito no momento da execução, não antes.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: URGENTE -->
+    <div class="section" id="tab-urgente">
+      <div style="max-width:640px;margin:0 auto">
+
+        <div style="border:2px solid #e05252;border-top:4px solid #e05252;border-radius:4px;background:rgba(224,82,82,.07);padding:1.8rem 2rem;margin-bottom:1.2rem;text-align:center">
+          <div style="font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#e05252;text-shadow:0 0 20px rgba(224,82,82,.35);margin-bottom:.5rem">🔥 Estamos Dando Prioridade Extrema para o Servidor Grimória!</div>
+        </div>
+
+        <div style="border:1px solid rgba(224,82,82,.35);border-radius:4px;background:var(--surface);padding:1.5rem 1.8rem;margin-bottom:1rem;display:flex;flex-direction:column;gap:.9rem">
+          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos dando prioridade <b style="color:#e05252">TOTAL</b> para fechar times em <b style="color:#e05252">QUALQUER servidor do Grimória</b>. E isso significa <b style="color:var(--gold2)">atendimento mais rápido</b> pra você!</p>
+          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Se você tem um personagem nos servidores de Grimória que se encaixa nos requisitos (veja a aba <b style="color:var(--gold2)">"Como Funciona"</b>), não perca tempo: cadastre agora e garanta seu lugar na fila com prioridade.</p>
+          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Os itens da Soulwar estão <b style="color:var(--gold2)">valorizados no momento</b> — quanto antes você fizer a quest, mais vale a pena. O mercado pode virar e os preços caírem, então corra enquanto está bom!</p>
+          <p style="font-size:.97rem;color:var(--text);line-height:1.65">Estamos <b style="color:#e05252">100% focados</b> em fechar o máximo de PTs agora. Se o seu char é desse servidor, essa é a hora certa pra garantir seu service.</p>
+        </div>
+
+        <div style="text-align:center">
+          <button onclick="enterApp('visitor'); openAddModal();" style="font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;padding:.9rem 2rem;border:2px solid #e05252;background:rgba(224,82,82,.15);color:#e05252;border-radius:3px;cursor:pointer;transition:all .18s;width:100%;max-width:360px"
+            onmouseover="this.style.background='rgba(224,82,82,.28)';this.style.color='#ff8080'"
+            onmouseout="this.style.background='rgba(224,82,82,.15)';this.style.color='#e05252'">📋 Cadastrar Meu Personagem Agora</button>
+        </div>
+
       </div>
     </div>
 
@@ -1041,6 +1139,12 @@ function enterApp(role, user) {
     badge.className = 'role-badge visitor';
     document.body.classList.add('visitor-mode');
     if (usersTabBtn) usersTabBtn.style.display = 'none';
+    const analiseTabBtn = document.getElementById('tab-analise-btn');
+    if (analiseTabBtn) analiseTabBtn.style.display = 'none';
+    const comoFuncionaTabBtn = document.getElementById('tab-como-funciona-btn');
+    if (comoFuncionaTabBtn) comoFuncionaTabBtn.style.display = '';
+    const urgenteTabBtn = document.getElementById('tab-urgente-btn');
+    if (urgenteTabBtn) urgenteTabBtn.style.display = '';
     const thWpp = document.getElementById('th-wpp');
     if (thWpp) thWpp.style.display = 'none';
     document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
