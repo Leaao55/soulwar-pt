@@ -1256,6 +1256,7 @@ async function save() {
     console.log('[SW] save() — enviando', users.length, 'users embutidos em members');
     console.log('[SW] save() — users:', JSON.stringify(users));
 
+    console.log('[SW] DEBUG secret enviado:', JSON.stringify(payload.secret));
     const saveResp = await fetch(API, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain'},
