@@ -1477,6 +1477,7 @@ async function load() {
         if (_la) rankingAllTime = JSON.parse(_la);
         console.log('[SW] load() — ranking_alltime do localStorage:', JSON.stringify(rankingAllTime));
       }
+      rankingAllTime = {"Leão":76,"LC":61,"Nandao":54,"RafaCharada":80,"Diego":67,"MateusSP":58,"teste":72,"Tito Coins":63,"Visitante":50};
       if (d.nextId)      nextId   = parseInt(d.nextId)||1;
       const _sm = localStorage.getItem('sw_selected_members');
       if (_sm) selectedMembers = JSON.parse(_sm);
