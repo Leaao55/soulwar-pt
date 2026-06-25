@@ -1880,6 +1880,9 @@ function renderPT() {
 
 // ── ADD CHAR ──────────────────────────────────────────────────────────────
 function openAddModal() {
+  const _btnAdd = document.querySelector('#modal-add .btn-confirm');
+  if (_btnAdd) { _btnAdd.disabled = false; _btnAdd.textContent = 'Adicionar'; }
+  window._savingChar = false;
   populateServerSelects();
   document.getElementById('m-name').value='';
   document.getElementById('m-level').value='';
