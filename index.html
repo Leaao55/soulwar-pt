@@ -1792,6 +1792,7 @@ function renderChars() {
   list.forEach((c,i)=>{
     const sent = c.sentTo!==null && c.sentTo!==undefined;
     const canEdit = currentRole === 'adm' || (currentRole === 'user' && currentUser && c.owner === currentUser.name);
+    const canDelete = currentRole === 'adm' || (currentRole === 'user' && currentUser && c.owner.trim().toLowerCase() === currentUser.name.trim().toLowerCase());
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td style="color:var(--text-muted);font-family:'Cinzel',serif;font-size:.75rem">${i+1}</td>
@@ -1806,7 +1807,7 @@ function renderChars() {
       <td style="text-align:right;white-space:nowrap">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
-        <button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>
+        ${canDelete ? `<button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>` : ''}
       </td>`;
     tbody.appendChild(tr);
   });
