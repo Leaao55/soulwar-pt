@@ -2010,10 +2010,14 @@ async function addChar() {
     try {
       await save();
       console.log('[SW][TIMING] depois do await save, antes de fechar modal');
+      console.log('[SW][DEBUG] passo 1 - _hint:', _hint, '_btnAdd:', _btnAdd);
       if (_hint) _hint.style.display = 'none';
+      console.log('[SW][DEBUG] passo 2 - entrando no try de fechamento');
       try {
         closeModal('modal-add');
+        console.log('[SW][DEBUG] passo 3 - closeModal ok');
         toast('Personagem cadastrado! Aguardando aprovação.', 'success');
+        console.log('[SW][DEBUG] passo 4 - toast ok');
         renderChars();
         console.log('[SW][TIMING] modal fechado com sucesso');
       } catch(err) {
