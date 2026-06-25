@@ -1926,6 +1926,7 @@ function openAddModal() {
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
 async function addChar() {
+  console.log('[SW][DEBUG] entrou na função de salvar, role:', currentRole);
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
   const level = parseInt(document.getElementById('m-level').value) || 0;
