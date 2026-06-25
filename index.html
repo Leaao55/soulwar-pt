@@ -2016,7 +2016,7 @@ async function addChar() {
       try {
         await save();
         console.log('[SW][TIMING] depois do await save, antes de fechar modal');
-        console.log('[SW][DEBUG] passo 1 - _hint:', _hint, '_btnAdd:', _btnAdd);
+        console.log('[SW][DEBUG] passo 1 - hint existe:', !!_hint, 'btn existe:', !!_btnAdd);
         if (_hint) _hint.style.display = 'none';
         console.log('[SW][DEBUG] passo 2 - entrando no try de fechamento');
         try {
