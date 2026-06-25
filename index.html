@@ -298,6 +298,7 @@ body.visitor-mode .btn[onclick*="openServerModal"] { display:none !important; }
 body.visitor-mode .btn-remove { display:none !important; }
 body.visitor-mode .pt-toolbar { display:none !important; }
 body.visitor-mode .col-wpp { display:none !important; }
+body.user-mode .col-wpp { display:none !important; }
 body.visitor-mode .btn-approve,
 body.visitor-mode .btn-reject,
 body.visitor-mode .btn-delete-user { display:none !important; }
@@ -1132,8 +1133,8 @@ function enterApp(role, user) {
     document.body.classList.add('user-mode');
     if (usersTabBtn) usersTabBtn.style.display = 'none';
     const thWppU = document.getElementById('th-wpp');
-    if (thWppU) thWppU.style.display = '';
-    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = '');
+    if (thWppU) thWppU.style.display = 'none';
+    document.querySelectorAll('.td-wpp').forEach(el => el.style.display = 'none');
   } else {
     badge.textContent = '👁 Visitante';
     badge.className = 'role-badge visitor';
@@ -1811,7 +1812,7 @@ function renderChars() {
   });
   // Sincronizar visibilidade da coluna WhatsApp após render
   const thWpp = document.getElementById('th-wpp');
-  const canSeeWpp = currentRole === 'adm' || currentRole === 'user';
+  const canSeeWpp = currentRole === 'adm';
   if (thWpp) thWpp.style.display = canSeeWpp ? '' : 'none';
   document.querySelectorAll('.td-wpp').forEach(el => el.style.display = canSeeWpp ? '' : 'none');
 }
@@ -2266,9 +2267,9 @@ function renderPending() {
       <td><span class="badge ${BADGE[c.cls]}">${SHORT[c.cls]}</span></td>
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
-      <td>${(currentRole === 'adm' || currentRole === 'user') && wppUrl
+      <td class="col-wpp">${currentRole === 'adm' && wppUrl
         ? '<a class="btn-wpp" href="' + wppUrl + '" target="_blank">📱 ' + esc(c.phone) + '</a>'
-        : (currentRole === 'adm' || currentRole === 'user') ? '<span class="phone-val">—</span>' : '<span class="phone-val" style="opacity:.35">—</span>'}
+        : currentRole === 'adm' ? '<span class="phone-val">—</span>' : ''}
       </td>
       <td style="color:var(--text-muted);font-size:.82rem">${esc(c.obs||'—')}</td>
       <td class="col-adm-actions" style="text-align:right;white-space:nowrap">
