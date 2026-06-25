@@ -1988,7 +1988,11 @@ async function addChar() {
       toast('Cupom inválido.', 'error');
       return;
     }
+    const _btnAdd = document.querySelector('#modal-add .btn-confirm');
+    if (_btnAdd) { _btnAdd.disabled = true; _btnAdd.textContent = 'Salvando...'; }
+    console.log('[SW][TIMING] inicio visitor save:', Date.now());
     try { await load(); } catch(e) { console.warn('[SW] addChar: load() error ignorado:', e); }
+    console.log('[SW][TIMING] apos load():', Date.now());
     chars.push({
       id:nextId++,
       owner: 'Visitante',
@@ -1999,7 +2003,9 @@ async function addChar() {
       status: 'pending',
       sentTo: null
     });
+    console.log('[SW][TIMING] antes save():', Date.now());
     await save();
+    console.log('[SW][TIMING] apos save():', Date.now());
     closeModal('modal-add');
     renderChars();
     toast('Personagem enviado para aprovação!', 'success');
