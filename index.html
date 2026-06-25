@@ -613,7 +613,7 @@ select:disabled { opacity: 0.6; cursor: not-allowed; }
         <table>
           <thead><tr>
             <th>#</th><th>Dono</th><th>Personagem</th><th class="col-conta">Conta</th>
-            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none">WhatsApp</th><th class="col-coupon">Cupom</th><th></th>
+            <th>Classe</th><th>Level</th><th>Servidor</th><th class="col-obs">Observações</th><th id="th-wpp" style="display:none;max-width:90px;white-space:nowrap">WhatsApp</th><th class="col-coupon" style="max-width:80px;white-space:nowrap">Cupom</th><th style="white-space:nowrap;min-width:80px"></th>
           </tr></thead>
           <tbody id="char-body"></tbody>
         </table>
@@ -1817,9 +1817,9 @@ function renderChars() {
       <td class="level-val">${c.level||'—'}</td>
       <td class="server-val">${esc(c.server||'')}</td>
       <td class="col-obs" style="color:var(--text-muted);font-size:.82rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(c.obs||'')}">${c.obs ? esc(c.obs) : '<span style="opacity:.35">—</span>'}</td>
-      <td class="td-wpp" style="display:none">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
-      <td class="col-coupon" style="font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold2)">${c.coupon ? esc(c.coupon) : '<span style="opacity:.35">—</span>'}</td>
-      <td style="text-align:right;white-space:nowrap">
+      <td class="td-wpp" style="display:none;max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem">${(currentRole === 'adm' || currentRole === 'user') && c.phone ? '<a class="btn-wpp" href="https://wa.me/55' + c.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent('\u{1F44B} Olá tibiano!\n\n\u{2694}️ Seu personagem: ' + c.name + '\n\u{1F4CA} Level: ' + (c.level||'?') + '\n\u{1F30D} Servidor: ' + (c.server||'?') + '\n\n\u{1F525} Está escalado para uma Soulwar agora!\nEstá disponível?') + '" target="_blank">📱 ' + esc(c.phone) + '</a>' : '<span style="opacity:.35">—</span>'}</td>
+      <td class="col-coupon" style="font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold2);max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.coupon ? esc(c.coupon) : '<span style="opacity:.35">—</span>'}</td>
+      <td style="text-align:right;white-space:nowrap;min-width:80px;padding:0 6px">
         <button class="btn-send ${sent?'sent':''}" title="${sent?'Em '+PT_NAMES[c.sentTo]:'Enviar para PT'}" onclick="openSendPT(${c.id})">${sent?'✓':'+'}</button>
         ${canEdit ? `<button class="btn-edit" data-eid="${c.id}" title="Editar personagem">✏</button>` : ''}
         ${canDelete ? `<button class="btn-del" data-id="${c.id}" title="Remover personagem">✕</button>` : ''}
