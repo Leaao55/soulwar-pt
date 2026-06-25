@@ -1900,7 +1900,7 @@ function openAddModal() {
   openModal('modal-add');
   setTimeout(()=>document.getElementById('m-name').focus(),120);
 }
-function addChar() {
+async function addChar() {
   const name = document.getElementById('m-name').value.trim();
   if (!name) { document.getElementById('m-name').focus(); return; }
   const level = parseInt(document.getElementById('m-level').value) || 0;
@@ -1926,21 +1926,24 @@ function addChar() {
     return;
   }
 
+  // Captura valores do formulário antes de qualquer operação async
+  const cls    = document.getElementById('m-class').value;
+  const server = document.getElementById('m-server').value;
+  const obs    = document.getElementById('m-obs').value.trim();
+
   // Usuário: aprovado direto com o próprio nome
   if (currentRole === 'user') {
+    await load();
     chars.push({
       id:nextId++,
       owner: currentUser.name,
-      name, cls: document.getElementById('m-class').value,
-      level: level,
-      server: document.getElementById('m-server').value,
-      obs: document.getElementById('m-obs').value.trim(),
+      name, cls, level, server, obs,
       conta: conta || null,
       phone: '',
       status: 'approved',
       sentTo: null
     });
-    save(); closeModal('modal-add'); renderChars();
+    await save(); closeModal('modal-add'); renderChars();
     toast(`${name} adicionado!`, 'success');
     return;
   }
@@ -1953,37 +1956,34 @@ function addChar() {
       toast('Informe seu WhatsApp para contato.', 'error');
       return;
     }
+    await load();
     chars.push({
       id:nextId++,
       owner: 'Visitante',
-      name, cls: document.getElementById('m-class').value,
-      level: level,
-      server: document.getElementById('m-server').value,
-      obs: document.getElementById('m-obs').value.trim(),
+      name, cls, level, server, obs,
       conta: conta || null,
       phone: phone,
       status: 'pending',
       sentTo: null
     });
-    save(); closeModal('modal-add'); renderChars();
+    await save(); closeModal('modal-add'); renderChars();
     toast('Personagem enviado para aprovação!', 'success');
     return;
   }
 
   // ADM: aprovado direto
+  const owner = document.getElementById('m-owner').value;
+  await load();
   chars.push({
     id:nextId++,
-    owner: document.getElementById('m-owner').value,
-    name, cls: document.getElementById('m-class').value,
-    level: level,
-    server: document.getElementById('m-server').value,
-    obs: document.getElementById('m-obs').value.trim(),
+    owner,
+    name, cls, level, server, obs,
     conta: conta || null,
     phone: '',
     status: 'approved',
     sentTo: null
   });
-  save(); closeModal('modal-add'); renderChars();
+  await save(); closeModal('modal-add'); renderChars();
   toast(`${name} adicionado!`, 'success');
 }
 function openEditModal(id) {
