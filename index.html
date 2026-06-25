@@ -1335,7 +1335,7 @@ function removeDuplicateChars(silent = false, shouldSave = true) {
 async function load() {
   showSync('Carregando...', 'saving');
   try {
-    const r = await fetch(API + '?action=load');
+    const r = await fetch(API + '?action=load&secret=rbn_x9k2_leao_2026_soulwar');
     const j = await r.json();
     console.log('[SW] load() — campos recebidos:', Object.keys(j.data || {}));
     console.log('[SW] load() — d.ranking_weekly raw:', j.data?.ranking_weekly);
