@@ -2371,9 +2371,9 @@ function confirmRecommend() {
 function buildRecommendation(selectedMembers, preferredServer = '') {
   lastSelectedMembers = selectedMembers;
   const memberSet = new Set(selectedMembers);
-
+  const idsInSlots = new Set(pts.flat().filter(id => id !== null));
   const available = chars.filter(c =>
-    (c.status === 'approved' || !c.status) && memberSet.has(c.owner)
+    (c.status === 'approved' || !c.status) && memberSet.has(c.owner) && !idsInSlots.has(c.id)
   );
 
   const serverGroups = {};
@@ -2598,7 +2598,8 @@ function onRecommendConfirm() {
 
 function runAnalise(selected) {
   const memberSet = new Set(selected);
-  const available = chars.filter(c => (c.status === 'approved' || !c.status) && memberSet.has(c.owner));
+  const idsInSlots = new Set(pts.flat().filter(id => id !== null));
+  const available = chars.filter(c => (c.status === 'approved' || !c.status) && memberSet.has(c.owner) && !idsInSlots.has(c.id));
 
   const grid = document.getElementById('analise-grid');
 
@@ -2783,8 +2784,9 @@ function renderPTCard(r, ptIndex, server) {
 function recommendThreePTs(selected, preferredServer) {
   lastSelectedMembers = selected;
   const memberSet = new Set(selected);
+  const idsInSlots = new Set(pts.flat().filter(id => id !== null));
   const available = chars.filter(c =>
-    (c.status === 'approved' || !c.status) && memberSet.has(c.owner)
+    (c.status === 'approved' || !c.status) && memberSet.has(c.owner) && !idsInSlots.has(c.id)
   );
 
   const body = document.getElementById('rec-result-body');
