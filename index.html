@@ -2043,7 +2043,8 @@ function finalizePT(pi) {
   checkFinalizeDropdownDuplicates();
 }
 
-function confirmFinalize() {
+async function confirmFinalize() {
+  await load();
   const pi = finalizingPTIndex;
   if (pi === null) return;
 
