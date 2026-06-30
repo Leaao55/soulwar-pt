@@ -2614,20 +2614,18 @@ function runAnalise(selected) {
     for (let i = 0; i < 3; i++) {
       const remaining = pool.filter(c => !usedIds.has(c.id));
       if (!remaining.length) break;
-      let pt = null;
       const r = tryFormPT(remaining, 1);
-      if (r) pt = { team: r.team, std: r.std, complete: true, missing: [] };
-      if (!pt) break;
-      pt.team.forEach(c => usedIds.add(c.id));
-      formedPTs.push(pt);
-    }
-
-    const leftover = pool.filter(c => !usedIds.has(c.id));
-    if (leftover.length) {
-      const seen = new Set();
-      const onePerMember = leftover.filter(c => { const k = c.owner.trim().toLowerCase(); return seen.has(k) ? false : seen.add(k); });
-      const partial = buildPartialPT(onePerMember);
-      if (partial.team.length) formedPTs.push(partial);
+      if (r) {
+        const pt = { team: r.team, std: r.std, complete: true, missing: [] };
+        pt.team.forEach(c => usedIds.add(c.id));
+        formedPTs.push(pt);
+      } else {
+        const seen = new Set();
+        const onePerMember = remaining.filter(c => { const k = c.owner.trim().toLowerCase(); return seen.has(k) ? false : seen.add(k); });
+        const partial = buildPartialPT(onePerMember);
+        if (partial.team.length) formedPTs.push(partial);
+        break;
+      }
     }
 
     const membersWithChar = new Set(pool.map(c => c.owner.trim().toLowerCase()));
@@ -2671,7 +2669,7 @@ function runAnalise(selected) {
     : '';
 
   grid.innerHTML = summaryHtml + serverData.map(d => {
-    const ptCards = d.formedPTs.map((pt, i) => ({ pt, i })).filter(({ pt }) => !pt.complete).map(({ pt, i }) => {
+    const ptCards = d.formedPTs.map((pt, i) => ({ pt, i })).map(({ pt, i }) => {
       const color = PT_COLORS[i] || '#888';
       const ptName = PT_NAMES[i] || `PT ${i + 1}`;
       const incompleteTag = !pt.complete
