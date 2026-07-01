@@ -1278,6 +1278,9 @@ async function save() {
 
     // ── 2. Enviar para a API (users embutidos em members) ──────────────────
     removeDuplicateChars(true, false);
+    // Remove chars deletados permanentemente (finalização/ADM) antes de persistir,
+    // evitando que uma aba com dados antigos os ressuscite ao salvar.
+    chars = chars.filter(c => !deletedIds.includes(Number(c.id)));
     const payload = {
       secret: API_SECRET,
       chars, pts, servers,
@@ -1428,6 +1431,7 @@ async function load() {
         users      = remoteUsers;
         userNextId = remoteUserNextId;
       }
+      chars = chars.filter(c => !deletedIds.includes(Number(c.id)));
     }
   } catch(e) {
     console.warn('[SW] load() falhou, usando localStorage:', e);
@@ -1456,6 +1460,7 @@ async function load() {
     if(di)  deletedIds     = JSON.parse(di).map(Number);
     if(dui) deletedUserIds   = JSON.parse(dui).map(Number);
     if(dun) deletedUserNames = JSON.parse(dun);
+    chars = chars.filter(c => !deletedIds.includes(Number(c.id)));
     const bk = localStorage.getItem('sw_backup_chars') || localStorage.getItem('sw_backups');
     if(bk) backups=JSON.parse(bk);
     const sm = localStorage.getItem('sw_selected_members');
@@ -1950,14 +1955,15 @@ function saveEdit() {
   toast(`${name} atualizado!`, 'success');
 }
 
-function deleteChar(id) {
+async function deleteChar(id) {
   const c=chars.find(x=>x.id===id);
   if(!c) return;
   if(!confirm(`Remover "${c.name}"?`)) return;
+  await load();
   pts.forEach((pt,pi)=>{const idx=pt.indexOf(id);if(idx>-1)pts[pi][idx]=null;});
   chars=chars.filter(x=>x.id!==id);
   deletedIds.push(Number(id));
-  save(); renderChars();
+  await save(); renderChars();
   toast(`${c.name} removido.`);
 }
 
@@ -2175,21 +2181,25 @@ function renderPending() {
   });
 }
 
-function approveChar(id) {
+async function approveChar(id) {
   const c = chars.find(x => x.id === id);
   if (!c) return;
-  c.status = 'approved';
-  save(); renderChars();
-  toast(`${c.name} aprovado!`, 'success');
+  await load();
+  const c2 = chars.find(x => x.id === id);
+  if (!c2) return;
+  c2.status = 'approved';
+  await save(); renderChars();
+  toast(`${c2.name} aprovado!`, 'success');
 }
 
-function rejectChar(id) {
+async function rejectChar(id) {
   const c = chars.find(x => x.id === id);
   if (!c) return;
   if (!confirm(`Recusar "${c.name}" de ${c.owner}?`)) return;
+  await load();
   rejectedIds.push(Number(id));
   chars = chars.filter(x => x.id !== id);
-  save(); renderChars();
+  await save(); renderChars();
   toast(`Personagem recusado.`);
 }
 
