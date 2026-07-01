@@ -15,7 +15,7 @@
   --ek:#3a7bd5;--ek-bg:#0d1e3a;--ed:#3dba6c;--ed-bg:#0d2619;
   --ms:#9b59b6;--ms-bg:#1e0d2e;--rp:#e07b35;--rp-bg:#2e1a0d;
   --em:#e05252;--em-bg:#2e0d0d;
-  --pt1:#c9922a;--pt2:#9b59b6;--pt3:#3dba6c;
+  --pt1:#c9922a;--pt2:#9b59b6;--pt3:#3dba6c;--pt4:#3a7bd5;--pt5:#e07b35;--pt6:#e05252;
 }
 body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:16px;min-height:100vh;
   background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(201,146,42,.07) 0%,transparent 70%),
@@ -130,13 +130,14 @@ tbody tr:hover td{background:rgba(201,146,42,.04);}
 .empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-style:italic;}
 
 /* ── PT GRID ── */
-.pt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+.pt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+@media (max-width:900px){.pt-grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}}
 .pt-card{border:1px solid var(--border);border-radius:4px;overflow:hidden;background:var(--surface);}
 .pt-card-header{padding:.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
 .pt-card-title{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
 .pt-card-count{font-size:.8rem;color:var(--text-muted);font-family:'Cinzel',serif;}
-.pt1-accent{color:var(--pt1)}.pt2-accent{color:var(--pt2)}.pt3-accent{color:var(--pt3)}
-.pt1-border{border-top:2px solid var(--pt1)}.pt2-border{border-top:2px solid var(--pt2)}.pt3-border{border-top:2px solid var(--pt3)}
+.pt1-accent{color:var(--pt1)}.pt2-accent{color:var(--pt2)}.pt3-accent{color:var(--pt3)}.pt4-accent{color:var(--pt4)}.pt5-accent{color:var(--pt5)}.pt6-accent{color:var(--pt6)}
+.pt1-border{border-top:2px solid var(--pt1)}.pt2-border{border-top:2px solid var(--pt2)}.pt3-border{border-top:2px solid var(--pt3)}.pt4-border{border-top:2px solid var(--pt4)}.pt5-border{border-top:2px solid var(--pt5)}.pt6-border{border-top:2px solid var(--pt6)}
 .pt-slot{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.2rem;border-bottom:1px solid rgba(42,47,74,.4);min-height:52px;}
 .pt-slot:last-child{border-bottom:none;}
 .slot-num{font-family:'Cinzel',serif;font-size:.7rem;color:var(--text-muted);width:18px;flex-shrink:0;}
@@ -1108,10 +1109,10 @@ if (savedRole) {
 const BADGE = {"ELITE KNIGHT":"badge-ek","ELDER DRUID":"badge-ed","MASTER SORCERER":"badge-ms","ROYAL PALADIN":"badge-rp","EXALTED MONK":"badge-em"};
 const SHORT = {"ELITE KNIGHT":"EK","ELDER DRUID":"ED","MASTER SORCERER":"MS","ROYAL PALADIN":"RP","EXALTED MONK":"EM"};
 const CLASS_COLOR = {"ELITE KNIGHT":"#3a7bd5","ELDER DRUID":"#3dba6c","MASTER SORCERER":"#9b59b6","ROYAL PALADIN":"#e07b35","EXALTED MONK":"#e05252"};
-const PT_COLORS = ["#c9922a","#9b59b6","#3dba6c"];
-const PT_NAMES  = ["PT 1","PT 2","PT 3"];
-const PT_BORDER = ["pt1-border","pt2-border","pt3-border"];
-const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent"];
+const PT_COLORS = ["#c9922a","#9b59b6","#3dba6c","#3a7bd5","#e07b35","#e05252"];
+const PT_NAMES  = ["PT 1","PT 2","PT 3","PT 4","PT 5","PT 6"];
+const PT_BORDER = ["pt1-border","pt2-border","pt3-border","pt4-border","pt5-border","pt6-border"];
+const PT_ACCENT = ["pt1-accent","pt2-accent","pt3-accent","pt4-accent","pt5-accent","pt6-accent"];
 
 let chars   = [];
 let rejectedIds = [];
@@ -1119,8 +1120,8 @@ let deletedIds  = [];
 let deletedUserIds   = [];
 let deletedUserNames = [];
 let backups     = [];
-let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
-let ptObservations = ['', '', ''];
+let pts     = [[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null],[null,null,null,null,null]];
+let ptObservations = ['', '', '', '', '', ''];
 const DEFAULT_SERVERS = ["Auroria","Belaria","Bellum","Divinian","Elysian","Etherian","Grimoria I","Grimoria II","Grimoria III","Grimoria IV","Halorian","Lunarian","Mystian","Serenian","Solarian","Spectrum","Tenebrium","Vesperia"];
 let servers = [...DEFAULT_SERVERS];
 let members = ["Leão"];
@@ -1491,8 +1492,9 @@ async function load() {
   }
   if (_grimMigrated) { console.log('[SW] Migração Grimoria → Grimoria I concluída, salvando...'); save(); }
 
-  while(pts.length<3) pts.push([null,null,null,null,null]);
+  while(pts.length<6) pts.push([null,null,null,null,null]);
   pts.forEach((_,i)=>{ while(pts[i].length<5) pts[i].push(null); });
+  while(ptObservations.length<6) ptObservations.push('');
   const _dupRemoved = removeDuplicateChars(true);
   if (_dupRemoved > 0) { console.log('[SW] ' + _dupRemoved + ' personagem(s) duplicado(s) removido(s) silenciosamente.'); save(); }
   showSync('', '');
